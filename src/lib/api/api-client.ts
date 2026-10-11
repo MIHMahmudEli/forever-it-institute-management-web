@@ -1,4 +1,17 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+function getApiBase(): string {
+  let base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1').trim();
+  base = base.replace(/\/+$/, '');
+  if (!base.endsWith('/api/v1')) {
+    if (base.endsWith('/api')) {
+      base = `${base}/v1`;
+    } else {
+      base = `${base}/api/v1`;
+    }
+  }
+  return base;
+}
+
+const API_BASE = getApiBase();
 
 export class ApiError extends Error {
   statusCode: number;
