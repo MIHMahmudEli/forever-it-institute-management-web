@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { api, ApiError } from '@/lib/api/api-client';
 import BrandLogo from '@/components/ui/BrandLogo';
 import CornerRibbons from '@/components/ui/CornerRibbons';
-import { Lock, Mail, ArrowRight, AlertCircle, Shield, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -32,17 +32,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillCredentials = (role: 'admin' | 'staff') => {
-    if (role === 'admin') {
-      setEmail('admin@foreveritbd.com');
-      setPassword('Admin123456!');
-    } else {
-      setEmail('staff@foreveritbd.com');
-      setPassword('Staff123456!');
-    }
-    setError(null);
   };
 
   return (
@@ -145,29 +134,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Credentials for Evaluation */}
-          <div className="mt-5 pt-4 border-t border-slate-100">
-            <p className="text-[11px] text-center font-medium text-slate-500 mb-2 flex items-center justify-center gap-1">
-              <Shield className="w-3 h-3 text-[#006838]" /> Quick Credentials:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => fillCredentials('admin')}
-                className="py-1.5 px-2 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100/80 text-[#006838] border border-emerald-200/80 text-center transition-smooth-fast"
-              >
-                Admin (Full Access)
-              </button>
-              <button
-                type="button"
-                onClick={() => fillCredentials('staff')}
-                className="py-1.5 px-2 text-xs font-semibold rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-center transition-smooth-fast"
-              >
-                Staff (Officer)
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Corporate Address Footer */}
