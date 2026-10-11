@@ -1,0 +1,25 @@
+import type { Metadata } from 'next';
+import React, { Suspense } from 'react';
+import './globals.css';
+import { AuthProvider } from '@/lib/auth/auth-context';
+
+export const metadata: Metadata = {
+  title: 'Forever IT Institute — Management System',
+  description: 'Enterprise Student Registration, Course Enrollment, and Institute Management System',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <Suspense fallback={null}>
+          <AuthProvider>{children}</AuthProvider>
+        </Suspense>
+      </body>
+    </html>
+  );
+}
