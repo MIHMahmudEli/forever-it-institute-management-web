@@ -22,6 +22,7 @@ import {
   Copy,
   KeyRound,
   ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function StudentDetailPage() {
@@ -42,6 +43,7 @@ export default function StudentDetailPage() {
   const [paymentNotes, setPaymentNotes] = useState('');
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const [paymentSuccessReceiptId, setPaymentSuccessReceiptId] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   // Provision Account Modal State
   const [provisionModalOpen, setProvisionModalOpen] = useState(false);
@@ -51,13 +53,62 @@ export default function StudentDetailPage() {
   const [generatedCredentials, setGeneratedCredentials] = useState<any | null>(null);
   const [copiedCreds, setCopiedCreds] = useState(false);
 
+  const getEnrollmentBalance = (enrollmentId: string) => {
+    if (!student) return { paid: 0, finalFee: 0, due: 0, status: 'ACTIVE', courseName: '' };
+    const enrollment = student.enrollments?.find((e) => e.id === enrollmentId);
+    if (!enrollment) return { paid: 0, finalFee: 0, due: 0, status: 'ACTIVE', courseName: '' };
+
+    const finalFee = Number(enrollment.finalFee || 0);
+    const paid = (student.payments || [])
+      .filter((p) => p.enrollmentId === enrollment.id && p.status === 'COMPLETED')
+      .reduce((sum, p) => sum + Number(p.amount), 0);
+    const due =
+      enrollment.status === 'DROPPED' || enrollment.status === 'CANCELLED'
+        ? 0
+        : Math.max(0, finalFee - paid);
+
+    return {
+      paid,
+      finalFee,
+      due,
+      status: enrollment.status,
+      courseName: enrollment.course?.name || 'Course',
+    };
+  };
+
+  const totalPayable = student?.financials?.totalPayable ?? 0;
+  const totalPaid = student?.financials?.totalPaid ?? 0;
+  const outstandingDue = student?.financials?.outstandingDue ?? 0;
+  const isFullyPaid =
+    !student ||
+    (student.enrollments?.length ?? 0) === 0 ||
+    outstandingDue <= 0 ||
+    (totalPayable > 0 && totalPaid >= totalPayable);
+
+  const selectedEnrollmentBalance = selectedEnrollmentId
+    ? getEnrollmentBalance(selectedEnrollmentId)
+    : null;
+
+  const maxAllowedPayment = selectedEnrollmentBalance
+    ? Math.min(selectedEnrollmentBalance.due, outstandingDue)
+    : outstandingDue;
+
+  const isOverpaying = paymentAmount > maxAllowedPayment;
+
   const fetchStudent = async () => {
     setLoading(true);
     try {
       const data = await api.students.getOne(id);
       setStudent(data);
       if (data.enrollments && data.enrollments.length > 0) {
-        setSelectedEnrollmentId(data.enrollments[0].id);
+        // Find first enrollment with due balance if any
+        const firstWithDue = data.enrollments.find((e) => {
+          const paid = (data.payments || [])
+            .filter((p: any) => p.enrollmentId === e.id && p.status === 'COMPLETED')
+            .reduce((s: number, p: any) => s + Number(p.amount), 0);
+          return Number(e.finalFee) - paid > 0 && e.status !== 'DROPPED' && e.status !== 'CANCELLED';
+        });
+        setSelectedEnrollmentId(firstWithDue ? firstWithDue.id : data.enrollments[0].id);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load student details.');
@@ -76,7 +127,20 @@ export default function StudentDetailPage() {
     e.preventDefault();
     if (!student || paymentAmount <= 0) return;
 
+    if (isOverpaying) {
+      setPaymentError(
+        `Payment amount (${formatCurrency(paymentAmount)}) exceeds maximum remaining due (${formatCurrency(maxAllowedPayment)}). Total Paid to Date cannot exceed Total Payable Fee.`
+      );
+      return;
+    }
+
+    if (maxAllowedPayment <= 0) {
+      setPaymentError('The selected course has no outstanding balance remaining.');
+      return;
+    }
+
     setPaymentSubmitting(true);
+    setPaymentError(null);
     try {
       const res = await api.payments.create({
         studentId: student.id,
@@ -90,7 +154,7 @@ export default function StudentDetailPage() {
       setPaymentSuccessReceiptId(res.id);
       fetchStudent(); // Refresh data
     } catch (err: any) {
-      alert(err.message || 'Failed to record payment.');
+      setPaymentError(err.message || 'Failed to record payment.');
     } finally {
       setPaymentSubmitting(false);
     }
@@ -186,10 +250,32 @@ export default function StudentDetailPage() {
 
           <button
             onClick={() => {
-              setPaymentModalOpen(true);
+              if (isFullyPaid) return;
+              setPaymentError(null);
               setPaymentSuccessReceiptId(null);
+              const currentBal = selectedEnrollmentId ? getEnrollmentBalance(selectedEnrollmentId) : null;
+              if (!currentBal || currentBal.due <= 0) {
+                const firstWithDue = student.enrollments?.find((e) => getEnrollmentBalance(e.id).due > 0);
+                if (firstWithDue) {
+                  setSelectedEnrollmentId(firstWithDue.id);
+                  setPaymentAmount(Math.min(getEnrollmentBalance(firstWithDue.id).due, outstandingDue));
+                } else {
+                  setPaymentAmount(0);
+                }
+              }
+              setPaymentModalOpen(true);
             }}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs"
+            disabled={isFullyPaid}
+            title={
+              isFullyPaid
+                ? 'Total Payable Fee and Total Paid to Date are equal. No outstanding due to collect.'
+                : 'Record new payment'
+            }
+            className={`inline-flex items-center px-4 py-2 rounded-lg text-xs font-bold transition-smooth ${
+              isFullyPaid
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
+                : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs'
+            }`}
           >
             <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
             Record Payment
@@ -304,10 +390,34 @@ export default function StudentDetailPage() {
             </span>
             <button
               onClick={() => {
-                setPaymentAmount(student.financials?.outstandingDue || 0);
+                if (isFullyPaid) return;
+                setPaymentError(null);
+                setPaymentSuccessReceiptId(null);
+                const currentBal = selectedEnrollmentId ? getEnrollmentBalance(selectedEnrollmentId) : null;
+                if (!currentBal || currentBal.due <= 0) {
+                  const firstWithDue = student.enrollments?.find((e) => getEnrollmentBalance(e.id).due > 0);
+                  if (firstWithDue) {
+                    setSelectedEnrollmentId(firstWithDue.id);
+                    setPaymentAmount(Math.min(getEnrollmentBalance(firstWithDue.id).due, outstandingDue));
+                  } else {
+                    setPaymentAmount(outstandingDue);
+                  }
+                } else {
+                  setPaymentAmount(Math.min(currentBal.due, outstandingDue));
+                }
                 setPaymentModalOpen(true);
               }}
-              className="px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold"
+              disabled={isFullyPaid}
+              title={
+                isFullyPaid
+                  ? 'Total Payable Fee and Total Paid to Date are equal. No outstanding due to collect.'
+                  : 'Collect remaining due balance'
+              }
+              className={`px-3 py-1.5 rounded text-xs font-semibold transition-smooth ${
+                isFullyPaid
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
+                  : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs'
+              }`}
             >
               Collect Due Amount
             </button>
@@ -475,40 +585,107 @@ export default function StudentDetailPage() {
               </div>
             ) : (
               <form onSubmit={handleRecordPayment} className="space-y-4 text-xs">
+                {paymentError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-start space-x-2">
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-xs">Payment Error</p>
+                      <p className="text-[11px] text-red-600 mt-0.5">{paymentError}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">
                     Select Program / Enrollment
                   </label>
                   <select
                     value={selectedEnrollmentId}
-                    onChange={(e) => setSelectedEnrollmentId(e.target.value)}
+                    onChange={(e) => {
+                      const newId = e.target.value;
+                      setSelectedEnrollmentId(newId);
+                      setPaymentError(null);
+                      const bal = getEnrollmentBalance(newId);
+                      if (bal.due > 0) {
+                        setPaymentAmount(Math.min(bal.due, outstandingDue));
+                      }
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-800"
                   >
-                    {(student.enrollments || []).map((e) => (
-                      <option key={e.id} value={e.id}>
-                        {e.course?.name} ({formatCurrency(e.finalFee)})
-                      </option>
-                    ))}
+                    {(student.enrollments || []).map((e) => {
+                      const bal = getEnrollmentBalance(e.id);
+                      const isSettled = bal.due <= 0;
+                      return (
+                        <option key={e.id} value={e.id}>
+                          {e.course?.name} — Fee: {formatCurrency(e.finalFee)} | Due: {formatCurrency(bal.due)} {isSettled ? '(Settled)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
+                {selectedEnrollmentBalance && selectedEnrollmentBalance.due <= 0 && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-900 flex items-start space-x-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="text-xs">
+                      <p className="font-bold">Course Fully Settled</p>
+                      <p className="mt-0.5 text-blue-800">
+                        "{selectedEnrollmentBalance.courseName}" has no outstanding balance remaining (Paid: {formatCurrency(selectedEnrollmentBalance.paid)} of {formatCurrency(selectedEnrollmentBalance.finalFee)}).
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">
-                    Payment Amount (BDT) *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-semibold text-slate-700">
+                      Payment Amount (BDT) *
+                    </label>
+                    {maxAllowedPayment > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPaymentAmount(maxAllowedPayment);
+                          setPaymentError(null);
+                        }}
+                        className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold underline"
+                      >
+                        Set Max Due ({formatCurrency(maxAllowedPayment)})
+                      </button>
+                    )}
+                  </div>
                   <input
                     type="number"
                     min="1"
+                    max={maxAllowedPayment > 0 ? maxAllowedPayment : undefined}
                     required
-                    value={paymentAmount}
-                    onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                    placeholder="e.g. 5000"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 font-bold text-slate-900 text-sm"
+                    value={paymentAmount || ''}
+                    onChange={(e) => {
+                      setPaymentAmount(parseFloat(e.target.value) || 0);
+                      setPaymentError(null);
+                    }}
+                    placeholder={`e.g. ${maxAllowedPayment > 0 ? maxAllowedPayment : 5000}`}
+                    className={`w-full px-3 py-2 rounded-lg border font-bold text-sm ${
+                      isOverpaying
+                        ? 'border-amber-500 bg-amber-50/50 text-amber-900 focus:ring-amber-500'
+                        : 'border-slate-300 text-slate-900'
+                    }`}
                   />
-                  {paymentAmount > 0 && (
+                  {paymentAmount > 0 && !isOverpaying && (
                     <p className="text-[11px] text-slate-500 italic mt-1">
                       {numberToWordsBDT(paymentAmount)}
                     </p>
+                  )}
+                  {isOverpaying && (
+                    <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg text-amber-900 mt-2 flex items-start space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <p className="font-bold">Overpayment Warning</p>
+                        <p className="mt-0.5 text-amber-800">
+                          Total Paid to Date cannot exceed Total Payable Fee. Entered amount ({formatCurrency(paymentAmount)}) exceeds maximum remaining due ({formatCurrency(maxAllowedPayment)}). This payment cannot be recorded.
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
 
@@ -556,15 +733,23 @@ export default function StudentDetailPage() {
                 <div className="pt-2 flex justify-end space-x-2">
                   <button
                     type="button"
-                    onClick={() => setPaymentModalOpen(false)}
+                    onClick={() => {
+                      setPaymentModalOpen(false);
+                      setPaymentError(null);
+                    }}
                     className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    disabled={paymentSubmitting || paymentAmount <= 0}
-                    className="px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold disabled:opacity-50"
+                    disabled={
+                      paymentSubmitting ||
+                      paymentAmount <= 0 ||
+                      isOverpaying ||
+                      maxAllowedPayment <= 0
+                    }
+                    className="px-5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {paymentSubmitting ? 'Recording...' : 'Submit Payment'}
                   </button>
