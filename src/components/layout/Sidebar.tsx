@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
-import BrandLogo from '@/components/ui/BrandLogo';
 import {
   LayoutDashboard,
   UserPlus,
@@ -39,8 +38,20 @@ export default function Sidebar({ onClose }: SidebarProps) {
     <aside className="w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
       {/* Brand Header */}
       <div className="p-4 border-b border-[#006838]/80 bg-[#004225]">
-        <BrandLogo variant="horizontal" theme="dark" />
+        <Link href="/dashboard" className="block group">
+          <div className="bg-white rounded-xl p-2.5 shadow-md flex items-center justify-center hover:opacity-95 transition-all">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.svg"
+              alt="Forever IT Institute"
+              className="w-full h-8.5 object-contain"
+            />
+          </div>
+        </Link>
         <div className="mt-2.5 flex items-center justify-between">
+          <span className="text-[10px] tracking-[0.25em] font-extrabold uppercase text-emerald-300">
+            INSTITUTE
+          </span>
           <span className="inline-block px-2 py-0.5 rounded-full bg-[#006838] text-[10px] text-emerald-200 font-bold border border-emerald-500/30">
             দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ
           </span>

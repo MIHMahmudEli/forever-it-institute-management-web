@@ -36,19 +36,13 @@ export default function BrandLogo({
   if (variant === 'horizontal') {
     return (
       <div className={`flex items-center gap-3 ${className}`}>
-        <div className="w-10 h-10 rounded-xl bg-white p-1.5 flex items-center justify-center shrink-0 shadow-md">
+        <div className="bg-white rounded-xl p-1.5 shadow-sm flex items-center justify-center shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mark.svg" alt="Forever IT Mark" className="w-full h-full object-contain" />
+          <img src="/logo.svg" alt="Forever IT Institute" className="h-7 w-auto object-contain" />
         </div>
-        <div className="flex flex-col leading-none">
-          <div className="flex items-center text-sm font-black tracking-tight">
-            <span className={isDark ? 'text-white' : 'text-slate-900'}>FOREVER</span>
-            <span className="text-[#25A84A] font-extrabold ml-1">IT</span>
-          </div>
-          <span className="text-[10px] tracking-[0.25em] font-extrabold uppercase mt-1 text-emerald-300">
-            INSTITUTE
-          </span>
-        </div>
+        <span className="text-[10px] tracking-[0.25em] font-extrabold uppercase text-emerald-300">
+          INSTITUTE
+        </span>
       </div>
     );
   }
