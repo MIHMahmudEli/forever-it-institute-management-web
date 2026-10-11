@@ -88,15 +88,28 @@ export default function PrintablePaymentReceipt() {
           <span className="text-xs text-slate-600 font-mono bg-white px-2.5 py-1 rounded-md border border-slate-200">
             Receipt: {receipt.receiptNumber}
           </span>
-          <button
-            onClick={() => window.print()}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold shadow-md transition-colors"
-          >
-            <Printer className="w-4 h-4 mr-1.5" />
-            Print Official Receipt (A4)
-          </button>
+          {receipt.status === 'COMPLETED' ? (
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center px-4 py-2 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold shadow-md transition-colors"
+            >
+              <Printer className="w-4 h-4 mr-1.5" />
+              Print Official Receipt (A4)
+            </button>
+          ) : (
+            <span className="inline-flex items-center px-3.5 py-2 rounded-lg bg-red-100 text-red-800 text-xs font-bold border border-red-200 cursor-not-allowed">
+              Reversed (Printing Disabled)
+            </span>
+          )}
         </div>
       </div>
+
+      {/* Warning banner for reversed payment */}
+      {receipt.status !== 'COMPLETED' && (
+        <div className="no-print w-full max-w-[210mm] mb-3 bg-red-50 border border-red-300 text-red-800 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between shadow-xs">
+          <span>⚠️ This payment has been REVERSED. Official receipt printing is disabled for reversed transactions.</span>
+        </div>
+      )}
 
       {/* Printable Sheet Canvas — Fixed Exact A4 Portrait Geometry (210mm x 297mm) */}
       <div className="receipt-page relative w-[210mm] h-[297mm] max-h-[297mm] min-h-[297mm] mx-auto bg-white shadow-2xl overflow-hidden box-border print:shadow-none print:m-0 print:border-none">

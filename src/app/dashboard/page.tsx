@@ -354,12 +354,18 @@ export default function DashboardPage() {
                       <StatusBadge status={p.status} />
                     </td>
                     <td className="py-3 px-3 text-right">
-                      <Link
-                        href={`/print/receipt/${p.id}`}
-                        className="text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-300"
-                      >
-                        Print Receipt
-                      </Link>
+                      {p.status === 'COMPLETED' ? (
+                        <Link
+                          href={`/print/receipt/${p.id}`}
+                          className="text-[11px] font-semibold text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors shadow-2xs"
+                        >
+                          Print Receipt
+                        </Link>
+                      ) : (
+                        <span className="text-slate-400 font-medium text-xs px-2 select-none" title="Print unavailable for reversed payment">
+                          —
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))

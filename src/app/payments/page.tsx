@@ -167,14 +167,20 @@ export default function PaymentsPage() {
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        <Link
-                          href={`/print/receipt/${p.id}`}
-                          className="inline-flex items-center justify-center p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors shadow-2xs"
-                          title="Print Money Receipt"
-                          aria-label="Print Money Receipt"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                        </Link>
+                        {p.status === 'COMPLETED' ? (
+                          <Link
+                            href={`/print/receipt/${p.id}`}
+                            className="inline-flex items-center justify-center p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors shadow-2xs"
+                            title="Print Money Receipt"
+                            aria-label="Print Money Receipt"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                          </Link>
+                        ) : (
+                          <span className="text-slate-400 font-medium text-xs px-2 select-none" title="Print unavailable for reversed payment">
+                            —
+                          </span>
+                        )}
 
                         {isAdmin && p.status === 'COMPLETED' && (
                           <button

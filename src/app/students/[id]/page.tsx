@@ -354,12 +354,20 @@ export default function StudentDetailPage() {
                     </td>
                     <td className="py-3 px-3 text-slate-500">{p.receivedBy || 'Staff'}</td>
                     <td className="py-3 px-3 text-right">
-                      <Link
-                        href={`/print/receipt/${p.id}`}
-                        className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold border border-slate-300"
-                      >
-                        Print Receipt
-                      </Link>
+                      {p.status === 'COMPLETED' ? (
+                        <Link
+                          href={`/print/receipt/${p.id}`}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition-colors shadow-2xs"
+                          title="Print Money Receipt"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>Print Receipt</span>
+                        </Link>
+                      ) : (
+                        <span className="text-slate-400 font-medium text-xs px-2 select-none" title="Print unavailable for reversed payment">
+                          —
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))
