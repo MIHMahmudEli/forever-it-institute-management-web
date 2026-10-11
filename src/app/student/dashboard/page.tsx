@@ -7,7 +7,7 @@ import { api, StudentPortalDashboard } from '@/lib/api/api-client';
 import { useAuth } from '@/lib/auth/auth-context';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { DashboardCardSkeleton } from '@/components/ui/skeletons';
+import { StudentDashboardSkeleton } from '@/components/ui/skeletons';
 import {
   GraduationCap,
   CircleDollarSign,
@@ -69,65 +69,61 @@ export default function StudentDashboardPage() {
         </div>
       )}
 
-      {/* Official Student Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#015333] via-[#006838] to-[#015333] text-white p-6 mb-6 shadow-lg border border-emerald-600/40">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#D81A22] transform rotate-45 translate-x-16 -translate-y-16 opacity-80 pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-200 text-xs font-bold mb-2 border border-white/20">
-              <span>FOREVER IT INSTITUTE</span>
-              <span>•</span>
-              <span>STUDENT DESK</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              Welcome, {data?.student.fullName || user?.fullName || 'Student'}
-            </h1>
-            <p className="text-xs text-emerald-100/90 mt-1 max-w-xl">
-              Registration No:{' '}
-              <span className="font-mono font-bold text-white bg-black/20 px-2 py-0.5 rounded">
-                {data?.student.registrationNumber || user?.registrationNumber || 'Pending'}
-              </span>{' '}
-              • Manage your courses, track fee payments, and view official institute receipts.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2 shrink-0">
-            <Link
-              href="/student/courses"
-              className="inline-flex items-center px-4 py-2 rounded-xl bg-white text-[#006838] hover:bg-emerald-50 text-xs font-bold shadow-md transition-smooth"
-            >
-              <GraduationCap className="w-4 h-4 mr-1.5 text-emerald-700" />
-              My Courses
-            </Link>
-            <Link
-              href="/student/payments"
-              className="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold border border-emerald-500/50 shadow-md transition-smooth"
-            >
-              <Receipt className="w-4 h-4 mr-1.5 text-emerald-300" />
-              Receipts
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-center space-x-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-          <span className="text-sm font-medium">{error}</span>
-        </div>
-      )}
-
-      {/* KPI Cards */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <DashboardCardSkeleton />
-          <DashboardCardSkeleton />
-          <DashboardCardSkeleton />
-          <DashboardCardSkeleton />
-        </div>
+        <StudentDashboardSkeleton />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <>
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              <span className="text-sm font-medium">{error}</span>
+            </div>
+          )}
+
+          {/* Official Student Welcome Banner */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#015333] via-[#006838] to-[#015333] text-white p-6 mb-6 shadow-lg border border-emerald-600/40">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#D81A22] transform rotate-45 translate-x-16 -translate-y-16 opacity-80 pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-200 text-xs font-bold mb-2 border border-white/20">
+                  <span>FOREVER IT INSTITUTE</span>
+                  <span>•</span>
+                  <span>STUDENT DESK</span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Welcome, {data?.student.fullName || user?.fullName || 'Student'}
+                </h1>
+                <p className="text-xs text-emerald-100/90 mt-1 max-w-xl">
+                  Registration No:{' '}
+                  <span className="font-mono font-bold text-white bg-black/20 px-2 py-0.5 rounded">
+                    {data?.student.registrationNumber || user?.registrationNumber || 'Pending'}
+                  </span>{' '}
+                  • Manage your courses, track fee payments, and view official institute receipts.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <Link
+                  href="/student/courses"
+                  className="inline-flex items-center px-4 py-2 rounded-xl bg-white text-[#006838] hover:bg-emerald-50 text-xs font-bold shadow-md transition-smooth"
+                >
+                  <GraduationCap className="w-4 h-4 mr-1.5 text-emerald-700" />
+                  My Courses
+                </Link>
+                <Link
+                  href="/student/payments"
+                  className="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold border border-emerald-500/50 shadow-md transition-smooth"
+                >
+                  <Receipt className="w-4 h-4 mr-1.5 text-emerald-300" />
+                  Receipts
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Active Courses */}
           <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
             <div className="flex items-center justify-between">
@@ -220,9 +216,8 @@ export default function StudentDashboardPage() {
             </div>
           </div>
         </div>
-      )}
 
-      {/* Main Grid: Enrolled Courses & Recent Payments */}
+        {/* Main Grid: Enrolled Courses & Recent Payments */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Enrolled Courses (2 Cols) */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
@@ -240,12 +235,7 @@ export default function StudentDashboardPage() {
           </div>
 
           <div className="p-4 sm:p-5">
-            {loading ? (
-              <div className="space-y-3">
-                <div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
-                <div className="h-16 bg-slate-100 rounded-lg animate-pulse" />
-              </div>
-            ) : (data?.activeEnrollments || []).length === 0 ? (
+            {(data?.activeEnrollments || []).length === 0 ? (
               <div className="text-center py-8 text-slate-500 text-xs">
                 No active courses enrolled at the moment.
               </div>
@@ -303,12 +293,7 @@ export default function StudentDashboardPage() {
           </div>
 
           <div className="p-4 sm:p-5">
-            {loading ? (
-              <div className="space-y-3">
-                <div className="h-12 bg-slate-100 rounded-lg animate-pulse" />
-                <div className="h-12 bg-slate-100 rounded-lg animate-pulse" />
-              </div>
-            ) : (data?.recentPayments || []).length === 0 ? (
+            {(data?.recentPayments || []).length === 0 ? (
               <div className="text-center py-8 text-slate-500 text-xs">
                 No payment transactions recorded yet.
               </div>
@@ -365,6 +350,8 @@ export default function StudentDashboardPage() {
           Visit Website <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
         </a>
       </div>
-    </DashboardLayout>
+    </>
+  )}
+</DashboardLayout>
   );
 }

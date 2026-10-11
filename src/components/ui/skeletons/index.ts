@@ -5,3 +5,4 @@ export { StudentDetailsSkeleton } from './StudentDetailsSkeleton';
 export { StaffTableSkeleton } from './StaffTableSkeleton';
 export { FormSkeleton } from './FormSkeleton';
 export { PageSkeleton } from './PageSkeleton';
+export { StudentDashboardSkeleton } from './StudentDashboardSkeleton';
