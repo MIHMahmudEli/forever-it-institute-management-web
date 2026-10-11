@@ -9,6 +9,9 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAdmin: boolean;
+  isStaff: boolean;
+  isStudent: boolean;
+  mustChangePassword: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -19,6 +22,9 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   isLoading: true,
   isAdmin: false,
+  isStaff: false,
+  isStudent: false,
+  mustChangePassword: false,
   login: () => {},
   logout: () => {},
   refreshUser: async () => {},
@@ -32,6 +38,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const isAdmin = user?.role === 'ADMIN';
+  const isStaff = user?.role === 'STAFF';
+  const isStudent = user?.role === 'STUDENT';
+  const mustChangePassword = Boolean(user?.mustChangePassword);
 
   useEffect(() => {
     try {
@@ -54,7 +63,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('fit_user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-    router.push('/dashboard');
+
+    if (newUser.role === 'STUDENT') {
+      if (newUser.mustChangePassword) {
+        router.push('/student/change-password');
+      } else {
+        router.push('/student/dashboard');
+      }
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const logout = () => {
@@ -81,19 +99,80 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const isPublicRoute =
       pathname === '/login' ||
-      pathname.startsWith('/print/'); // Allow printing without breaking if shared or printed
+      pathname.startsWith('/print/'); // Allow printing without authentication check
 
     if (!user && !isPublicRoute) {
       router.push('/login');
-    } else if (user && pathname === '/login') {
-      router.push('/dashboard');
-    } else if (user && !isAdmin && pathname.startsWith('/staff')) {
-      router.push('/dashboard');
+      return;
     }
-  }, [user, isAdmin, isLoading, pathname, router]);
+
+    if (user && pathname === '/login') {
+      if (isStudent) {
+        router.push(mustChangePassword ? '/student/change-password' : '/student/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+      return;
+    }
+
+    // First login mandatory password change enforcement for students
+    if (user && isStudent && mustChangePassword) {
+      if (pathname !== '/student/change-password' && !pathname.startsWith('/print/')) {
+        router.push('/student/change-password');
+        return;
+      }
+    }
+
+    // Role-based boundary enforcement
+    if (user) {
+      if (isStudent) {
+        // Students cannot access administrative pages
+        const isNonStudentRoute =
+          pathname === '/dashboard' ||
+          pathname.startsWith('/students') ||
+          pathname.startsWith('/courses') ||
+          pathname.startsWith('/enrollments') ||
+          pathname.startsWith('/payments') ||
+          pathname.startsWith('/reports') ||
+          pathname.startsWith('/staff') ||
+          pathname.startsWith('/drop-requests') ||
+          pathname === '/account';
+
+        if (isNonStudentRoute) {
+          router.push(mustChangePassword ? '/student/change-password' : '/student/dashboard');
+          return;
+        }
+      } else {
+        // Non-students (Admin, Staff) cannot access student portal routes
+        if (pathname.startsWith('/student/')) {
+          router.push('/dashboard');
+          return;
+        }
+
+        // Staff cannot access Admin-only pages
+        if (!isAdmin && pathname.startsWith('/staff')) {
+          router.push('/dashboard');
+          return;
+        }
+      }
+    }
+  }, [user, isAdmin, isStudent, mustChangePassword, isLoading, pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, isAdmin, login, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isLoading,
+        isAdmin,
+        isStaff,
+        isStudent,
+        mustChangePassword,
+        login,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

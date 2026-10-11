@@ -15,6 +15,9 @@ import {
   AlertCircle,
   ArrowRight,
   FileText,
+  Copy,
+  KeyRound,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function NewStudentRegistrationPage() {
@@ -25,11 +28,13 @@ export default function NewStudentRegistrationPage() {
 
   // Form State
   const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [nidOrBirthCertificateNumber, setNidOrBirthCertificateNumber] = useState('');
   const [presentAddress, setPresentAddress] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [parentName, setParentName] = useState('');
   const [parentMobileNumber, setParentMobileNumber] = useState('');
+  const [copiedCredentials, setCopiedCredentials] = useState(false);
 
   // Course Selections
   const [selectedCourses, setSelectedCourses] = useState<
@@ -111,6 +116,7 @@ export default function NewStudentRegistrationPage() {
     try {
       const payload = {
         fullName,
+        email: email.trim() || undefined,
         nidOrBirthCertificateNumber,
         presentAddress,
         mobileNumber,
@@ -237,12 +243,61 @@ export default function NewStudentRegistrationPage() {
             </div>
           </div>
 
+          {/* Automatically Generated Student Login Credentials */}
+          {successData.studentCredentials && (
+            <div className="mt-5 p-4 rounded-xl bg-white border-2 border-emerald-600 shadow-md">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100">
+                <div className="flex items-center space-x-2">
+                  <KeyRound className="w-4 h-4 text-emerald-700" />
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                    Student Portal Login Credentials (Handover Slip)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = `Forever IT Institute — Student Portal Login\nStudent: ${successData.studentCredentials?.fullName}\nRegistration No: ${successData.studentCredentials?.registrationNumber}\nUsername / Login ID: ${successData.studentCredentials?.username}\nEmail: ${successData.studentCredentials?.email}\nTemporary Password: ${successData.studentCredentials?.temporaryPassword}\nLogin Portal: ${window.location.origin}/login\n(Note: You will be asked to change password on first login)`;
+                    navigator.clipboard.writeText(text);
+                    setCopiedCredentials(true);
+                    setTimeout(() => setCopiedCredentials(false), 2000);
+                  }}
+                  className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300 transition-colors"
+                >
+                  <Copy className="w-3.5 h-3.5 mr-1.5" />
+                  {copiedCredentials ? 'Copied to Clipboard!' : 'Copy Credentials'}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Username / Reg No</span>
+                  <span className="font-mono font-bold text-slate-900">{successData.studentCredentials.username}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Account Email</span>
+                  <span className="text-slate-800 font-medium truncate block">{successData.studentCredentials.email}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-300">
+                  <span className="text-emerald-700 block text-[10px] uppercase font-bold">Temporary Password</span>
+                  <span className="font-mono font-black text-emerald-900 text-sm tracking-wider">
+                    {successData.studentCredentials.temporaryPassword}
+                  </span>
+                </div>
+              </div>
+
+              <p className="mt-2.5 text-[11px] text-slate-500 italic">
+                * Please provide these login details to the student. They can log in using either their Registration Number or Email. They will be prompted to set their permanent password on first login.
+              </p>
+            </div>
+          )}
+
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => {
                 setSuccessData(null);
                 // Reset form
                 setFullName('');
+                setEmail('');
                 setNidOrBirthCertificateNumber('');
                 setPresentAddress('');
                 setMobileNumber('');
@@ -317,6 +372,20 @@ export default function NewStudentRegistrationPage() {
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
                 placeholder="e.g. 01712345678"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+              />
+            </div>
+
+            {/* Student Email Address (Optional) */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Email Address (ইমেইল - Optional for Portal Login)
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. student@gmail.com"
                 className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
               />
             </div>

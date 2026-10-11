@@ -85,9 +85,13 @@ export async function apiRequest<T = any>(
 export interface User {
   id: string;
   email: string;
+  username?: string | null;
   fullName: string;
-  role: 'ADMIN' | 'STAFF' | 'VIEWER';
+  role: 'ADMIN' | 'STAFF' | 'STUDENT' | 'VIEWER';
   isActive: boolean;
+  mustChangePassword?: boolean;
+  studentId?: string | null;
+  registrationNumber?: string | null;
 }
 
 export interface Course {
@@ -112,6 +116,15 @@ export interface Student {
   parentMobileNumber: string;
   status: 'ACTIVE' | 'INACTIVE' | 'COMPLETED' | 'DROPPED';
   isArchived: boolean;
+  userId?: string | null;
+  user?: {
+    id: string;
+    email: string;
+    username?: string | null;
+    isActive: boolean;
+    mustChangePassword: boolean;
+    role: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
   enrollments?: Enrollment[];
@@ -131,10 +144,64 @@ export interface Enrollment {
   agreedFee: number;
   discount: number;
   finalFee: number;
-  status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+  status: 'PENDING' | 'ACTIVE' | 'DROP_REQUESTED' | 'DROPPED' | 'COMPLETED' | 'CANCELLED';
   notes: string | null;
   course?: Course;
   student?: Student;
+  payments?: Payment[];
+  paidAmount?: number;
+  dueAmount?: number;
+  hasPendingDropRequest?: boolean;
+}
+
+export interface DropRequest {
+  id: string;
+  enrollmentId: string;
+  studentId: string;
+  reason: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  requestDate: string;
+  adminNotes: string | null;
+  reviewedBy: string | null;
+  reviewerName: string | null;
+  reviewedAt: string | null;
+  enrollment?: Enrollment;
+  student?: Student;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudentCredentials {
+  studentId: string;
+  fullName: string;
+  registrationNumber: string;
+  username: string;
+  email: string;
+  temporaryPassword?: string;
+  mustChangePassword: boolean;
+}
+
+export interface StudentPortalDashboard {
+  student: {
+    id: string;
+    fullName: string;
+    registrationNumber: string;
+  };
+  stats: {
+    totalEnrolledCourses: number;
+    activeCoursesCount: number;
+    completedCoursesCount: number;
+    droppedCoursesCount: number;
+    pendingDropRequestsCount: number;
+  };
+  financials: {
+    totalPayable: number;
+    totalPaid: number;
+    outstandingDue: number;
+  };
+  recentPayments: Payment[];
+  activeEnrollments: Enrollment[];
+  recentDropRequests: DropRequest[];
 }
 
 export type PaymentMethod = 'CASH' | 'BKASH' | 'NAGAD' | 'ROCKET' | 'BANK_TRANSFER' | 'OTHER';
@@ -289,6 +356,11 @@ export const api = {
     create: (data: any) => apiRequest<Student>('/students', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => apiRequest<Student>(`/students/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     archive: (id: string) => apiRequest(`/students/${id}`, { method: 'DELETE' }),
+    provisionAccount: (id: string, email?: string) =>
+      apiRequest<{ success: boolean; message: string; studentCredentials: StudentCredentials }>(
+        `/students/${id}/provision-account`,
+        { method: 'POST', body: JSON.stringify({ email }) }
+      ),
   },
 
   courses: {
@@ -353,6 +425,7 @@ export const api = {
           advancePaidInWords: string;
           dueInWords: string;
         };
+        studentCredentials?: StudentCredentials;
       }>('/registrations', { method: 'POST', body: JSON.stringify(data) }),
     getDocument: (id: string) => apiRequest<RegistrationDocument>(`/registrations/${id}`),
   },
@@ -398,6 +471,60 @@ export const api = {
       apiRequest<User>(`/staff/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ isActive }),
+      }),
+  },
+
+  dropRequests: {
+    getAll: (params?: { search?: string; status?: string; page?: number; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.search) q.append('search', params.search);
+      if (params?.status) q.append('status', params.status);
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.limit) q.append('limit', String(params.limit));
+      return apiRequest<{
+        data: DropRequest[];
+        meta: { total: number; page: number; limit: number; totalPages: number };
+      }>(`/drop-requests?${q.toString()}`);
+    },
+    getOne: (id: string) => apiRequest<DropRequest>(`/drop-requests/${id}`),
+    approve: (id: string, data?: { adminNotes?: string }) =>
+      apiRequest<{ success: boolean; message: string; dropRequest: DropRequest }>(
+        `/drop-requests/${id}/approve`,
+        { method: 'PATCH', body: JSON.stringify(data || {}) }
+      ),
+    reject: (id: string, data?: { adminNotes?: string }) =>
+      apiRequest<{ success: boolean; message: string; dropRequest: DropRequest }>(
+        `/drop-requests/${id}/reject`,
+        { method: 'PATCH', body: JSON.stringify(data || {}) }
+      ),
+  },
+
+  studentPortal: {
+    getMe: () => apiRequest<Student>('/student-portal/me'),
+    getDashboard: () => apiRequest<StudentPortalDashboard>('/student-portal/dashboard'),
+    getCourses: () => apiRequest<Enrollment[]>('/student-portal/courses'),
+    getCourse: (enrollmentId: string) => apiRequest<Enrollment>(`/student-portal/courses/${enrollmentId}`),
+    getPayments: () => apiRequest<Payment[]>('/student-portal/payments'),
+    getPayment: (paymentId: string) => apiRequest<Payment>(`/student-portal/payments/${paymentId}`),
+    getDropRequests: () => apiRequest<DropRequest[]>('/student-portal/drop-requests'),
+    createDropRequest: (data: { enrollmentId: string; reason: string }) =>
+      apiRequest<{ success: boolean; message: string; dropRequest: DropRequest }>(
+        '/student-portal/drop-requests',
+        { method: 'POST', body: JSON.stringify(data) }
+      ),
+    cancelDropRequest: (id: string) =>
+      apiRequest<{ success: boolean; message: string }>(`/student-portal/drop-requests/${id}`, {
+        method: 'DELETE',
+      }),
+    updateProfile: (data: { presentAddress?: string; parentName?: string; parentMobileNumber?: string }) =>
+      apiRequest<{ success: boolean; message: string; student: Partial<Student> }>(
+        '/student-portal/profile',
+        { method: 'PATCH', body: JSON.stringify(data) }
+      ),
+    changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+      apiRequest<{ success: boolean; message: string }>('/student-portal/change-password', {
+        method: 'POST',
+        body: JSON.stringify(data),
       }),
   },
 

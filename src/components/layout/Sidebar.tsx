@@ -16,6 +16,8 @@ import {
   UserCog,
   LogOut,
   ExternalLink,
+  Clock,
+  KeyRound,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,25 +26,37 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, isStudent, logout } = useAuth();
 
-  const navigation = [
+  const adminStaffNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'New Registration', href: '/students/new', icon: UserPlus },
     { name: 'Students', href: '/students', icon: Users },
     { name: 'Courses', href: '/courses', icon: GraduationCap },
     { name: 'Enrollments', href: '/enrollments', icon: ClipboardList },
     { name: 'Payments & Receipts', href: '/payments', icon: Receipt },
+    { name: 'Drop Requests', href: '/drop-requests', icon: Clock },
     { name: 'Financial Reports', href: '/reports', icon: BarChart3, adminOnly: true },
     { name: 'Staff Management', href: '/staff', icon: ShieldCheck, adminOnly: true },
     { name: 'My Account', href: '/account', icon: UserCog },
   ];
 
-  const visibleNavigation = navigation.filter((item) => !item.adminOnly || isAdmin);
+  const studentNavigation = [
+    { name: 'Portal Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
+    { name: 'My Courses', href: '/student/courses', icon: GraduationCap },
+    { name: 'Payments & Receipts', href: '/student/payments', icon: Receipt },
+    { name: 'Drop Requests', href: '/student/drop-requests', icon: Clock },
+    { name: 'My Profile', href: '/student/profile', icon: UserCog },
+    { name: 'Change Password', href: '/student/change-password', icon: KeyRound },
+  ];
+
+  const visibleNavigation = isStudent
+    ? studentNavigation
+    : adminStaffNavigation.filter((item) => !item.adminOnly || isAdmin);
 
   const checkIsActive = (href: string) => {
     if (pathname === href) return true;
-    if (href === '/dashboard') return false;
+    if (href === '/dashboard' || href === '/student/dashboard') return false;
     // When on /students/new, only New Registration should be active, not general Students list
     if (href === '/students' && pathname.startsWith('/students/new')) {
       return false;
@@ -50,12 +64,15 @@ export default function Sidebar({ onClose }: SidebarProps) {
     return pathname.startsWith(href);
   };
 
+  const homeHref = isStudent ? '/student/dashboard' : '/dashboard';
+  const profileHref = isStudent ? '/student/profile' : '/account';
+
   return (
     <aside className="w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
       {/* Brand Header */}
       <div className="p-4 border-b border-[#006838]/80 bg-[#004225] flex flex-col items-center text-center">
         {/* Line 1: Logo */}
-        <Link href="/dashboard" className="block w-full group">
+        <Link href={homeHref} className="block w-full group">
           <div className="bg-white rounded-xl p-2.5 shadow-md flex items-center justify-center hover:opacity-95 transition-all">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -66,9 +83,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </div>
         </Link>
 
-        {/* Line 2: INSTITUTE */}
+        {/* Line 2: Tag / Subtitle */}
         <span className="mt-2 text-[11px] tracking-[0.3em] font-extrabold uppercase text-emerald-200 text-center">
-          INSTITUTE
+          {isStudent ? 'STUDENT PORTAL' : 'INSTITUTE'}
         </span>
 
         {/* Line 3: Bengali Tagline */}
@@ -119,18 +136,26 @@ export default function Sidebar({ onClose }: SidebarProps) {
       {/* User & Logout Footer */}
       <div className="p-4 border-t border-emerald-900/60 bg-[#06331f]">
         <Link
-          href="/account"
+          href={profileHref}
           onClick={onClose}
           className="flex items-center justify-between mb-3 p-1.5 -mx-1.5 rounded-lg hover:bg-emerald-900/40 transition-smooth group"
-          title="Manage Account Settings"
+          title={isStudent ? 'View Student Profile' : 'Manage Account Settings'}
         >
           <div className="truncate mr-2">
             <p className="text-xs font-semibold text-white group-hover:text-emerald-200 transition-colors truncate">
               {user?.fullName || 'User'}
             </p>
-            <p className="text-[10px] text-emerald-300/80 truncate">{user?.email}</p>
+            <p className="text-[10px] text-emerald-300/80 truncate">
+              {user?.registrationNumber || user?.email}
+            </p>
           </div>
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
+          <span
+            className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${
+              isStudent
+                ? 'bg-teal-500/20 text-teal-200 border border-teal-400/30'
+                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
+            }`}
+          >
             {user?.role || 'STAFF'}
           </span>
         </Link>

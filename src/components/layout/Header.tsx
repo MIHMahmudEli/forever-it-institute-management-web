@@ -52,9 +52,9 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
 
         {/* User Mini Badge */}
         <Link
-          href="/account"
+          href={user?.role === 'STUDENT' ? '/student/profile' : '/account'}
           className="flex items-center space-x-2 p-1 -m-1 rounded-lg hover:bg-slate-100 transition-smooth group"
-          title="Account Settings"
+          title={user?.role === 'STUDENT' ? 'Student Profile' : 'Account Settings'}
         >
           <div className="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs group-hover:bg-emerald-900 transition-colors">
             {user?.fullName?.charAt(0) || 'U'}

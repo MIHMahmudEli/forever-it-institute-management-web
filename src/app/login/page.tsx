@@ -56,10 +56,10 @@ export default function LoginPage() {
               </span>
             </div>
             <h1 className="text-base font-bold text-slate-800 uppercase tracking-wider mt-3">
-              Management Portal Login
+              Forever IT Portal Login
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
-              Authorized Staff &amp; Administrator Access
+              Institute Administration &amp; Student Portal Access
             </p>
           </div>
 
@@ -75,18 +75,18 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Email Address
+                Email or Registration Number
               </label>
               <div className="relative rounded-lg shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@foreveritbd.com"
+                  placeholder="e.g. FIT-202610-0001 or admin@foreveritbd.com"
                   className="block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-[#006838] focus:border-[#006838] transition-smooth-fast"
                 />
               </div>
