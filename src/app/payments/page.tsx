@@ -170,9 +170,11 @@ export default function PaymentsPage() {
                         <Link
                           href={`/print/receipt/${p.id}`}
                           target="_blank"
-                          className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold border border-slate-300"
+                          className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 transition-colors shadow-2xs"
+                          title="Print Receipt"
+                          aria-label="Print Receipt"
                         >
-                          Print Receipt
+                          <Printer className="w-3.5 h-3.5" />
                         </Link>
 
                         {isAdmin && p.status === 'COMPLETED' && (
@@ -181,8 +183,9 @@ export default function PaymentsPage() {
                               setTargetPayment(p);
                               setReversalModalOpen(true);
                             }}
-                            className="p-1 rounded text-red-600 hover:bg-red-50 border border-red-200"
+                            className="inline-flex items-center justify-center p-1.5 rounded-lg text-red-600 hover:bg-red-50 border border-red-200 transition-colors shadow-2xs"
                             title="Reverse Payment"
+                            aria-label="Reverse Payment"
                           >
                             <RotateCcw className="w-3.5 h-3.5" />
                           </button>

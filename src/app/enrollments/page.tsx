@@ -6,7 +6,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { api, Enrollment } from '@/lib/api/api-client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { ClipboardList, Search, UserPlus } from 'lucide-react';
+import { ClipboardList, Eye, UserPlus } from 'lucide-react';
 
 export default function EnrollmentsPage() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
@@ -130,9 +130,11 @@ export default function EnrollmentsPage() {
                       {e.student && (
                         <Link
                           href={`/students/${e.student.id}`}
-                          className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold border border-slate-200"
+                          className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 transition-colors shadow-2xs"
+                          title="View Student Profile"
+                          aria-label="View Student Profile"
                         >
-                          View Student
+                          <Eye className="w-3.5 h-3.5" />
                         </Link>
                       )}
                     </td>
