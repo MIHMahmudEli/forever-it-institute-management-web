@@ -169,7 +169,6 @@ export default function PaymentsPage() {
                       <div className="flex items-center justify-end space-x-2">
                         <Link
                           href={`/print/receipt/${p.id}`}
-                          target="_blank"
                           className="inline-flex items-center justify-center p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 transition-colors shadow-2xs"
                           title="Print Receipt"
                           aria-label="Print Receipt"

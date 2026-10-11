@@ -137,7 +137,6 @@ export default function StudentDetailPage() {
         <div className="flex items-center space-x-3">
           <Link
             href={`/print/registration/${student.id}`}
-            target="_blank"
             className="inline-flex items-center px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs"
           >
             <Printer className="w-3.5 h-3.5 mr-1.5" />
@@ -357,7 +356,6 @@ export default function StudentDetailPage() {
                     <td className="py-3 px-3 text-right">
                       <Link
                         href={`/print/receipt/${p.id}`}
-                        target="_blank"
                         className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold border border-slate-300"
                       >
                         Print Receipt
@@ -395,7 +393,6 @@ export default function StudentDetailPage() {
                 <div className="pt-2 flex justify-center space-x-3">
                   <Link
                     href={`/print/receipt/${paymentSuccessReceiptId}`}
-                    target="_blank"
                     className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-bold text-xs"
                   >
                     Print Receipt Now

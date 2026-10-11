@@ -192,7 +192,6 @@ export default function NewStudentRegistrationPage() {
             <div className="flex items-center space-x-3">
               <Link
                 href={`/print/registration/${successData.student?.id}`}
-                target="_blank"
                 className="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition-all"
               >
                 <Printer className="w-4 h-4 mr-1.5" />
@@ -202,7 +201,6 @@ export default function NewStudentRegistrationPage() {
               {successData.payment && (
                 <Link
                   href={`/print/receipt/${successData.payment?.id}`}
-                  target="_blank"
                   className="inline-flex items-center px-4 py-2 rounded-lg bg-white border border-emerald-600 text-emerald-800 hover:bg-emerald-100 text-xs font-bold shadow-sm transition-all"
                 >
                   <FileText className="w-4 h-4 mr-1.5" />

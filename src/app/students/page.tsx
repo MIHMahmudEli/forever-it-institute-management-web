@@ -206,7 +206,6 @@ export default function StudentsListPage() {
                         </Link>
                         <Link
                           href={`/print/registration/${student.id}`}
-                          target="_blank"
                           className="p-1.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors"
                           title="Print Registration Form"
                         >

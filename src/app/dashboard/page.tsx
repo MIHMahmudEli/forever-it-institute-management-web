@@ -242,7 +242,6 @@ export default function DashboardPage() {
                       <td className="py-3 px-3 text-right">
                         <Link
                           href={`/print/registration/${item.id}`}
-                          target="_blank"
                           className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200"
                         >
                           Print Form
@@ -357,7 +356,6 @@ export default function DashboardPage() {
                     <td className="py-3 px-3 text-right">
                       <Link
                         href={`/print/receipt/${p.id}`}
-                        target="_blank"
                         className="text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded border border-slate-300"
                       >
                         Print Receipt
