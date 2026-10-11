@@ -33,6 +33,21 @@ export default function PrintableRegistrationForm() {
     if (id) load();
   }, [id]);
 
+  const handleBack = () => {
+    if (typeof window !== 'undefined') {
+      if (window.history.length > 1) {
+        router.back();
+        setTimeout(() => {
+          if (window.location.pathname.includes('/print/registration/')) {
+            router.push('/students');
+          }
+        }, 120);
+      } else {
+        router.push('/students');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100">
@@ -47,10 +62,10 @@ export default function PrintableRegistrationForm() {
         <div className="bg-white p-6 rounded-xl border border-slate-300 text-center max-w-md">
           <p className="text-red-600 font-bold mb-4">{error || 'Registration document not found.'}</p>
           <button
-            onClick={() => router.back()}
-            className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-semibold"
+            onClick={handleBack}
+            className="px-4 py-2 bg-[#006838] hover:bg-[#015333] text-white rounded-lg text-xs font-semibold"
           >
-            Go Back
+            Back to Students
           </button>
         </div>
       </div>
@@ -78,11 +93,11 @@ export default function PrintableRegistrationForm() {
       {/* Floating Toolbar (Hidden when printing) */}
       <div className="no-print max-w-[210mm] mx-auto mb-4 flex items-center justify-between px-4">
         <button
-          onClick={() => router.back()}
-          className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
+          onClick={handleBack}
+          className="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition-colors"
         >
-          <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-          Back
+          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+          Back to Students
         </button>
 
         <div className="flex items-center gap-2">
