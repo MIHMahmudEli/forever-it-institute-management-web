@@ -95,7 +95,7 @@ export default function PrintablePaymentReceipt() {
       {/* Printable Receipt Canvas */}
       <div className="relative max-w-[190mm] mx-auto bg-white p-6 sm:p-8 border-2 border-slate-300 print:border-none shadow-xl print:shadow-none min-h-[150mm] flex flex-col justify-between overflow-hidden">
         {/* Brand Corner Ribbons */}
-        <CornerRibbons position="all" />
+        <CornerRibbons position="all-top" />
 
         <div className="relative z-10 space-y-4">
           {/* Header Branding */}
@@ -208,11 +208,11 @@ export default function PrintablePaymentReceipt() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Corporate Footer Banner */}
-        <div className="relative z-10 pt-4">
-          <CorporateFooterBanner variant="print" />
+          {/* Corporate Footer Banner */}
+          <div className="pt-3">
+            <CorporateFooterBanner variant="print" />
+          </div>
         </div>
       </div>
     </div>

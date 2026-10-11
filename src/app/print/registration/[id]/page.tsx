@@ -112,12 +112,12 @@ export default function PrintableRegistrationForm() {
         </div>
       </div>
 
-      {/* Printable Sheet Canvas — Pixel-Perfect A4 Form (Guaranteed 1 Page) */}
-      <div className="relative w-full max-w-[210mm] mx-auto bg-white p-6 sm:p-8 print:p-[5mm_8mm] border border-slate-300 print:border-none shadow-xl print:shadow-none min-h-[297mm] print:min-h-0 print:h-[297mm] print:max-h-[297mm] flex flex-col justify-between overflow-hidden box-border print-page">
-        {/* Signature Diagonal Corner Ribbons */}
-        <CornerRibbons position="all" />
+      {/* Printable Sheet Canvas — Pixel-Perfect A4 Form */}
+      <div className="relative w-full max-w-[210mm] mx-auto bg-white p-6 sm:p-8 print:p-0 border border-slate-300 print:border-none shadow-xl print:shadow-none min-h-[297mm] print:min-h-0 print:h-auto overflow-hidden box-border print-page">
+        {/* Signature Diagonal Corner Ribbons (Top corners only, leaving footer clean) */}
+        <CornerRibbons position="all-top" />
 
-        <div className="relative z-10 space-y-3.5 print:space-y-1.5">
+        <div className="relative z-10 space-y-3.5 print:space-y-2.5">
           {/* Header Branding */}
           <div className="pt-1 print:pt-0 text-center">
             <BrandLogo variant="form-header" showTagline={true} />
@@ -316,11 +316,11 @@ export default function PrintableRegistrationForm() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Corporate Footer Banner */}
-        <div className="relative z-10 pt-3 print:pt-1">
-          <CorporateFooterBanner variant="print" />
+          {/* Corporate Footer Banner (Seamless integrated footer) */}
+          <div className="pt-2 print:pt-1">
+            <CorporateFooterBanner variant="print" />
+          </div>
         </div>
       </div>
     </div>

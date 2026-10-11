@@ -17,12 +17,12 @@ export default function CorporateFooterBanner({
   return (
     <footer
       className={`relative w-full bg-[#006838] text-white rounded-xl overflow-hidden shadow-md ${
-        isPrint ? 'py-2.5 px-5 print:py-1.5 print:px-4' : 'py-5 px-6 sm:px-8'
+        isPrint ? 'py-2 px-6 print:py-2 print:px-6' : 'py-5 px-6 sm:px-8'
       } ${className}`}
     >
       {/* Decorative Red End Corner Accents */}
-      <div className="absolute top-0 right-0 w-12 h-12 bg-[#D81A22] transform rotate-45 translate-x-6 -translate-y-6 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-12 h-12 bg-[#D81A22] transform rotate-45 -translate-x-6 translate-y-6 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-10 h-10 bg-[#D81A22] transform rotate-45 translate-x-5 -translate-y-5 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-10 h-10 bg-[#D81A22] transform rotate-45 -translate-x-5 translate-y-5 pointer-events-none" />
 
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-3 print:gap-2 items-center text-xs">
         {/* 1. Corporate Address */}

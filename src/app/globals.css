@@ -45,11 +45,11 @@ body {
   background: #00683888;
 }
 
-/* Print Specific Optimizations — Single Page A4 Guarantee */
+/* Print Specific Optimizations — Single Page A4 Fit */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 8mm 10mm;
   }
 
   html,
@@ -58,10 +58,9 @@ body {
     padding: 0 !important;
     background: #ffffff !important;
     color: #000000 !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    max-height: 297mm !important;
-    overflow: hidden !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
   }
 
   .no-print {
