@@ -26,13 +26,23 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'New Registration', href: '/students/new', icon: UserPlus, highlight: true },
+    { name: 'New Registration', href: '/students/new', icon: UserPlus },
     { name: 'Students', href: '/students', icon: Users },
     { name: 'Courses', href: '/courses', icon: GraduationCap },
     { name: 'Enrollments', href: '/enrollments', icon: ClipboardList },
     { name: 'Payments & Receipts', href: '/payments', icon: Receipt },
     { name: 'Financial Reports', href: '/reports', icon: BarChart3 },
   ];
+
+  const checkIsActive = (href: string) => {
+    if (pathname === href) return true;
+    if (href === '/dashboard') return false;
+    // When on /students/new, only New Registration should be active, not general Students list
+    if (href === '/students' && pathname.startsWith('/students/new')) {
+      return false;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <aside className="w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
@@ -66,7 +76,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
       {/* Nav Menu */}
       <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+          const isActive = checkIsActive(item.href);
           const Icon = item.icon;
 
           return (
@@ -77,12 +87,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
               className={`flex items-center px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 isActive
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 font-semibold'
-                  : item.highlight
-                  ? 'bg-red-600/20 text-red-200 hover:bg-red-600/30 border border-red-500/30'
                   : 'text-emerald-100/80 hover:bg-emerald-900/60 hover:text-white'
               }`}
             >
-              <Icon className={`w-4 h-4 mr-3 shrink-0 ${isActive ? 'text-white' : item.highlight ? 'text-red-400' : 'text-emerald-300'}`} />
+              <Icon className={`w-4 h-4 mr-3 shrink-0 ${isActive ? 'text-white' : 'text-emerald-300'}`} />
               <span className="truncate">{item.name}</span>
             </Link>
           );
