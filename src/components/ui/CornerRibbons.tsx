@@ -7,54 +7,107 @@ interface CornerRibbonsProps {
   className?: string;
 }
 
-function TopRightRibbon() {
+/**
+ * Shared SVG corner ribbon paths:
+ * Base coordinate system: 140x140 box with page corner at (24, 24).
+ * Coordinates from 0 to 24 extend outside the page boundary (bleed).
+ * Stripes run diagonally at 45 degrees:
+ * 1. Outer Crimson Red band: #D81A22 (c = 0 to 78)
+ * 2. White spacer: #FFFFFF (c = 78 to 84)
+ * 3. Broad Dark Green band: #006838 (c = 84 to 116)
+ * 4. White spacer: #FFFFFF (c = 116 to 122)
+ * 5. Inner Accent Crimson Red stripe: #D81A22 (c = 122 to 128)
+ */
+function RibbonPaths() {
   return (
-    <div className="absolute top-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-10">
-      <div className="absolute -top-12 -right-12 w-32 h-10 bg-[#D81A22] transform rotate-45 shadow-xs" />
-      <div className="absolute -top-4 -right-4 w-32 h-8 bg-[#006838] transform rotate-45 shadow-xs" />
-      <div className="absolute top-4 right-4 w-28 h-1.5 bg-[#D81A22] transform rotate-45" />
-    </div>
+    <>
+      {/* 1. Outer Crimson Red Band (extends beyond canvas tip) */}
+      <polygon points="0,0 78,0 0,78" fill="#D81A22" />
+
+      {/* 2. White Gap Stripe */}
+      <polygon points="0,78 78,0 84,0 0,84" fill="#FFFFFF" />
+
+      {/* 3. Main Broad Dark Green Band */}
+      <polygon points="0,84 84,0 116,0 0,116" fill="#006838" />
+
+      {/* 4. White Gap Stripe */}
+      <polygon points="0,116 116,0 122,0 0,122" fill="#FFFFFF" />
+
+      {/* 5. Inner Accent Crimson Red Stripe */}
+      <polygon points="0,122 122,0 128,0 0,128" fill="#D81A22" />
+    </>
   );
 }
 
 function TopLeftRibbon() {
   return (
-    <div className="absolute top-0 left-0 w-36 h-36 overflow-hidden pointer-events-none z-10">
-      <div className="absolute -top-12 -left-12 w-32 h-10 bg-[#D81A22] transform -rotate-45 shadow-xs" />
-      <div className="absolute -top-4 -left-4 w-32 h-8 bg-[#006838] transform -rotate-45 shadow-xs" />
-      <div className="absolute top-4 left-4 w-28 h-1.5 bg-[#D81A22] transform -rotate-45" />
-    </div>
+    <svg
+      className="absolute -top-6 -left-6 w-[140px] h-[140px] pointer-events-none z-0"
+      viewBox="0 0 140 140"
+      aria-hidden="true"
+    >
+      <RibbonPaths />
+    </svg>
   );
 }
 
-function BottomRightRibbon() {
+function TopRightRibbon() {
   return (
-    <div className="absolute bottom-0 right-0 w-36 h-36 overflow-hidden pointer-events-none z-10">
-      <div className="absolute -bottom-4 -right-4 w-32 h-8 bg-[#006838] transform -rotate-45 shadow-xs" />
-      <div className="absolute -bottom-12 -right-12 w-32 h-10 bg-[#D81A22] transform -rotate-45 shadow-xs" />
-    </div>
+    <svg
+      className="absolute -top-6 -right-6 w-[140px] h-[140px] pointer-events-none z-0"
+      viewBox="0 0 140 140"
+      aria-hidden="true"
+    >
+      <g transform="translate(140, 0) scale(-1, 1)">
+        <RibbonPaths />
+      </g>
+    </svg>
   );
 }
 
 function BottomLeftRibbon() {
   return (
-    <div className="absolute bottom-0 left-0 w-36 h-36 overflow-hidden pointer-events-none z-10">
-      <div className="absolute -bottom-4 -left-4 w-32 h-8 bg-[#006838] transform rotate-45 shadow-xs" />
-      <div className="absolute -bottom-12 -left-12 w-32 h-10 bg-[#D81A22] transform rotate-45 shadow-xs" />
-    </div>
+    <svg
+      className="absolute -bottom-6 -left-6 w-[140px] h-[140px] pointer-events-none z-0"
+      viewBox="0 0 140 140"
+      aria-hidden="true"
+    >
+      <g transform="translate(0, 140) scale(1, -1)">
+        <RibbonPaths />
+      </g>
+    </svg>
+  );
+}
+
+function BottomRightRibbon() {
+  return (
+    <svg
+      className="absolute -bottom-6 -right-6 w-[140px] h-[140px] pointer-events-none z-0"
+      viewBox="0 0 140 140"
+      aria-hidden="true"
+    >
+      <g transform="translate(140, 140) scale(-1, -1)">
+        <RibbonPaths />
+      </g>
+    </svg>
   );
 }
 
 export default function CornerRibbons({
-  position = 'top-right',
+  position = 'all',
   className = '',
 }: CornerRibbonsProps) {
+  const showTopRight = position === 'top-right' || position === 'all-top' || position === 'all';
+  const showTopLeft = position === 'top-left' || position === 'all-top' || position === 'all';
+  const showBottomRight = position === 'bottom-right' || position === 'all';
+  const showBottomLeft = position === 'bottom-left' || position === 'all';
+
   return (
     <div className={`contents ${className}`}>
-      {(position === 'top-right' || position === 'all-top' || position === 'all') && <TopRightRibbon />}
-      {(position === 'top-left' || position === 'all-top' || position === 'all') && <TopLeftRibbon />}
-      {(position === 'bottom-right' || position === 'all') && <BottomRightRibbon />}
-      {(position === 'bottom-left' || position === 'all') && <BottomLeftRibbon />}
+      {showTopLeft && <TopLeftRibbon />}
+      {showTopRight && <TopRightRibbon />}
+      {showBottomLeft && <BottomLeftRibbon />}
+      {showBottomRight && <BottomRightRibbon />}
     </div>
   );
 }

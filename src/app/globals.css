@@ -45,22 +45,23 @@ body {
   background: #00683888;
 }
 
-/* Print Specific Optimizations — Single Page A4 Fit */
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 8mm 10mm;
-  }
+/* Dedicated Print CSS — Exact A4 Portrait Geometry */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
 
+@media print {
   html,
   body {
+    width: 210mm !important;
+    height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
     color: #000000 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 
   .no-print {
@@ -71,7 +72,24 @@ body {
     display: block !important;
   }
 
-  /* Prevent page breaks across all sections */
+  /* Fixed Single Page A4 Document */
+  .registration-page {
+    position: relative !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
   .page-container,
   .print-page {
     page-break-after: avoid !important;
@@ -82,9 +100,10 @@ body {
     break-inside: avoid !important;
   }
 
-  /* Preserve essential borders and background colors for registration form */
+  /* Preserve essential borders, gradients, and brand background colors */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    box-sizing: border-box;
   }
 }
