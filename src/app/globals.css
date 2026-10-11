@@ -45,17 +45,23 @@ body {
   background: #00683888;
 }
 
-/* Print Specific Optimizations */
+/* Print Specific Optimizations — Single Page A4 Guarantee */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm;
+    margin: 0;
   }
 
+  html,
   body {
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
     color: #000000 !important;
-    font-size: 10pt !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
   }
 
   .no-print {
@@ -66,8 +72,15 @@ body {
     display: block !important;
   }
 
-  .print-page-break {
-    page-break-after: always;
+  /* Prevent page breaks across all sections */
+  .page-container,
+  .print-page {
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: avoid !important;
+    break-before: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* Preserve essential borders and background colors for registration form */

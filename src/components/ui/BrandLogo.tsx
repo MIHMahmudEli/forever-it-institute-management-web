@@ -51,7 +51,7 @@ export default function BrandLogo({
   return (
     <div className={`flex flex-col items-center text-center ${className}`}>
       {/* Official Core Vector Logo */}
-      <div className="relative inline-block px-2 py-1 max-w-[360px] w-full">
+      <div className="relative inline-block px-2 py-0.5 max-w-[340px] print:max-w-[260px] w-full">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo.svg"
@@ -63,15 +63,15 @@ export default function BrandLogo({
       {/* INSTITUTE Text */}
       <div
         style={{ color: subtextColor }}
-        className="font-extrabold text-xs sm:text-sm uppercase tracking-[0.35em] mt-1 text-center"
+        className="font-extrabold text-xs sm:text-sm print:text-[11px] uppercase tracking-[0.35em] mt-0.5 print:mt-0 text-center"
       >
         INSTITUTE
       </div>
 
       {/* Red Pill Banner */}
       {(variant === 'full' || variant === 'form-header') && (
-        <div className="mt-2.5">
-          <div className="inline-block bg-[#D81A22] text-white px-5 py-1 rounded-full text-xs sm:text-sm font-bold tracking-wide shadow-sm">
+        <div className="mt-2 print:mt-1">
+          <div className="inline-block bg-[#D81A22] text-white px-5 py-0.5 print:px-4 rounded-full text-xs sm:text-sm print:text-[11px] font-bold tracking-wide shadow-sm">
             Professional IT &amp; Business Development Training
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function BrandLogo({
 
       {/* Bengali Tagline */}
       {showTagline && (variant === 'full' || variant === 'form-header') && (
-        <p className="mt-1.5 text-base sm:text-lg font-black text-[#006838] dark:text-emerald-400 font-bangla tracking-wide">
+        <p className="mt-1 print:mt-0.5 text-base sm:text-lg print:text-sm font-black text-[#006838] dark:text-emerald-400 font-bangla tracking-wide">
           দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ
         </p>
       )}
