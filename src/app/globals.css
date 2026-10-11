@@ -72,8 +72,9 @@ body {
     display: block !important;
   }
 
-  /* Fixed Single Page A4 Document */
-  .registration-page {
+  /* Fixed Single Page A4 Documents */
+  .registration-page,
+  .receipt-page {
     position: relative !important;
     width: 210mm !important;
     height: 297mm !important;
