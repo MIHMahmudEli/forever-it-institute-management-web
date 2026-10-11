@@ -45,6 +45,27 @@ body {
   background: #00683888;
 }
 
+/* Smooth UI Transitions */
+.transition-smooth {
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-smooth-fast {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Dedicated Print CSS — Exact A4 Portrait Geometry */
 @page {
   size: A4 portrait;

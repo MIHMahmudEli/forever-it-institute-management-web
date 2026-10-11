@@ -6,6 +6,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { api, DashboardSummary } from '@/lib/api/api-client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
+import { DashboardCardSkeleton } from '@/components/ui/skeletons';
 import {
   Users,
   GraduationCap,
@@ -13,7 +14,6 @@ import {
   CircleDollarSign,
   AlertTriangle,
   UserPlus,
-  Receipt,
   ArrowUpRight,
   RefreshCw,
 } from 'lucide-react';
@@ -91,24 +91,29 @@ export default function DashboardPage() {
       )}
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {/* Total Students */}
-        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Total Students</span>
-            <div className="p-2 bg-emerald-50 rounded-lg text-emerald-700">
-              <Users className="w-4 h-4" />
+      {loading ? (
+        <div className="mb-8">
+          <DashboardCardSkeleton count={5} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          {/* Total Students */}
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">Total Students</span>
+              <div className="p-2 bg-emerald-50 rounded-lg text-emerald-700">
+                <Users className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <h3 className="text-2xl font-bold text-slate-900">
+                {data?.kpis.totalStudents ?? 0}
+              </h3>
+              <p className="text-[11px] text-emerald-700 font-medium mt-1">
+                {`${data?.kpis.activeStudents ?? 0} actively enrolled`}
+              </p>
             </div>
           </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-slate-900">
-              {loading ? '—' : data?.kpis.totalStudents ?? 0}
-            </h3>
-            <p className="text-[11px] text-emerald-700 font-medium mt-1">
-              {loading ? '...' : `${data?.kpis.activeStudents ?? 0} actively enrolled`}
-            </p>
-          </div>
-        </div>
 
         {/* Active Courses */}
         <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all">
@@ -168,14 +173,15 @@ export default function DashboardPage() {
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <div className="mt-3">
-            <h3 className="text-2xl font-bold text-red-600">
-              {loading ? '—' : formatCurrency(data?.kpis.outstandingDue)}
-            </h3>
-            <p className="text-[11px] text-slate-500 mt-1">Pending student balances</p>
+            <div className="mt-3">
+              <h3 className="text-2xl font-bold text-red-600">
+                {formatCurrency(data?.kpis.outstandingDue)}
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-1">Pending student balances</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Tables & Distribution Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -208,11 +214,15 @@ export default function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
-                  <tr>
-                    <td colSpan={5} className="py-6 text-center text-slate-400">
-                      Loading registrations...
-                    </td>
-                  </tr>
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-20" /></td>
+                      <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-28" /></td>
+                      <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
+                      <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-32" /></td>
+                      <td className="py-3 px-3 text-right"><div className="h-6 bg-slate-100 rounded w-16 ml-auto" /></td>
+                    </tr>
+                  ))
                 ) : !data?.recentRegistrations?.length ? (
                   <tr>
                     <td colSpan={5} className="py-6 text-center text-slate-400">
@@ -264,7 +274,17 @@ export default function DashboardPage() {
 
           <div className="flex-1 flex flex-col justify-center space-y-3 mt-4">
             {loading ? (
-              <p className="text-center text-xs text-slate-400 py-6">Loading distribution...</p>
+              <div className="space-y-3 py-2 animate-pulse">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <div className="h-3 bg-slate-200 rounded w-32" />
+                      <div className="h-3 bg-slate-100 rounded w-12" />
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full" />
+                  </div>
+                ))}
+              </div>
             ) : !data?.courseDistribution?.length ? (
               <p className="text-center text-xs text-slate-400 py-6">No enrollment data available.</p>
             ) : (
@@ -324,11 +344,17 @@ export default function DashboardPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr>
-                  <td colSpan={7} className="py-6 text-center text-slate-400">
-                    Loading payments...
-                  </td>
-                </tr>
+                Array.from({ length: 4 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-20" /></td>
+                    <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-28" /></td>
+                    <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
+                    <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
+                    <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
+                    <td className="py-3 px-3"><div className="h-5 bg-slate-100 rounded-full w-20" /></td>
+                    <td className="py-3 px-3 text-right"><div className="h-6 bg-slate-100 rounded w-20 ml-auto" /></td>
+                  </tr>
+                ))
               ) : !data?.recentPayments?.length ? (
                 <tr>
                   <td colSpan={7} className="py-6 text-center text-slate-400">

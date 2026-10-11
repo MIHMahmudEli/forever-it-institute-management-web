@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  isAdmin: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
   isLoading: true,
+  isAdmin: false,
   login: () => {},
   logout: () => {},
   refreshUser: async () => {},
@@ -28,6 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+
+  const isAdmin = user?.role === 'ADMIN';
 
   useEffect(() => {
     try {
@@ -83,11 +87,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push('/login');
     } else if (user && pathname === '/login') {
       router.push('/dashboard');
+    } else if (user && !isAdmin && pathname.startsWith('/staff')) {
+      router.push('/dashboard');
     }
-  }, [user, isLoading, pathname, router]);
+  }, [user, isAdmin, isLoading, pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, isAdmin, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

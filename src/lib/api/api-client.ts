@@ -376,4 +376,39 @@ export const api = {
     },
     getDues: () => apiRequest<{ summary: any; items: any[] }>('/reports/dues'),
   },
+
+  staff: {
+    getAll: (params?: { search?: string; status?: string; page?: number; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.search) q.append('search', params.search);
+      if (params?.status) q.append('status', params.status);
+      if (params?.page) q.append('page', String(params.page));
+      if (params?.limit) q.append('limit', String(params.limit));
+      return apiRequest<{
+        data: User[];
+        meta: { total: number; page: number; limit: number; totalPages: number };
+      }>(`/staff?${q.toString()}`);
+    },
+    getOne: (id: string) => apiRequest<User>(`/staff/${id}`),
+    create: (data: { email: string; password: string; fullName: string; isActive?: boolean }) =>
+      apiRequest<User>('/staff', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: { fullName?: string; password?: string }) =>
+      apiRequest<User>(`/staff/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    updateStatus: (id: string, isActive: boolean) =>
+      apiRequest<User>(`/staff/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+      }),
+  },
+
+  account: {
+    getMe: () => apiRequest<User>('/account/me'),
+    updateProfile: (data: { fullName: string }) =>
+      apiRequest<User>('/account/profile', { method: 'PATCH', body: JSON.stringify(data) }),
+    changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) =>
+      apiRequest<{ success: boolean; message: string }>('/account/change-password', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
 };

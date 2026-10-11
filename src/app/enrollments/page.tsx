@@ -87,12 +87,24 @@ export default function EnrollmentsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    <div className="inline-block w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mb-2" />
-                    <p>Loading enrollments...</p>
-                  </td>
-                </tr>
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="py-3.5 px-4">
+                      <div className="h-3.5 bg-slate-200 rounded w-28 mb-1" />
+                      <div className="h-2.5 bg-slate-100 rounded w-20" />
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="h-3.5 bg-slate-200 rounded w-36 mb-1" />
+                      <div className="h-2.5 bg-slate-100 rounded w-16" />
+                    </td>
+                    <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
+                    <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
+                    <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-14" /></td>
+                    <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
+                    <td className="py-3.5 px-4"><div className="h-5 bg-slate-100 rounded-full w-16" /></td>
+                    <td className="py-3.5 px-4 text-right"><div className="h-6 bg-slate-100 rounded w-8 ml-auto" /></td>
+                  </tr>
+                ))
               ) : enrollments.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400">

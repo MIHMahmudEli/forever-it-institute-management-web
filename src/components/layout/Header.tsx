@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { Menu, Calendar } from 'lucide-react';
 
+import Link from 'next/link';
+
 interface HeaderProps {
   title?: string;
   onOpenMobileMenu?: () => void;
@@ -49,15 +51,21 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
         )}
 
         {/* User Mini Badge */}
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
+        <Link
+          href="/account"
+          className="flex items-center space-x-2 p-1 -m-1 rounded-lg hover:bg-slate-100 transition-smooth group"
+          title="Account Settings"
+        >
+          <div className="w-8 h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs group-hover:bg-emerald-900 transition-colors">
             {user?.fullName?.charAt(0) || 'U'}
           </div>
           <div className="hidden md:block text-left">
-            <p className="text-xs font-semibold text-slate-800 leading-tight">{user?.fullName}</p>
+            <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-emerald-800 transition-colors">
+              {user?.fullName}
+            </p>
             <p className="text-[10px] text-emerald-700 font-medium">{user?.role}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );

@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { api } from '@/lib/api/api-client';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { BarChart3, AlertCircle, Printer, Download, Users, CreditCard } from 'lucide-react';
+import { useAuth } from '@/lib/auth/auth-context';
+import { Printer, ShieldAlert } from 'lucide-react';
 
 export default function ReportsPage() {
+  const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<'dues' | 'payments' | 'enrollments'>('dues');
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +44,21 @@ export default function ReportsPage() {
   useEffect(() => {
     fetchReports();
   }, [activeTab]);
+
+  if (!isAdmin) {
+    return (
+      <DashboardLayout title="Access Restricted">
+        <div className="bg-white rounded-xl border border-red-200 p-8 text-center max-w-lg mx-auto mt-12 shadow-xs">
+          <ShieldAlert className="w-12 h-12 text-[#D81A22] mx-auto mb-3" />
+          <h2 className="text-lg font-bold text-slate-800">Administrator Privileges Required</h2>
+          <p className="text-xs text-slate-500 mt-2">
+            Institutional revenue, financial reconciliation, and dues reports are restricted to authorized institute
+            administrators only.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout title="Financial & Enrollment Reports">
@@ -137,11 +154,20 @@ export default function ReportsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {loading ? (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-slate-400">
-                        Calculating student balances...
-                      </td>
-                    </tr>
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="py-3.5 px-4">
+                          <div className="h-3.5 bg-slate-200 rounded w-28 mb-1" />
+                          <div className="h-2.5 bg-slate-100 rounded w-16" />
+                        </td>
+                        <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
+                        <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
+                        <td className="py-3.5 px-4"><div className="h-4 bg-slate-100 rounded w-28" /></td>
+                        <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
+                        <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
+                        <td className="py-3.5 px-4 text-right"><div className="h-4 bg-slate-200 rounded w-16 ml-auto" /></td>
+                      </tr>
+                    ))
                   ) : !duesData?.items?.length ? (
                     <tr>
                       <td colSpan={7} className="py-8 text-center text-slate-400">
@@ -221,11 +247,17 @@ export default function ReportsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {loading ? (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-slate-400">
-                        Loading collections...
-                      </td>
-                    </tr>
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-200 rounded w-20" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-200 rounded w-28" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
+                        <td className="py-3 px-4"><div className="h-4 bg-slate-100 rounded-full w-20" /></td>
+                      </tr>
+                    ))
                   ) : !paymentsData?.items?.length ? (
                     <tr>
                       <td colSpan={7} className="py-8 text-center text-slate-400">
@@ -300,11 +332,17 @@ export default function ReportsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {loading ? (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-slate-400">
-                        Loading enrollments...
-                      </td>
-                    </tr>
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-200 rounded w-28" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-200 rounded w-24" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-100 rounded w-14" /></td>
+                        <td className="py-3 px-4"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
+                        <td className="py-3 px-4"><div className="h-4 bg-slate-100 rounded-full w-16" /></td>
+                      </tr>
+                    ))
                   ) : !enrollmentsData?.items?.length ? (
                     <tr>
                       <td colSpan={7} className="py-8 text-center text-slate-400">

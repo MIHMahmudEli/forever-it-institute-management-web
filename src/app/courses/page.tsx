@@ -142,10 +142,26 @@ export default function CoursesPage() {
       {/* Courses Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {loading ? (
-          <div className="col-span-full py-16 text-center text-slate-400">
-            <div className="inline-block w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mb-2" />
-            <p className="text-xs">Loading course catalog...</p>
-          </div>
+          Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between h-52 animate-pulse"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="h-6 bg-slate-200 rounded w-16" />
+                  <div className="h-5 bg-slate-100 rounded-full w-16" />
+                </div>
+                <div className="h-5 bg-slate-200 rounded w-4/5 mb-2" />
+                <div className="h-3 bg-slate-100 rounded w-full mb-1" />
+                <div className="h-3 bg-slate-100 rounded w-2/3" />
+              </div>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="h-4 bg-slate-100 rounded w-20" />
+                <div className="h-6 bg-slate-200 rounded w-24" />
+              </div>
+            </div>
+          ))
         ) : courses.length === 0 ? (
           <div className="col-span-full py-16 text-center bg-white rounded-xl border border-slate-200 text-slate-400">
             <GraduationCap className="w-10 h-10 mx-auto text-slate-300 mb-2" />

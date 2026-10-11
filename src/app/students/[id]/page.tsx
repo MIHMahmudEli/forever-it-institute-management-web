@@ -7,6 +7,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { api, Student, PaymentMethod } from '@/lib/api/api-client';
 import { formatCurrency, formatDate, numberToWordsBDT } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
+import { StudentDetailsSkeleton } from '@/components/ui/skeletons';
 import {
   User,
   GraduationCap,
@@ -87,10 +88,7 @@ export default function StudentDetailPage() {
   if (loading) {
     return (
       <DashboardLayout title="Student Details">
-        <div className="py-20 text-center">
-          <div className="inline-block w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-sm text-slate-500">Loading student profile...</p>
-        </div>
+        <StudentDetailsSkeleton />
       </DashboardLayout>
     );
   }
