@@ -12,7 +12,7 @@ export const metadata: Metadata = {
       { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     shortcut: '/favicon.svg',
-    apple: '/logo-icon.svg',
+    apple: '/logo-mark.svg',
   },
 };
 
