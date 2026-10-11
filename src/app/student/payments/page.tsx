@@ -100,12 +100,7 @@ export default function StudentPaymentsPage() {
                   <th className="px-5 py-3.5">Transaction Ref</th>
                   <th className="px-5 py-3.5">Amount</th>
                   <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">
-                    <span className="inline-flex items-center justify-end gap-1.5 text-slate-700">
-                      <Printer className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Receipt Action</span>
-                    </span>
-                  </th>
+                  <th className="px-5 py-3.5 text-right">Receipt Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -132,22 +127,26 @@ export default function StudentPaymentsPage() {
                         <StatusBadge status={p.status} />
                       </td>
                       <td className="px-5 py-4 text-right">
-                        {isPrintable ? (
-                          <Link
-                            href={`/print/receipt/${p.id}`}
-                            target="_blank"
-                            className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80 transition-smooth shadow-2xs"
-                            title="Print Official Payment Receipt"
-                          >
-                            <Printer className="w-3.5 h-3.5 mr-1.5 text-emerald-700" />
-                            Print Receipt
-                          </Link>
-                        ) : (
-                          <span className="inline-flex items-center text-[11px] text-slate-400 italic">
-                            <Printer className="w-3 h-3 mr-1 opacity-40" />
-                            Not printable
-                          </span>
-                        )}
+                        <div className="flex items-center justify-end">
+                          {isPrintable ? (
+                            <Link
+                              href={`/print/receipt/${p.id}`}
+                              target="_blank"
+                              className="inline-flex items-center justify-center p-1.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80 transition-smooth shadow-2xs hover:shadow-xs"
+                              title="Print Official Payment Receipt"
+                              aria-label="Print Official Payment Receipt"
+                            >
+                              <Printer className="w-4 h-4 text-emerald-700" />
+                            </Link>
+                          ) : (
+                            <span
+                              className="inline-flex items-center justify-center p-1.5 text-slate-300 select-none cursor-not-allowed"
+                              title="Print unavailable for reversed payment"
+                            >
+                              <Printer className="w-4 h-4 opacity-30" />
+                            </span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
