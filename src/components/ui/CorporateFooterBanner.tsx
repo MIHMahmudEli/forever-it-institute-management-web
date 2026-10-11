@@ -24,39 +24,36 @@ export default function CorporateFooterBanner({
       <div className="absolute top-0 right-0 w-12 h-12 bg-[#D81A22] transform rotate-45 translate-x-6 -translate-y-6 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-12 h-12 bg-[#D81A22] transform rotate-45 -translate-x-6 translate-y-6 pointer-events-none" />
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-2 items-center text-xs">
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 print:grid-cols-12 gap-3 items-center text-xs">
         {/* 1. Corporate Address */}
-        <div className="flex items-center gap-3 md:pr-4">
+        <div className="flex items-center gap-3 sm:col-span-6 print:col-span-6">
           <div className="w-8 h-8 rounded-full bg-white text-[#006838] flex items-center justify-center shrink-0 shadow-xs">
             <MapPin className="w-4 h-4 fill-current stroke-none" />
           </div>
           <div className="leading-tight">
-            <span className="font-extrabold uppercase text-[11px] tracking-wide block text-white/95">
+            <span className="font-bold text-[11px] block text-white">
               Corporate Address:
             </span>
-            <span className="text-[10px] sm:text-[11px] text-white/90 block">
-              House # 14, Road # 14, Block # L,
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-white/90 block">
-              South Banasree, Dhaka- 1219
+            <span className="text-[10px] sm:text-[10.5px] text-white/90 block">
+              House # 14, Road # 14, Block # L, South Banasree, Dhaka-1219
             </span>
           </div>
         </div>
 
         {/* 2. Website */}
-        <div className="flex items-center gap-3 md:border-l md:border-white/30 md:px-4">
+        <div className="flex items-center gap-3 sm:col-span-3 print:col-span-3 sm:border-l sm:border-white/25 print:border-l print:border-white/25 sm:pl-4 print:pl-4">
           <div className="w-8 h-8 rounded-full bg-white text-[#006838] flex items-center justify-center shrink-0 shadow-xs">
             <Globe className="w-4 h-4" />
           </div>
           <div className="leading-tight">
-            <span className="font-extrabold uppercase text-[11px] tracking-wide block text-white/95">
-              Website :
+            <span className="font-bold text-[11px] block text-white">
+              Website:
             </span>
             <a
               href="https://www.foreveritbd.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-white font-semibold hover:underline block"
+              className="text-[10.5px] text-white font-medium hover:underline block"
             >
               www.foreveritbd.com
             </a>
@@ -64,17 +61,17 @@ export default function CorporateFooterBanner({
         </div>
 
         {/* 3. Mobile */}
-        <div className="flex items-center gap-3 md:border-l md:border-white/30 md:pl-4">
+        <div className="flex items-center gap-3 sm:col-span-3 print:col-span-3 sm:border-l sm:border-white/25 print:border-l print:border-white/25 sm:pl-4 print:pl-4">
           <div className="w-8 h-8 rounded-full bg-white text-[#006838] flex items-center justify-center shrink-0 shadow-xs">
             <Phone className="w-4 h-4 fill-current stroke-none" />
           </div>
           <div className="leading-tight">
-            <span className="font-extrabold uppercase text-[11px] tracking-wide block text-white/95">
-              Mobile :
+            <span className="font-bold text-[11px] block text-white">
+              Mobile:
             </span>
             <a
               href="tel:+8801762367001"
-              className="text-[11px] text-white font-semibold hover:underline block"
+              className="text-[10.5px] text-white font-medium hover:underline block"
             >
               +8801762367001
             </a>
