@@ -157,10 +157,12 @@ export default function StudentCoursesPage() {
                       <span className="text-[10px] uppercase font-semibold text-slate-400 block">Balance Due</span>
                       <span
                         className={`text-xs font-bold ${
-                          (enr.dueAmount || 0) > 0 ? 'text-[#D81A22]' : 'text-emerald-700'
+                          (enr.dueAmount || 0) > 0 && enr.status !== 'DROPPED'
+                            ? 'text-[#D81A22]'
+                            : 'text-emerald-700'
                         }`}
                       >
-                        {formatCurrency(enr.dueAmount || 0)}
+                        {enr.status === 'DROPPED' ? '৳ 0 (Waived)' : formatCurrency(enr.dueAmount || 0)}
                       </span>
                     </div>
                   </div>

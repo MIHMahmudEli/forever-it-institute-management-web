@@ -136,10 +136,14 @@ export default function StudentCourseDetailPage() {
                   <span className="font-bold text-slate-900">Remaining Balance:</span>
                   <span
                     className={`font-black ${
-                      (enrollment.dueAmount || 0) > 0 ? 'text-[#D81A22]' : 'text-emerald-700'
+                      (enrollment.dueAmount || 0) > 0 && enrollment.status !== 'DROPPED'
+                        ? 'text-[#D81A22]'
+                        : 'text-emerald-700'
                     }`}
                   >
-                    {formatCurrency(enrollment.dueAmount || 0)}
+                    {enrollment.status === 'DROPPED'
+                      ? '৳ 0 (Waived on Drop)'
+                      : formatCurrency(enrollment.dueAmount || 0)}
                   </span>
                 </div>
               </div>
