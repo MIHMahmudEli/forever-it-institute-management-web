@@ -24,28 +24,28 @@ export default function CorporateFooterBanner({
       <div className="absolute top-0 right-0 w-12 h-12 bg-[#D81A22] transform rotate-45 translate-x-6 -translate-y-6 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-12 h-12 bg-[#D81A22] transform rotate-45 -translate-x-6 translate-y-6 pointer-events-none" />
 
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 print:grid-cols-12 gap-3 items-center text-xs">
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 items-center text-xs">
         {/* 1. Corporate Address */}
-        <div className="flex items-center gap-3 sm:col-span-6 print:col-span-6">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-full bg-white text-[#006838] flex items-center justify-center shrink-0 shadow-xs">
             <MapPin className="w-4 h-4 fill-current stroke-none" />
           </div>
-          <div className="leading-tight">
+          <div className="leading-tight min-w-0">
             <span className="font-bold text-[11px] block text-white">
               Corporate Address:
             </span>
-            <span className="text-[10px] sm:text-[10.5px] text-white/90 block">
+            <span className="text-[10px] sm:text-[10.5px] text-white/90 block leading-tight">
               House # 14, Road # 14, Block # L, South Banasree, Dhaka-1219
             </span>
           </div>
         </div>
 
         {/* 2. Website */}
-        <div className="flex items-center gap-3 sm:col-span-3 print:col-span-3 sm:border-l sm:border-white/25 print:border-l print:border-white/25 sm:pl-4 print:pl-4">
+        <div className="flex items-center gap-3 min-w-0 sm:border-l sm:border-white/25 print:border-l print:border-white/25 sm:pl-4 print:pl-4">
           <div className="w-8 h-8 rounded-full bg-white text-[#006838] flex items-center justify-center shrink-0 shadow-xs">
             <Globe className="w-4 h-4" />
           </div>
-          <div className="leading-tight">
+          <div className="leading-tight min-w-0">
             <span className="font-bold text-[11px] block text-white">
               Website:
             </span>
@@ -53,7 +53,7 @@ export default function CorporateFooterBanner({
               href="https://www.foreveritbd.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10.5px] text-white font-medium hover:underline block"
+              className="text-[10.5px] text-white font-medium hover:underline block truncate"
             >
               www.foreveritbd.com
             </a>
@@ -61,11 +61,11 @@ export default function CorporateFooterBanner({
         </div>
 
         {/* 3. Mobile */}
-        <div className="flex items-center gap-3 sm:col-span-3 print:col-span-3 sm:border-l sm:border-white/25 print:border-l print:border-white/25 sm:pl-4 print:pl-4">
+        <div className="flex items-center gap-3 min-w-0 sm:border-l sm:border-white/25 print:border-l print:border-white/25 sm:pl-4 print:pl-4">
           <div className="w-8 h-8 rounded-full bg-white text-[#006838] flex items-center justify-center shrink-0 shadow-xs">
             <Phone className="w-4 h-4 fill-current stroke-none" />
           </div>
-          <div className="leading-tight">
+          <div className="leading-tight min-w-0">
             <span className="font-bold text-[11px] block text-white">
               Mobile:
             </span>
