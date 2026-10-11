@@ -37,8 +37,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
   return (
     <aside className="w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
       {/* Brand Header */}
-      <div className="p-4 border-b border-[#006838]/80 bg-[#004225]">
-        <Link href="/dashboard" className="block group">
+      <div className="p-4 border-b border-[#006838]/80 bg-[#004225] flex flex-col items-center text-center">
+        {/* Line 1: Logo */}
+        <Link href="/dashboard" className="block w-full group">
           <div className="bg-white rounded-xl p-2.5 shadow-md flex items-center justify-center hover:opacity-95 transition-all">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -48,11 +49,15 @@ export default function Sidebar({ onClose }: SidebarProps) {
             />
           </div>
         </Link>
-        <div className="mt-2.5 flex items-center justify-between">
-          <span className="text-[10px] tracking-[0.25em] font-extrabold uppercase text-emerald-300">
-            INSTITUTE
-          </span>
-          <span className="inline-block px-2 py-0.5 rounded-full bg-[#006838] text-[10px] text-emerald-200 font-bold border border-emerald-500/30">
+
+        {/* Line 2: INSTITUTE */}
+        <span className="mt-2 text-[11px] tracking-[0.3em] font-extrabold uppercase text-emerald-200 text-center">
+          INSTITUTE
+        </span>
+
+        {/* Line 3: Bengali Tagline */}
+        <div className="mt-1.5 w-full flex justify-center">
+          <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#006838] text-[10px] text-emerald-100 font-bold border border-emerald-500/30 text-center tracking-wide">
             দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ
           </span>
         </div>
