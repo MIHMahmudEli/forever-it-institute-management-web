@@ -42,31 +42,42 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout title="Executive Overview">
-      {/* Top Banner / Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Institute Dashboard</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time enrollment metrics, course performance, and financial status.
-          </p>
-        </div>
+      {/* Official Institute Branded Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#015333] via-[#006838] to-[#015333] text-white p-6 mb-6 shadow-lg border border-emerald-600/40">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#D81A22] transform rotate-45 translate-x-16 -translate-y-16 opacity-80 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-200 text-xs font-bold mb-2 border border-white/20">
+              <span>FOREVER IT INSTITUTE</span>
+              <span>•</span>
+              <span className="font-bangla">দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Institute Central Dashboard
+            </h1>
+            <p className="text-xs text-emerald-100/90 mt-1 max-w-xl">
+              Professional IT &amp; Business Development Training • South Banasree, Dhaka • +8801762367001
+            </p>
+          </div>
 
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={loadDashboard}
-            disabled={loading}
-            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          <Link
-            href="/students/new"
-            className="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs transition-colors"
-          >
-            <UserPlus className="w-3.5 h-3.5 mr-1.5" />
-            New Registration
-          </Link>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={loadDashboard}
+              disabled={loading}
+              className="inline-flex items-center px-3.5 py-2 text-xs font-bold rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all shadow-xs"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <Link
+              href="/students/new"
+              className="inline-flex items-center px-4 py-2 text-xs font-bold rounded-xl bg-[#D81A22] hover:bg-[#b91c1c] text-white shadow-md transition-all"
+            >
+              <UserPlus className="w-3.5 h-3.5 mr-1.5" />
+              New Registration
+            </Link>
+          </div>
         </div>
       </div>
 

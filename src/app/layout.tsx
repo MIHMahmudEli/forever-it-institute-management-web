@@ -5,7 +5,15 @@ import { AuthProvider } from '@/lib/auth/auth-context';
 
 export const metadata: Metadata = {
   title: 'Forever IT Institute — Management System',
-  description: 'Enterprise Student Registration, Course Enrollment, and Institute Management System',
+  description: 'Professional IT & Business Development Training — Digital Registration & Institute Management System',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/logo-icon.svg',
+  },
 };
 
 export default function RootLayout({

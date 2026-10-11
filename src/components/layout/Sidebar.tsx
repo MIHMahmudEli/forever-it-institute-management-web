@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import BrandLogo from '@/components/ui/BrandLogo';
 import {
   LayoutDashboard,
   UserPlus,
@@ -35,24 +36,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-64 bg-[#08442a] text-white flex flex-col h-full border-r border-[#0d5c3a]/40 shadow-xl">
+    <aside className="w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
       {/* Brand Header */}
-      <div className="p-5 border-b border-emerald-900/60 bg-[#06331f]">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center font-black text-xl text-emerald-300">
-            FIT
-          </div>
-          <div>
-            <h1 className="font-bold text-sm tracking-wide uppercase text-white leading-tight">
-              Forever IT
-            </h1>
-            <p className="text-[11px] text-emerald-300/90 font-medium">
-              Institute Management
-            </p>
-          </div>
-        </div>
-        <div className="mt-3 inline-block px-2 py-0.5 rounded bg-emerald-900/80 text-[10px] text-emerald-200 font-bangla border border-emerald-700/50">
-          দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ
+      <div className="p-4 border-b border-[#006838]/80 bg-[#004225]">
+        <BrandLogo variant="horizontal" theme="dark" />
+        <div className="mt-2.5 flex items-center justify-between">
+          <span className="inline-block px-2 py-0.5 rounded-full bg-[#006838] text-[10px] text-emerald-200 font-bold border border-emerald-500/30">
+            দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ
+          </span>
         </div>
       </div>
 

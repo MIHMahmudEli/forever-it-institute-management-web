@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { api, ApiError } from '@/lib/api/api-client';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import BrandLogo from '@/components/ui/BrandLogo';
+import CornerRibbons from '@/components/ui/CornerRibbons';
+import { Lock, Mail, ArrowRight, AlertCircle, Shield } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -43,38 +45,44 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#0d5c3a]/40 via-slate-900 to-black">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center px-4">
-        {/* Brand Logo & Title */}
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 font-black text-2xl shadow-lg shadow-emerald-950/50 mb-4">
-          FIT
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
-          Forever IT Institute
-        </h1>
-        <p className="mt-1 text-sm font-bangla text-emerald-400 font-medium">
-          দক্ষতা গড়ুন, গড়ুন সফল ভবিষ্যৎ
-        </p>
-        <p className="mt-1 text-xs text-slate-400">
-          Institute Management & Digital Registration System
-        </p>
-      </div>
+    <div className="min-h-screen relative overflow-hidden bg-slate-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#015333] via-slate-900 to-black">
+      {/* Brand Corner Ribbons */}
+      <CornerRibbons position="all" />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-slate-800/90 border border-slate-700/80 backdrop-blur-md py-8 px-6 sm:px-10 shadow-2xl rounded-2xl">
+      {/* Center Container */}
+      <div className="relative z-20 sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Card */}
+        <div className="bg-white/95 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 backdrop-blur-xl py-8 px-6 sm:px-10 shadow-2xl rounded-3xl relative overflow-hidden">
+          {/* Subtle top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#D81A22] via-[#006838] to-[#D81A22]" />
+
+          {/* Official Brand Logo */}
+          <div className="mb-6 flex justify-center">
+            <BrandLogo variant="full" theme="light" />
+          </div>
+
+          <div className="text-center mb-6">
+            <h2 className="text-base font-bold text-slate-800 uppercase tracking-wider">
+              Management Portal Login
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Secure Staff &amp; Administrator Access
+            </p>
+          </div>
+
           {error && (
-            <div className="mb-6 rounded-lg bg-red-950/60 border border-red-800/60 p-3.5 flex items-start space-x-3 text-red-200 text-xs">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+            <div className="mb-6 rounded-xl bg-red-50 border border-red-200 p-3.5 flex items-start space-x-3 text-red-800 text-xs">
+              <AlertCircle className="w-4 h-4 text-[#D81A22] shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Email Address
               </label>
-              <div className="relative rounded-lg shadow-xs">
+              <div className="relative rounded-xl shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Mail className="w-4 h-4" />
                 </div>
@@ -84,16 +92,16 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@foreveritbd.com"
-                  className="block w-full pl-10 pr-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-[#006838] focus:border-[#006838] transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Password
               </label>
-              <div className="relative rounded-lg shadow-xs">
+              <div className="relative rounded-xl shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-4 h-4" />
                 </div>
@@ -103,7 +111,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="block w-full pl-10 pr-3.5 py-2.5 bg-slate-900/80 border border-slate-700 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-[#006838] focus:border-[#006838] transition-all"
                 />
               </div>
             </div>
@@ -111,7 +119,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 flex items-center justify-center py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 shadow-lg shadow-emerald-900/40 focus:outline-hidden focus:ring-2 focus:ring-emerald-400 transition-all disabled:opacity-50"
+              className="w-full mt-3 flex items-center justify-center py-3 px-4 rounded-xl text-sm font-bold text-white bg-[#006838] hover:bg-[#015333] active:bg-[#004225] shadow-lg shadow-emerald-950/20 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 transition-all disabled:opacity-50"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -124,33 +132,48 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Quick Fill Helper */}
-          <div className="mt-6 pt-6 border-t border-slate-700/60">
-            <p className="text-[11px] text-center font-medium text-slate-400 mb-2.5">
-              Quick Test Credentials:
+          {/* Quick Demo Helper */}
+          <div className="mt-6 pt-5 border-t border-slate-200">
+            <p className="text-[11px] text-center font-medium text-slate-500 mb-2 flex items-center justify-center gap-1">
+              <Shield className="w-3 h-3 text-[#006838]" /> Quick Credentials:
             </p>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => fillCredentials('admin')}
-                className="py-1.5 px-2 text-xs font-medium rounded-md bg-slate-700/70 hover:bg-slate-700 text-emerald-300 border border-slate-600 text-center transition-colors"
+                className="py-1.5 px-2 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-[#006838] border border-emerald-200 text-center transition-colors"
               >
-                Fill Admin (Full)
+                Admin (Full Access)
               </button>
               <button
                 type="button"
                 onClick={() => fillCredentials('staff')}
-                className="py-1.5 px-2 text-xs font-medium rounded-md bg-slate-700/70 hover:bg-slate-700 text-emerald-300 border border-slate-600 text-center transition-colors"
+                className="py-1.5 px-2 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-[#006838] border border-emerald-200 text-center transition-colors"
               >
-                Fill Staff (Officer)
+                Staff (Officer)
               </button>
             </div>
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-500">
-          Official Portal: <span className="text-slate-400">www.foreveritbd.com</span> • Timezone: Asia/Dhaka
-        </p>
+        {/* Corporate Details Footer */}
+        <div className="mt-6 text-center text-xs text-white/70 space-y-1">
+          <p>
+            <span className="font-semibold text-white">Forever IT Institute</span> • Banasree, Dhaka
+          </p>
+          <p>
+            Official Website:{' '}
+            <a
+              href="https://www.foreveritbd.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-300 hover:underline font-medium"
+            >
+              www.foreveritbd.com
+            </a>{' '}
+            • Helpline: <span className="text-emerald-300 font-medium">+8801762367001</span>
+          </p>
+        </div>
       </div>
     </div>
   );

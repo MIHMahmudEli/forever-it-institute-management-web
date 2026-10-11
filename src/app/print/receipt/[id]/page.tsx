@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api, PaymentReceipt } from '@/lib/api/api-client';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import BrandLogo from '@/components/ui/BrandLogo';
+import CornerRibbons from '@/components/ui/CornerRibbons';
+import CorporateFooterBanner from '@/components/ui/CorporateFooterBanner';
 import { Printer, ArrowLeft } from 'lucide-react';
 
 export default function PrintablePaymentReceipt() {
@@ -56,7 +59,7 @@ export default function PrintablePaymentReceipt() {
   return (
     <div className="min-h-screen bg-slate-100 py-6 print:py-0 print:bg-white text-black font-sans">
       {/* Floating Toolbar (Hidden when printing) */}
-      <div className="no-print max-w-[180mm] mx-auto mb-4 flex items-center justify-between px-4">
+      <div className="no-print max-w-[190mm] mx-auto mb-4 flex items-center justify-between px-4">
         <button
           onClick={() => router.back()}
           className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
@@ -67,7 +70,7 @@ export default function PrintablePaymentReceipt() {
 
         <button
           onClick={() => window.print()}
-          className="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold shadow-md"
+          className="inline-flex items-center px-4 py-2 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold shadow-md transition-colors"
         >
           <Printer className="w-4 h-4 mr-1.5" />
           Print Money Receipt
@@ -75,114 +78,126 @@ export default function PrintablePaymentReceipt() {
       </div>
 
       {/* Printable Receipt Canvas */}
-      <div className="max-w-[180mm] mx-auto bg-white p-8 border-2 border-slate-300 print:border-none shadow-lg print:shadow-none min-h-[140mm] flex flex-col justify-between">
-        <div>
-          {/* Header */}
-          <div className="flex justify-between items-start pb-4 border-b-2 border-emerald-900">
-            <div>
-              <h1 className="text-xl font-black text-emerald-900 uppercase tracking-wide">
-                {receipt.institute.name}
-              </h1>
-              <p className="text-xs font-bold font-bangla text-emerald-800">
-                {receipt.institute.tagline}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                Web: {receipt.institute.website}
-              </p>
+      <div className="relative max-w-[190mm] mx-auto bg-white p-6 sm:p-8 border-2 border-slate-300 print:border-none shadow-xl print:shadow-none min-h-[150mm] flex flex-col justify-between overflow-hidden">
+        {/* Brand Corner Ribbons */}
+        <CornerRibbons position="all" />
+
+        <div className="relative z-10 space-y-4">
+          {/* Header Branding */}
+          <div className="pt-2 text-center">
+            <BrandLogo variant="form-header" showTagline={true} />
+          </div>
+
+          {/* Receipt Title Capsule with Parallel Lines */}
+          <div className="flex items-center justify-center gap-3 my-1">
+            <div className="flex-1 flex flex-col gap-0.5 max-w-[100px]">
+              <div className="h-0.5 bg-[#D81A22]" />
+              <div className="h-1 bg-[#006838]" />
             </div>
 
-            <div className="text-right">
-              <span className="inline-block px-3 py-1 rounded bg-emerald-100 text-emerald-950 font-black text-xs uppercase tracking-wider border border-emerald-300">
-                Money Receipt
-              </span>
-              <p className="text-xs font-mono font-bold text-slate-900 mt-2">
-                Receipt No: {receipt.receiptNumber}
-              </p>
-              <p className="text-[11px] text-slate-600">
-                Date: {formatDate(receipt.paymentDate)}
-              </p>
+            <div className="bg-[#006838] text-white px-6 py-1 rounded-full shadow-sm">
+              <h2 className="text-sm sm:text-base font-black tracking-wider uppercase">
+                Official Money Receipt
+              </h2>
+            </div>
+
+            <div className="flex-1 flex flex-col gap-0.5 max-w-[100px]">
+              <div className="h-0.5 bg-[#D81A22]" />
+              <div className="h-1 bg-[#006838]" />
             </div>
           </div>
 
-          {/* Student & Payment Summary Grid */}
-          <div className="mt-4 grid grid-cols-2 gap-4 text-xs pb-4 border-b border-slate-200">
+          {/* Receipt Meta & Numbers */}
+          <div className="flex justify-between items-center text-xs px-2 py-1.5 bg-[#f0fdf4] border border-[#006838]/40 rounded-lg">
             <div>
-              <span className="text-slate-500 block">Student Name:</span>
-              <span className="font-bold text-slate-900 text-sm">
-                {receipt.student.fullName}
-              </span>
+              <span className="text-slate-600">Receipt No: </span>
+              <strong className="font-mono text-slate-900 font-bold">{receipt.receiptNumber}</strong>
             </div>
             <div>
-              <span className="text-slate-500 block">Registration Number:</span>
-              <span className="font-mono font-bold text-slate-900 text-sm">
-                {receipt.student.registrationNumber}
-              </span>
+              <span className="text-slate-600">Date: </span>
+              <strong className="text-slate-900 font-bold">{formatDate(receipt.paymentDate)}</strong>
             </div>
-            <div>
-              <span className="text-slate-500 block">Contact Phone:</span>
-              <span className="font-semibold text-slate-800">
-                {receipt.student.mobileNumber}
-              </span>
+          </div>
+
+          {/* Student Information Grid */}
+          <div className="border border-[#006838] rounded-xl p-3 bg-white space-y-2 text-xs">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <span className="text-slate-500 block">Student Name:</span>
+                <span className="font-bold text-slate-900 text-sm">{receipt.student.fullName}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block">Registration Number:</span>
+                <span className="font-mono font-bold text-slate-900 text-sm">{receipt.student.registrationNumber}</span>
+              </div>
             </div>
-            <div>
-              <span className="text-slate-500 block">Payment Method:</span>
-              <span className="font-bold text-slate-800 uppercase">
-                {receipt.paymentMethod}{' '}
-                {receipt.transactionReference ? `(TrxID: ${receipt.transactionReference})` : ''}
-              </span>
+
+            <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+              <div>
+                <span className="text-slate-500 block">Mobile No:</span>
+                <span className="font-semibold text-slate-800">{receipt.student.mobileNumber}</span>
+              </div>
+              <div>
+                <span className="text-slate-500 block">Payment Method:</span>
+                <span className="font-bold text-[#006838] uppercase">
+                  {receipt.paymentMethod}{' '}
+                  {receipt.transactionReference ? `(TrxID: ${receipt.transactionReference})` : ''}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Amount Box */}
-          <div className="mt-5 p-4 rounded-lg bg-emerald-50 border border-emerald-300">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+          <div className="p-4 rounded-xl bg-[#f0fdf4] border-2 border-[#006838] shadow-xs">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-black text-[#006838] uppercase tracking-wider">
                 Amount Received (টাকা আদায়):
               </span>
-              <span className="text-2xl font-black text-emerald-900">
+              <span className="text-2xl font-black text-[#006838]">
                 {formatCurrency(receipt.amount)}
               </span>
             </div>
-            <div className="text-xs font-medium text-emerald-800 italic pt-1 border-t border-emerald-200">
-              Amount in words: <strong className="not-italic">{receipt.amountInWords}</strong>
+            <div className="text-xs font-semibold text-slate-800 pt-1.5 border-t border-[#006838]/30">
+              In Words: <span className="font-bold capitalize">{receipt.amountInWords}</span>
             </div>
           </div>
 
           {/* Balance Statement */}
-          <div className="mt-4 flex justify-between items-center text-xs p-3 bg-slate-50 rounded border border-slate-200">
+          <div className="grid grid-cols-3 gap-2 text-xs p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
             <div>
-              <span className="text-slate-500">Total Course Payable: </span>
-              <strong className="text-slate-800">{formatCurrency(receipt.financialSummary.totalPayable)}</strong>
+              <span className="text-slate-500 block text-[11px]">Total Course Fee:</span>
+              <strong className="text-slate-900 font-bold">{formatCurrency(receipt.financialSummary.totalPayable)}</strong>
             </div>
             <div>
-              <span className="text-slate-500">Total Paid: </span>
-              <strong className="text-emerald-800">{formatCurrency(receipt.financialSummary.totalPaid)}</strong>
+              <span className="text-slate-500 block text-[11px]">Total Paid To Date:</span>
+              <strong className="text-[#006838] font-bold">{formatCurrency(receipt.financialSummary.totalPaid)}</strong>
             </div>
             <div>
-              <span className="text-slate-500">Remaining Balance: </span>
-              <strong className="text-red-600 font-bold">{formatCurrency(receipt.financialSummary.outstandingDue)}</strong>
+              <span className="text-slate-500 block text-[11px]">Remaining Due:</span>
+              <strong className="text-[#D81A22] font-black">{formatCurrency(receipt.financialSummary.outstandingDue)}</strong>
+            </div>
+          </div>
+
+          {/* Signatures */}
+          <div className="pt-6 pb-2">
+            <div className="flex justify-between items-end text-xs">
+              <div className="text-[11px] text-slate-600">
+                Received By: <strong className="text-slate-900">{receipt.receivedBy}</strong>
+              </div>
+
+              <div className="text-center">
+                <div className="border-t border-slate-800 w-44 pt-1 font-bold text-slate-900">
+                  Authorized Signature
+                </div>
+                <p className="text-[10px] text-slate-500">কর্তৃপক্ষের স্বাক্ষর</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Footer & Signature */}
-        <div className="mt-10 pt-4">
-          <div className="flex justify-between items-end text-xs">
-            <div className="text-[11px] text-slate-500">
-              Received By: <strong className="text-slate-800">{receipt.receivedBy}</strong>
-            </div>
-
-            <div className="text-center">
-              <div className="border-t border-slate-800 w-44 pt-1 font-bold text-slate-900">
-                Authorized Signature
-              </div>
-              <p className="text-[10px] text-slate-500">কর্তৃপক্ষের স্বাক্ষর</p>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center text-[9px] text-slate-400 border-t border-slate-200 pt-2">
-            This is an official computer-generated receipt from Forever IT Institute • www.foreveritbd.com
-          </div>
+        {/* Corporate Footer Banner */}
+        <div className="relative z-10 pt-4">
+          <CorporateFooterBanner variant="print" />
         </div>
       </div>
     </div>

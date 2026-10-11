@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import SectionPill from '@/components/ui/SectionPill';
 import { api, Course, ApiError } from '@/lib/api/api-client';
 import { formatCurrency, numberToWordsBDT } from '@/lib/utils';
 import {
@@ -272,20 +273,8 @@ export default function NewStudentRegistrationPage() {
       {/* Main Registration Form */}
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* SECTION A: STUDENT INFORMATION */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-          <div className="flex items-center space-x-2.5 pb-4 border-b border-slate-100 mb-5">
-            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-800">
-              <User className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                A. Student Information (শিক্ষার্থীর তথ্য)
-              </h2>
-              <p className="text-xs text-slate-500">
-                All details correspond to the official institute registration form.
-              </p>
-            </div>
-          </div>
+        <div className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
+          <SectionPill icon={<User className="w-4 h-4" />} title="Student Information" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {/* Student Name */}
@@ -381,21 +370,9 @@ export default function NewStudentRegistrationPage() {
           </div>
         </div>
 
-        {/* SECTION B: COURSE SELECTION */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-          <div className="flex items-center space-x-2.5 pb-4 border-b border-slate-100 mb-5">
-            <div className="p-2 rounded-lg bg-blue-50 text-blue-800">
-              <GraduationCap className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                B. Course Selection (কোর্স নির্বাচন)
-              </h2>
-              <p className="text-xs text-slate-500">
-                Select one or multiple courses. Fees are automatically fetched from catalog.
-              </p>
-            </div>
-          </div>
+        {/* SECTION B: COURSE CATEGORY */}
+        <div className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
+          <SectionPill icon={<GraduationCap className="w-4 h-4" />} title="Course Category" />
 
           {coursesLoading ? (
             <p className="text-sm text-slate-500 py-4">Loading course catalog...</p>
@@ -494,20 +471,8 @@ export default function NewStudentRegistrationPage() {
         </div>
 
         {/* SECTION C: PAYMENT INFORMATION */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-          <div className="flex items-center space-x-2.5 pb-4 border-b border-slate-100 mb-5">
-            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-800">
-              <CreditCard className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                C. Payment Details (পেমেন্ট ও অগ্রিম তথ্য)
-              </h2>
-              <p className="text-xs text-slate-500">
-                Record initial admission fee or advance payment.
-              </p>
-            </div>
-          </div>
+        <div className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
+          <SectionPill icon={<CreditCard className="w-4 h-4" />} title="Payment Information" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Advance Payment Amount */}
