@@ -381,7 +381,12 @@ export default function StudentDetailPage() {
                 <th className="py-2.5 px-3">Amount</th>
                 <th className="py-2.5 px-3">Status</th>
                 <th className="py-2.5 px-3">Received By</th>
-                <th className="py-2.5 px-3 text-right">Receipt Action</th>
+                <th className="py-2.5 px-3 text-right">
+                  <span className="inline-flex items-center justify-end gap-1.5 text-slate-700">
+                    <Printer className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Receipt Action</span>
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
