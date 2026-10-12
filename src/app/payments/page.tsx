@@ -16,7 +16,9 @@ import {
   RotateCcw,
   X,
   AlertTriangle,
+  Info,
 } from 'lucide-react';
+import ReversalDetailsModal from '@/components/ui/ReversalDetailsModal';
 
 export default function PaymentsPage() {
   const { user } = useAuth();
@@ -29,11 +31,15 @@ export default function PaymentsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
 
-  // Reversal Modal
+  // Reversal Confirmation Modal
   const [reversalModalOpen, setReversalModalOpen] = useState(false);
   const [targetPayment, setTargetPayment] = useState<Payment | null>(null);
   const [reversalReason, setReversalReason] = useState('');
   const [reversing, setReversing] = useState(false);
+
+  // View Reversal Details Modal
+  const [reversalDetailsModalOpen, setReversalDetailsModalOpen] = useState(false);
+  const [selectedReversalPayment, setSelectedReversalPayment] = useState<Payment | null>(null);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -173,6 +179,27 @@ export default function PaymentsPage() {
                     </td>
                     <td className="py-3.5 px-4">
                       <StatusBadge status={p.status} />
+                      {p.status === 'REVERSED' && (
+                        <div className="mt-1.5 flex items-start gap-1.5 bg-red-50 border border-red-200/80 rounded-md p-1.5 max-w-[240px]">
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-bold text-red-800 uppercase block tracking-wider">
+                              Reversal Reason:
+                            </span>
+                            <p
+                              className="text-[11px] text-red-950 font-medium truncate"
+                              title={p.reversalReason || 'No reason provided'}
+                            >
+                              {p.reversalReason || 'No reason provided'}
+                            </p>
+                            {p.reversedBy && (
+                              <span className="text-[9px] text-red-600/80 block mt-0.5 truncate">
+                                By: {p.reversedBy}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
@@ -186,9 +213,17 @@ export default function PaymentsPage() {
                             <Printer className="w-3.5 h-3.5" />
                           </Link>
                         ) : (
-                          <span className="text-slate-400 font-medium text-xs px-2 select-none" title="Print unavailable for reversed payment">
-                            —
-                          </span>
+                          <button
+                            onClick={() => {
+                              setSelectedReversalPayment(p);
+                              setReversalDetailsModalOpen(true);
+                            }}
+                            className="inline-flex items-center justify-center p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition-colors shadow-2xs"
+                            title="View Why This Payment Was Reversed"
+                            aria-label="View Why This Payment Was Reversed"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
                         )}
 
                         {isAdmin && p.status === 'COMPLETED' && (
@@ -293,6 +328,16 @@ export default function PaymentsPage() {
           </div>
         </div>
       )}
+
+      {/* Reversal Audit Details Modal */}
+      <ReversalDetailsModal
+        payment={selectedReversalPayment}
+        isOpen={reversalDetailsModalOpen}
+        onClose={() => {
+          setReversalDetailsModalOpen(false);
+          setSelectedReversalPayment(null);
+        }}
+      />
     </DashboardLayout>
   );
 }

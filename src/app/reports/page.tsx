@@ -5,7 +5,8 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { api } from '@/lib/api/api-client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { useAuth } from '@/lib/auth/auth-context';
-import { Printer, ShieldAlert } from 'lucide-react';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { Printer, ShieldAlert, AlertTriangle } from 'lucide-react';
 
 export default function ReportsPage() {
   const { isAdmin } = useAuth();
@@ -281,7 +282,17 @@ export default function ReportsPage() {
                         <td className="py-3 px-4 font-bold text-emerald-800">
                           {formatCurrency(p.amount)}
                         </td>
-                        <td className="py-3 px-4 font-medium">{p.status}</td>
+                        <td className="py-3 px-4">
+                          <StatusBadge status={p.status} />
+                          {p.status === 'REVERSED' && (
+                            <div className="mt-1 flex items-start gap-1 text-[10px] bg-red-50 text-red-800 border border-red-200/80 rounded px-1.5 py-0.5 max-w-[180px]">
+                              <AlertTriangle className="w-3 h-3 text-red-500 shrink-0 mt-0.5" />
+                              <span className="truncate" title={p.reversalReason || 'No reason provided'}>
+                                {p.reversalReason || 'Reversed by Admin'}
+                              </span>
+                            </div>
+                          )}
+                        </td>
                       </tr>
                     ))
                   )}

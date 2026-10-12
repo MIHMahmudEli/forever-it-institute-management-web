@@ -232,6 +232,9 @@ export interface Payment {
   status: 'COMPLETED' | 'REVERSED' | 'PENDING';
   notes: string | null;
   receivedBy: string | null;
+  reversalReason?: string | null;
+  reversedBy?: string | null;
+  reversedAt?: string | null;
   student?: Student;
   enrollment?: Enrollment;
 }
@@ -310,6 +313,9 @@ export interface PaymentReceipt {
   status: string;
   notes: string | null;
   receivedBy: string;
+  reversalReason?: string | null;
+  reversedBy?: string | null;
+  reversedAt?: string | null;
   student: {
     id: string;
     registrationNumber: string;

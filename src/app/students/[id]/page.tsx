@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { api, Student, PaymentMethod } from '@/lib/api/api-client';
+import { api, Student, Payment, PaymentMethod } from '@/lib/api/api-client';
 import { formatCurrency, formatDate, numberToWordsBDT } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { StudentDetailsSkeleton } from '@/components/ui/skeletons';
@@ -23,7 +23,9 @@ import {
   KeyRound,
   ShieldCheck,
   AlertTriangle,
+  Info,
 } from 'lucide-react';
+import ReversalDetailsModal from '@/components/ui/ReversalDetailsModal';
 
 export default function StudentDetailPage() {
   const params = useParams();
@@ -33,6 +35,10 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Reversal Details Modal State
+  const [reversalDetailsModalOpen, setReversalDetailsModalOpen] = useState(false);
+  const [selectedReversalPayment, setSelectedReversalPayment] = useState<Payment | null>(null);
 
   // New Payment Modal State
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
@@ -521,6 +527,14 @@ export default function StudentDetailPage() {
                     </td>
                     <td className="py-3 px-3">
                       <StatusBadge status={p.status} />
+                      {p.status === 'REVERSED' && (
+                        <div className="mt-1 flex items-start gap-1 bg-red-50 border border-red-200/80 rounded px-1.5 py-0.5 max-w-[200px]">
+                          <AlertTriangle className="w-3 h-3 text-red-500 shrink-0 mt-0.5" />
+                          <span className="text-[10px] text-red-800 font-medium truncate" title={p.reversalReason || 'No reason specified'}>
+                            {p.reversalReason || 'Reversed by Admin'}
+                          </span>
+                        </div>
+                      )}
                     </td>
                     <td className="py-3 px-3 text-slate-500">{p.receivedBy || 'Staff'}</td>
                     <td className="py-3 px-3 text-right">
@@ -534,9 +548,17 @@ export default function StudentDetailPage() {
                           <span>Print Receipt</span>
                         </Link>
                       ) : (
-                        <span className="text-slate-400 font-medium text-xs px-2 select-none" title="Print unavailable for reversed payment">
-                          —
-                        </span>
+                        <button
+                          onClick={() => {
+                            setSelectedReversalPayment(p);
+                            setReversalDetailsModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-semibold border border-red-200 transition-colors shadow-2xs text-xs"
+                          title="View Reversal Reason & Audit Record"
+                        >
+                          <Info className="w-3.5 h-3.5" />
+                          <span>Reversal Reason</span>
+                        </button>
                       )}
                     </td>
                   </tr>
@@ -882,6 +904,18 @@ export default function StudentDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Reversal Audit Details Modal */}
+      <ReversalDetailsModal
+        payment={selectedReversalPayment}
+        isOpen={reversalDetailsModalOpen}
+        onClose={() => {
+          setReversalDetailsModalOpen(false);
+          setSelectedReversalPayment(null);
+        }}
+        studentName={student.fullName}
+        studentRegNo={student.registrationNumber}
+      />
     </DashboardLayout>
   );
 }

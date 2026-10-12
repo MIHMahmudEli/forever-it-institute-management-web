@@ -9,7 +9,7 @@ import BrandLogo from '@/components/ui/BrandLogo';
 import CornerRibbons from '@/components/ui/CornerRibbons';
 import SectionPill from '@/components/ui/SectionPill';
 import CorporateFooterBanner from '@/components/ui/CorporateFooterBanner';
-import { Printer, ArrowLeft, User, CreditCard, PieChart } from 'lucide-react';
+import { Printer, ArrowLeft, User, CreditCard, PieChart, AlertTriangle } from 'lucide-react';
 
 export default function PrintablePaymentReceipt() {
   const params = useParams();
@@ -111,8 +111,23 @@ export default function PrintablePaymentReceipt() {
 
       {/* Warning banner for reversed payment */}
       {receipt.status !== 'COMPLETED' && (
-        <div className="no-print w-full max-w-[210mm] mb-3 bg-red-50 border border-red-300 text-red-800 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between shadow-xs">
-          <span>⚠️ This payment has been REVERSED. Official receipt printing is disabled for reversed transactions.</span>
+        <div className="no-print w-full max-w-[210mm] mb-3 bg-red-50 border border-red-300 text-red-900 px-4 py-3 rounded-xl text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-xs">
+          <div className="flex items-start sm:items-center space-x-2">
+            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5 sm:mt-0" />
+            <div>
+              <span className="font-bold block text-red-900">
+                This Payment Collection Was REVERSED
+              </span>
+              <p className="text-[11px] text-red-800 mt-0.5">
+                Reversal Reason: <strong className="font-semibold text-red-950">"{receipt.reversalReason || 'No reason specified'}"</strong>
+                {receipt.reversedBy && ` • Reversed By: ${receipt.reversedBy}`}
+                {receipt.reversedAt && ` • ${formatDate(receipt.reversedAt)}`}
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-red-700 bg-red-100/90 px-2.5 py-1 rounded-md border border-red-200 shrink-0">
+            Printing Disabled
+          </span>
         </div>
       )}
 
