@@ -386,6 +386,11 @@ export const api = {
         `/students/${id}/provision-account`,
         { method: 'POST', body: JSON.stringify({ email }) }
       ),
+    regenerateCredentials: (id: string) =>
+      apiRequest<{ success: boolean; message: string; studentCredentials: StudentCredentials }>(
+        `/students/${id}/regenerate-credentials`,
+        { method: 'POST' }
+      ),
   },
 
   courses: {

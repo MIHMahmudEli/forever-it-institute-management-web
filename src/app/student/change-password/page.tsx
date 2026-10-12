@@ -74,9 +74,9 @@ export default function StudentChangePasswordPage() {
             <div className="flex items-start space-x-3">
               <ShieldCheck className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
               <div>
-                <h3 className="text-sm font-bold text-amber-800">Mandatory First-Time Password Change</h3>
+                <h3 className="text-sm font-bold text-amber-800">Mandatory Password Change Required</h3>
                 <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                  You are logging in with a temporary system-generated password. You must set a permanent, secure personal password before continuing to use the student portal.
+                  You are logging in with a temporary or admin-generated password. You must set a permanent, secure personal password before continuing to use the student portal.
                 </p>
               </div>
             </div>

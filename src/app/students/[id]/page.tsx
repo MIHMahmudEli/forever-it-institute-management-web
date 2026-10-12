@@ -59,6 +59,11 @@ export default function StudentDetailPage() {
   const [generatedCredentials, setGeneratedCredentials] = useState<any | null>(null);
   const [copiedCreds, setCopiedCreds] = useState(false);
 
+  // Regenerate Credentials State
+  const [regenerateModalOpen, setRegenerateModalOpen] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenerateError, setRegenerateError] = useState<string | null>(null);
+
   const getEnrollmentBalance = (enrollmentId: string) => {
     if (!student) return { paid: 0, finalFee: 0, due: 0, status: 'ACTIVE', courseName: '' };
     const enrollment = student.enrollments?.find((e) => e.id === enrollmentId);
@@ -183,6 +188,24 @@ export default function StudentDetailPage() {
     }
   };
 
+  const handleRegenerateCredentials = async () => {
+    if (!student) return;
+
+    setRegenerating(true);
+    setRegenerateError(null);
+    try {
+      const res = await api.students.regenerateCredentials(student.id);
+      setGeneratedCredentials(res.studentCredentials);
+      setRegenerateModalOpen(false);
+      setProvisionModalOpen(true);
+      fetchStudent();
+    } catch (err: any) {
+      setRegenerateError(err.message || 'Failed to regenerate credentials.');
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout title="Student Details">
@@ -231,7 +254,19 @@ export default function StudentDetailPage() {
         </div>
 
         <div className="flex items-center space-x-3">
-          {!student.user && (
+          {student.user ? (
+            <button
+              onClick={() => {
+                setRegenerateModalOpen(true);
+                setRegenerateError(null);
+              }}
+              className="inline-flex items-center px-3.5 py-2 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+              title="Regenerate temporary credentials for forgotten password"
+            >
+              <KeyRound className="w-3.5 h-3.5 mr-1.5 text-amber-700" />
+              Reset Credentials
+            </button>
+          ) : (
             <button
               onClick={() => {
                 setProvisionModalOpen(true);
@@ -239,7 +274,7 @@ export default function StudentDetailPage() {
                 setProvisionError(null);
                 setProvisionEmail('');
               }}
-              className="inline-flex items-center px-3.5 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-xs transition-smooth"
+              className="inline-flex items-center px-3.5 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-xs transition-smooth cursor-pointer"
             >
               <KeyRound className="w-3.5 h-3.5 mr-1.5" />
               Create Portal Account
@@ -302,14 +337,41 @@ export default function StudentDetailPage() {
             <div>
               <span className="text-slate-400 block font-medium">Portal Account:</span>
               {student.user ? (
-                <span className="font-semibold text-emerald-700 flex items-center mt-0.5">
-                  <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                  Active ({student.user.username || student.user.email})
-                </span>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="font-semibold text-emerald-700 flex items-center">
+                    <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600 shrink-0" />
+                    <span>Active ({student.user.username || student.user.email})</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRegenerateModalOpen(true);
+                      setRegenerateError(null);
+                    }}
+                    className="text-[11px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-md border border-amber-200 transition-colors shadow-2xs cursor-pointer shrink-0 ml-2"
+                    title="Regenerate temporary credentials"
+                  >
+                    Reset Credentials
+                  </button>
+                </div>
               ) : (
-                <span className="font-semibold text-amber-700 flex items-center mt-0.5">
-                  Not Provisioned
-                </span>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="font-semibold text-amber-700 flex items-center">
+                    Not Provisioned
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProvisionModalOpen(true);
+                      setGeneratedCredentials(null);
+                      setProvisionError(null);
+                      setProvisionEmail('');
+                    }}
+                    className="text-[11px] font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-md border border-teal-200 transition-colors shadow-2xs cursor-pointer shrink-0 ml-2"
+                  >
+                    Create Account
+                  </button>
+                </div>
               )}
             </div>
 
@@ -790,7 +852,9 @@ export default function StudentDetailPage() {
                 <KeyRound className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">Provision Student Portal Account</h3>
+                <h3 className="text-base font-bold text-slate-900">
+                  {student.user ? 'Student Portal Credentials' : 'Provision Student Portal Account'}
+                </h3>
                 <p className="text-xs text-slate-500">{student.fullName} ({student.registrationNumber})</p>
               </div>
             </div>
@@ -800,9 +864,11 @@ export default function StudentDetailPage() {
                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs">
                   <div className="flex items-center space-x-2 font-bold mb-2 text-emerald-800">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span>Portal Account Created Successfully!</span>
+                    <span>
+                      {student.user ? 'Credentials Regenerated Successfully!' : 'Portal Account Created Successfully!'}
+                    </span>
                   </div>
-                  <p>Hand over these credentials to the student. They will be required to change their temporary password upon first login.</p>
+                  <p>Hand over these credentials to the student. They will be required to change their temporary password upon login before accessing the portal.</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-2.5 text-xs">
@@ -893,6 +959,43 @@ export default function StudentDetailPage() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Regenerate Credentials Modal */}
+      {regenerateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-2xs transition-opacity animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 relative text-center animate-in zoom-in-95">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto mb-3.5">
+              <KeyRound className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Regenerate Portal Credentials?</h3>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              This will generate a new temporary password for <strong className="text-slate-800">{student.fullName}</strong> ({student.registrationNumber}). The student will be required to change this password immediately upon their next login.
+            </p>
+            {regenerateError && (
+              <div className="mt-3 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs text-left">
+                {regenerateError}
+              </div>
+            )}
+            <div className="flex justify-center gap-2.5 mt-6">
+              <button
+                type="button"
+                onClick={() => setRegenerateModalOpen(false)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={regenerating}
+                onClick={handleRegenerateCredentials}
+                className="px-4 py-2 text-xs font-bold rounded-xl text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 shadow-xs cursor-pointer"
+              >
+                {regenerating ? 'Regenerating...' : 'Yes, Regenerate'}
+              </button>
+            </div>
           </div>
         </div>
       )}
