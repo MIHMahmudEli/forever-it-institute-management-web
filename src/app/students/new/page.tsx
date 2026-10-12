@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import SectionPill from '@/components/ui/SectionPill';
@@ -19,9 +19,15 @@ import {
   KeyRound,
   ShieldCheck,
   AlertTriangle,
+  X,
 } from 'lucide-react';
 
 export default function NewStudentRegistrationPage() {
+  // Form and Section Refs for automatic scrolling
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const errorBannerRef = useRef<HTMLDivElement | null>(null);
+  const courseSectionRef = useRef<HTMLDivElement | null>(null);
+  const paymentSectionRef = useRef<HTMLDivElement | null>(null);
 
   // Course catalog from API
   const [courses, setCourses] = useState<Course[]>([]);
@@ -60,6 +66,7 @@ export default function NewStudentRegistrationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<any | null>(null);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   // Load active courses from API
   useEffect(() => {
@@ -135,26 +142,57 @@ export default function NewStudentRegistrationPage() {
   const amountInWords = numberToWordsBDT(advancePayment || 0);
 
   // Submission Handler
+  const scrollToElement = (target?: HTMLElement | null) => {
+    setTimeout(() => {
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (errorBannerRef.current) {
+        errorBannerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 50);
+  };
+
+  const handleRegisterAnother = () => {
+    setSuccessModalOpen(false);
+    setSuccessData(null);
+    setErrorMessage(null);
+    setFullName('');
+    setEmail('');
+    setNidOrBirthCertificateNumber('');
+    setPresentAddress('');
+    setMobileNumber('');
+    setParentName('');
+    setParentMobileNumber('');
+    setSelectedCourses([]);
+    setAdvancePayment(0);
+    setTransactionReference('');
+    setPaymentNotes('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (selectedCourses.length === 0) {
-      setErrorMessage('Please select at least one course for registration.');
+      const msg = 'Please select at least one course for registration.';
+      setErrorMessage(msg);
+      scrollToElement(courseSectionRef.current);
       return;
     }
 
     if (hasInvalidDiscount) {
-      setErrorMessage(
-        'Course discount percentage cannot reach or exceed 100%. Please ensure discount is less than 100%.'
-      );
+      const msg =
+        'Course discount percentage cannot reach or exceed 100%. Please ensure discount is less than 100%.';
+      setErrorMessage(msg);
+      scrollToElement(courseSectionRef.current);
       return;
     }
 
     if (isAdvanceOverpaying) {
-      setErrorMessage(
-        `Advance payment (${formatCurrency(advancePayment)}) cannot exceed the total payable fee (${formatCurrency(totalPayable)}). Registration cannot be submitted.`
-      );
+      const msg = `Advance payment (${formatCurrency(advancePayment)}) cannot exceed the total payable fee (${formatCurrency(totalPayable)}). Registration cannot be submitted.`;
+      setErrorMessage(msg);
+      scrollToElement(paymentSectionRef.current);
       return;
     }
 
@@ -183,12 +221,15 @@ export default function NewStudentRegistrationPage() {
 
       const result = await api.registrations.register(payload);
       setSuccessData(result);
+      setSuccessModalOpen(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
       } else {
         setErrorMessage('Failed to submit registration. Please verify details.');
       }
+      scrollToElement(errorBannerRef.current);
     } finally {
       setSubmitting(false);
     }
@@ -340,22 +381,8 @@ export default function NewStudentRegistrationPage() {
 
           <div className="mt-4 flex justify-end">
             <button
-              onClick={() => {
-                setSuccessData(null);
-                // Reset form
-                setFullName('');
-                setEmail('');
-                setNidOrBirthCertificateNumber('');
-                setPresentAddress('');
-                setMobileNumber('');
-                setParentName('');
-                setParentMobileNumber('');
-                setSelectedCourses([]);
-                setAdvancePayment(0);
-                setTransactionReference('');
-                setPaymentNotes('');
-              }}
-              className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline"
+              onClick={handleRegisterAnother}
+              className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 underline cursor-pointer"
             >
               Register Another Student
             </button>
@@ -364,14 +391,14 @@ export default function NewStudentRegistrationPage() {
       )}
 
       {errorMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-start space-x-3 text-sm">
+        <div ref={errorBannerRef} className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-start space-x-3 text-sm animate-in fade-in">
           <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Main Registration Form */}
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
         {/* SECTION A: STUDENT INFORMATION */}
         <div className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
           <SectionPill icon={<User className="w-4 h-4" />} title="Student Information" />
@@ -485,7 +512,7 @@ export default function NewStudentRegistrationPage() {
         </div>
 
         {/* SECTION B: COURSE CATEGORY */}
-        <div className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
+        <div ref={courseSectionRef} className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
           <SectionPill icon={<GraduationCap className="w-4 h-4" />} title="Course Category" />
 
           {coursesLoading ? (
@@ -622,7 +649,7 @@ export default function NewStudentRegistrationPage() {
         </div>
 
         {/* SECTION C: PAYMENT INFORMATION */}
-        <div className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
+        <div ref={paymentSectionRef} className="bg-white rounded-2xl border-2 border-[#006838]/80 p-6 shadow-sm">
           <SectionPill icon={<CreditCard className="w-4 h-4" />} title="Payment Information" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -786,6 +813,17 @@ export default function NewStudentRegistrationPage() {
           </div>
         )}
 
+        {/* Error message banner before action buttons */}
+        {errorMessage && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-300 text-red-900 flex items-start space-x-3 text-xs animate-in fade-in">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-sm">Registration Cannot Be Submitted</p>
+              <p className="text-red-800 mt-0.5 leading-relaxed">{errorMessage}</p>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
           <Link
@@ -797,6 +835,15 @@ export default function NewStudentRegistrationPage() {
 
           <button
             type="submit"
+            onClick={() => {
+              if (formRef.current && !formRef.current.checkValidity()) {
+                const firstInvalid = formRef.current.querySelector(':invalid') as HTMLElement;
+                if (firstInvalid) {
+                  firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  firstInvalid.focus();
+                }
+              }
+            }}
             disabled={submitting || selectedCourses.length === 0 || isAdvanceOverpaying || hasInvalidDiscount}
             title={
               hasInvalidDiscount
@@ -810,7 +857,7 @@ export default function NewStudentRegistrationPage() {
             className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center ${
               submitting || selectedCourses.length === 0 || isAdvanceOverpaying || hasInvalidDiscount
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
-                : 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-900/30'
+                : 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-900/30 cursor-pointer'
             }`}
           >
             {submitting ? (
@@ -824,6 +871,169 @@ export default function NewStudentRegistrationPage() {
           </button>
         </div>
       </form>
+
+      {/* Success Modal Popup */}
+      {successModalOpen && successData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+            {/* Close button */}
+            <button
+              onClick={() => setSuccessModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Close Popup"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 pr-8">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                    Student Registration Successfully Completed!
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Registration Number:{' '}
+                    <span className="font-mono font-bold text-emerald-800 text-sm">
+                      {successData.registrationNumber}
+                    </span>{' '}
+                    • Student: <strong className="text-slate-900">{successData.student?.fullName}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Print Action Buttons */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-4">
+              <Link
+                href={`/print/registration/${successData.student?.id}`}
+                target="_blank"
+                className="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors"
+              >
+                <Printer className="w-4 h-4 mr-1.5" />
+                Print Registration Form
+              </Link>
+
+              {successData.payment && (
+                <Link
+                  href={`/print/receipt/${successData.payment?.id}`}
+                  target="_blank"
+                  className="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-emerald-600 text-emerald-800 hover:bg-emerald-50 text-xs font-bold shadow-xs transition-colors"
+                >
+                  <FileText className="w-4 h-4 mr-1.5" />
+                  Print Money Receipt
+                </Link>
+              )}
+            </div>
+
+            {/* Financial Summary Grid */}
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Total Payable</span>
+                <span className="font-bold text-slate-900 text-sm mt-0.5 block">
+                  {formatCurrency(successData.financials?.totalPayable)}
+                </span>
+              </div>
+              <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+                <span className="text-emerald-700 block text-[10px] uppercase font-semibold">Advance Paid</span>
+                <span className="font-bold text-emerald-800 text-sm mt-0.5 block">
+                  {formatCurrency(successData.financials?.advancePaid)}
+                </span>
+              </div>
+              <div className="bg-amber-50/60 p-3 rounded-xl border border-amber-200">
+                <span className="text-amber-700 block text-[10px] uppercase font-semibold">Remaining Due</span>
+                <span className="font-bold text-red-600 text-sm mt-0.5 block">
+                  {formatCurrency(successData.financials?.outstandingDue)}
+                </span>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span className="text-slate-400 block text-[10px] uppercase font-semibold">Enrolled Courses</span>
+                <span className="font-bold text-slate-900 text-sm mt-0.5 block">
+                  {successData.enrollments?.length || 0} Programs
+                </span>
+              </div>
+            </div>
+
+            {/* Student Portal Login Credentials (Handover Slip) */}
+            {successData.studentCredentials && (
+              <div className="mt-5 p-4 rounded-xl bg-slate-50/80 border-2 border-emerald-600/70 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-200">
+                  <div className="flex items-center space-x-2">
+                    <KeyRound className="w-4 h-4 text-emerald-700" />
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                      Student Portal Login Credentials (Handover Slip)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = `Forever IT Institute — Student Portal Login\nStudent: ${successData.studentCredentials?.fullName}\nRegistration No: ${successData.studentCredentials?.registrationNumber}\nUsername / Login ID: ${successData.studentCredentials?.username}\nEmail: ${successData.studentCredentials?.email}\nTemporary Password: ${successData.studentCredentials?.temporaryPassword}\nLogin Portal: ${window.location.origin}/login\n(Note: You will be asked to change password on first login)`;
+                      navigator.clipboard.writeText(text);
+                      setCopiedCredentials(true);
+                      setTimeout(() => setCopiedCredentials(false), 2000);
+                    }}
+                    className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300 transition-colors cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5 mr-1.5" />
+                    {copiedCredentials ? 'Copied to Clipboard!' : 'Copy Credentials'}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">Username / Reg No</span>
+                    <span className="font-mono font-bold text-slate-900">{successData.studentCredentials.username}</span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                    <span className="text-slate-400 block text-[10px] uppercase font-semibold">Account Email</span>
+                    <span className="text-slate-800 font-medium truncate block">{successData.studentCredentials.email}</span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-300">
+                    <span className="text-emerald-700 block text-[10px] uppercase font-bold">Temporary Password</span>
+                    <span className="font-mono font-black text-emerald-900 text-sm tracking-wider">
+                      {successData.studentCredentials.temporaryPassword}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="mt-2.5 text-[11px] text-slate-500 italic">
+                  * Please provide these login details to the student. They can log in using either their Registration Number or Email. They will be prompted to set their permanent password on first login.
+                </p>
+              </div>
+            )}
+
+            {/* Modal Bottom Actions */}
+            <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleRegisterAnother}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer"
+              >
+                Register Another Student
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSuccessModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+                <Link
+                  href={`/students/${successData.student?.id}`}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors"
+                >
+                  View Student Profile
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
