@@ -118,6 +118,11 @@ export interface Course {
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 }
 
+export interface AvailableCourse extends Course {
+  enrollmentStatus?: 'ACTIVE' | 'PENDING' | 'COMPLETED' | 'DROPPED' | 'CANCELLED' | null;
+  enrollmentId?: string | null;
+}
+
 export interface Student {
   id: string;
   registrationNumber: string;
@@ -533,7 +538,18 @@ export const api = {
     getMe: () => apiRequest<Student>('/student-portal/me'),
     getDashboard: () => apiRequest<StudentPortalDashboard>('/student-portal/dashboard'),
     getCourses: () => apiRequest<Enrollment[]>('/student-portal/courses'),
+    getAvailableCourses: () => apiRequest<AvailableCourse[]>('/student-portal/available-courses'),
     getCourse: (enrollmentId: string) => apiRequest<Enrollment>(`/student-portal/courses/${enrollmentId}`),
+    requestEnrollment: (data: { courseId: string; notes?: string }) =>
+      apiRequest<{ success: boolean; message: string; enrollment: Enrollment }>(
+        '/student-portal/request-enrollment',
+        { method: 'POST', body: JSON.stringify(data) }
+      ),
+    cancelEnrollmentRequest: (enrollmentId: string) =>
+      apiRequest<{ success: boolean; message: string }>(
+        `/student-portal/enrollments/${enrollmentId}`,
+        { method: 'DELETE' }
+      ),
     getPayments: () => apiRequest<Payment[]>('/student-portal/payments'),
     getPayment: (paymentId: string) => apiRequest<Payment>(`/student-portal/payments/${paymentId}`),
     getDropRequests: () => apiRequest<DropRequest[]>('/student-portal/drop-requests'),

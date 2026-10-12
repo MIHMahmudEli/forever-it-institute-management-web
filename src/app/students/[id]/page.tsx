@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { api, Student, Payment, PaymentMethod } from '@/lib/api/api-client';
+import { api, Student, Payment, PaymentMethod, Course } from '@/lib/api/api-client';
 import { formatCurrency, formatDate, numberToWordsBDT } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { StudentDetailsSkeleton } from '@/components/ui/skeletons';
@@ -63,6 +63,113 @@ export default function StudentDetailPage() {
   const [regenerateModalOpen, setRegenerateModalOpen] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [regenerateError, setRegenerateError] = useState<string | null>(null);
+
+  // Enroll New Course State
+  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [enrollAgreedFee, setEnrollAgreedFee] = useState<number>(0);
+  const [discountMode, setDiscountMode] = useState<'FIXED' | 'PERCENT'>('PERCENT');
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [discountFixed, setDiscountFixed] = useState<number>(0);
+  const [enrollDate, setEnrollDate] = useState(new Date().toISOString().split('T')[0]);
+  const [enrollStatus, setEnrollStatus] = useState<'ACTIVE' | 'PENDING'>('ACTIVE');
+  const [enrollNotes, setEnrollNotes] = useState('');
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollError, setEnrollError] = useState<string | null>(null);
+  const [approvingEnrollmentId, setApprovingEnrollmentId] = useState<string | null>(null);
+
+  const handleOpenEnrollModal = async () => {
+    setEnrollError(null);
+    setSelectedCourseId('');
+    setEnrollAgreedFee(0);
+    setDiscountMode('PERCENT');
+    setDiscountPercent(0);
+    setDiscountFixed(0);
+    setEnrollDate(new Date().toISOString().split('T')[0]);
+    setEnrollStatus('ACTIVE');
+    setEnrollNotes('');
+    setEnrollModalOpen(true);
+
+    try {
+      const coursesData = await api.courses.getAll('ACTIVE');
+      setAllCourses(coursesData);
+    } catch (err: any) {
+      setEnrollError(err.message || 'Failed to load courses.');
+    }
+  };
+
+  const handleSelectCourse = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    const found = allCourses.find((c) => c.id === courseId);
+    if (found) {
+      const fee = Number(found.totalFee || 0);
+      setEnrollAgreedFee(fee);
+    }
+  };
+
+  const selectedCourse = allCourses.find((c) => c.id === selectedCourseId);
+  const calculatedDiscount =
+    discountMode === 'PERCENT'
+      ? Math.round((Number(enrollAgreedFee || 0) * Number(discountPercent || 0)) / 100)
+      : Number(discountFixed || 0);
+
+  const calculatedFinalFee = Math.max(0, Number(enrollAgreedFee || 0) - calculatedDiscount);
+  const isPercentInvalid = discountMode === 'PERCENT' && discountPercent > 100;
+  const isDiscountInvalid = calculatedDiscount > Number(enrollAgreedFee || 0);
+  const isEnrollDisabled =
+    !selectedCourseId ||
+    enrolling ||
+    isPercentInvalid ||
+    isDiscountInvalid ||
+    Number(enrollAgreedFee) <= 0;
+
+  const handleEnrollSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!student || !selectedCourseId) return;
+
+    if (isPercentInvalid) {
+      setEnrollError('Discount percentage cannot exceed 100%.');
+      return;
+    }
+    if (isDiscountInvalid) {
+      setEnrollError('Discount cannot exceed the agreed course fee.');
+      return;
+    }
+
+    setEnrolling(true);
+    setEnrollError(null);
+    try {
+      await api.enrollments.create({
+        studentId: student.id,
+        courseId: selectedCourseId,
+        agreedFee: enrollAgreedFee,
+        discount: calculatedDiscount,
+        enrollmentDate: enrollDate,
+        status: enrollStatus,
+        notes: enrollNotes ? enrollNotes.trim() : undefined,
+      });
+
+      setEnrollModalOpen(false);
+      await fetchStudent();
+    } catch (err: any) {
+      setEnrollError(err.message || 'Failed to enroll student in course.');
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const handleApproveEnrollment = async (enrollmentId: string) => {
+    setApprovingEnrollmentId(enrollmentId);
+    try {
+      await api.enrollments.update(enrollmentId, { status: 'ACTIVE' });
+      await fetchStudent();
+    } catch (err: any) {
+      alert(err.message || 'Failed to approve enrollment.');
+    } finally {
+      setApprovingEnrollmentId(null);
+    }
+  };
 
   const getEnrollmentBalance = (enrollmentId: string) => {
     if (!student) return { paid: 0, finalFee: 0, due: 0, status: 'ACTIVE', courseName: '' };
@@ -321,6 +428,16 @@ export default function StudentDetailPage() {
             <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
             Record Payment
           </button>
+
+          <button
+            type="button"
+            onClick={handleOpenEnrollModal}
+            className="inline-flex items-center px-3.5 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold shadow-2xs transition-smooth cursor-pointer"
+            title="Enroll this student into another available course"
+          >
+            <GraduationCap className="w-3.5 h-3.5 mr-1.5 text-blue-700" />
+            Enroll New Course
+          </button>
         </div>
       </div>
 
@@ -501,10 +618,20 @@ export default function StudentDetailPage() {
 
       {/* Enrolled Courses Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 mb-8">
-        <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
-          <GraduationCap className="w-4 h-4 mr-2 text-blue-700" />
-          Enrolled Programs & Fee Snapshots ({student.enrollments?.length || 0})
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 mb-4 gap-2">
+          <h2 className="text-sm font-bold text-slate-900 flex items-center">
+            <GraduationCap className="w-4 h-4 mr-2 text-blue-700" />
+            Enrolled Programs & Fee Snapshots ({student.enrollments?.length || 0})
+          </h2>
+          <button
+            type="button"
+            onClick={handleOpenEnrollModal}
+            className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-xs transition-smooth cursor-pointer self-start sm:self-auto"
+          >
+            <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
+            Enroll in New Course
+          </button>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -517,6 +644,7 @@ export default function StudentDetailPage() {
                 <th className="py-2.5 px-3">Discount</th>
                 <th className="py-2.5 px-3">Final Fee</th>
                 <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -540,6 +668,22 @@ export default function StudentDetailPage() {
                   </td>
                   <td className="py-3 px-3">
                     <StatusBadge status={enrollment.status} />
+                  </td>
+                  <td className="py-3 px-3 text-right">
+                    {enrollment.status === 'PENDING' ? (
+                      <button
+                        type="button"
+                        onClick={() => handleApproveEnrollment(enrollment.id)}
+                        disabled={approvingEnrollmentId === enrollment.id}
+                        className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
+                        title="Approve and activate enrollment"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                        {approvingEnrollmentId === enrollment.id ? 'Approving...' : 'Approve'}
+                      </button>
+                    ) : (
+                      <span className="text-slate-400 font-mono text-xs">—</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -1002,6 +1146,244 @@ export default function StudentDetailPage() {
                 {regenerating ? 'Regenerating...' : 'Yes, Regenerate'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enroll Student in Course Modal */}
+      {enrollModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-2xs transition-opacity animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setEnrollModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-3 mb-5 pb-4 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Enroll Student in New Course</h3>
+                <p className="text-xs text-slate-500">
+                  {student.fullName} ({student.registrationNumber})
+                </p>
+              </div>
+            </div>
+
+            {enrollError && (
+              <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+                {enrollError}
+              </div>
+            )}
+
+            <form onSubmit={handleEnrollSubmit} className="space-y-4 text-xs">
+              {/* Select Course */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Select Course <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  value={selectedCourseId}
+                  onChange={(e) => handleSelectCourse(e.target.value)}
+                  className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 bg-white"
+                >
+                  <option value="">-- Choose an available course --</option>
+                  {allCourses.map((c) => {
+                    const isAlreadyEnrolled = student.enrollments?.some(
+                      (e) => e.courseId === c.id && e.status === 'ACTIVE'
+                    );
+                    return (
+                      <option key={c.id} value={c.id} disabled={isAlreadyEnrolled}>
+                        {c.code} - {c.name} ({c.duration}) - ৳ {Number(c.totalFee).toLocaleString()}{' '}
+                        {isAlreadyEnrolled ? '— (Already Enrolled)' : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {selectedCourse && (
+                <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl space-y-1.5 text-xs text-blue-950">
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Course Category:</span>
+                    <span className="font-semibold">{selectedCourse.category}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Duration:</span>
+                    <span className="font-semibold">{selectedCourse.duration}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-blue-200 pt-1.5">
+                    <span className="font-bold text-blue-900">Official Course Fee:</span>
+                    <span className="font-black text-blue-950">{formatCurrency(selectedCourse.totalFee)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Agreed Fee */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Agreed Fee (BDT) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    required
+                    value={enrollAgreedFee || ''}
+                    onChange={(e) => setEnrollAgreedFee(Math.max(0, Number(e.target.value)))}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">Enrollment Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={enrollDate}
+                    onChange={(e) => setEnrollDate(e.target.value)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Discount Section */}
+              <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-700">Discount</label>
+                  <div className="flex rounded-lg border border-slate-300 bg-white p-0.5 text-[11px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setDiscountMode('PERCENT')}
+                      className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                        discountMode === 'PERCENT'
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Percentage (%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDiscountMode('FIXED')}
+                      className={`px-2 py-0.5 rounded-md transition-colors cursor-pointer ${
+                        discountMode === 'FIXED'
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Fixed Amount (৳)
+                    </button>
+                  </div>
+                </div>
+
+                {discountMode === 'PERCENT' ? (
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={discountPercent || ''}
+                        onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                        placeholder="Discount percentage (0-100)"
+                        className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 bg-white"
+                      />
+                      <span className="text-xs font-bold text-slate-500">%</span>
+                    </div>
+                    {isPercentInvalid && (
+                      <p className="text-[11px] font-semibold text-red-600 mt-1 flex items-center">
+                        <AlertTriangle className="w-3.5 h-3.5 mr-1" />
+                        Discount percentage cannot exceed 100%.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="number"
+                      min={0}
+                      value={discountFixed || ''}
+                      onChange={(e) => setDiscountFixed(Number(e.target.value))}
+                      placeholder="Discount amount in BDT"
+                      className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 bg-white"
+                    />
+                    {isDiscountInvalid && (
+                      <p className="text-[11px] font-semibold text-red-600 mt-1 flex items-center">
+                        <AlertTriangle className="w-3.5 h-3.5 mr-1" />
+                        Discount cannot exceed the agreed course fee.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-200">
+                  <span className="text-slate-500">Calculated Discount:</span>
+                  <span className="font-bold text-red-600">
+                    -{formatCurrency(calculatedDiscount)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Final Fee Summary */}
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-emerald-800 block">Final Course Fee</span>
+                  <span className="text-xs text-emerald-700">Agreed fee minus discount</span>
+                </div>
+                <span className="text-base font-black text-emerald-900">
+                  {formatCurrency(calculatedFinalFee)}
+                </span>
+              </div>
+
+              {/* Status & Notes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">Enrollment Status</label>
+                  <select
+                    value={enrollStatus}
+                    onChange={(e) => setEnrollStatus(e.target.value as any)}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 bg-white"
+                  >
+                    <option value="ACTIVE">ACTIVE (Immediate Enrollment)</option>
+                    <option value="PENDING">PENDING (Review / Provisional)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">Notes (Optional)</label>
+                  <input
+                    type="text"
+                    value={enrollNotes}
+                    onChange={(e) => setEnrollNotes(e.target.value)}
+                    placeholder="e.g. Special batch assignment"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEnrollModalOpen(false)}
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEnrollDisabled}
+                  className="inline-flex items-center px-4 py-2 rounded-lg text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-sm transition-smooth disabled:opacity-50 cursor-pointer"
+                >
+                  <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
+                  {enrolling ? 'Enrolling Course...' : 'Confirm Enrollment'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
