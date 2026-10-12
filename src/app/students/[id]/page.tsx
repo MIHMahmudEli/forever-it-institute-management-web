@@ -527,14 +527,6 @@ export default function StudentDetailPage() {
                     </td>
                     <td className="py-3 px-3">
                       <StatusBadge status={p.status} />
-                      {p.status === 'REVERSED' && (
-                        <div className="mt-1 flex items-start gap-1 bg-red-50 border border-red-200/80 rounded px-1.5 py-0.5 max-w-[200px]">
-                          <AlertTriangle className="w-3 h-3 text-red-500 shrink-0 mt-0.5" />
-                          <span className="text-[10px] text-red-800 font-medium truncate" title={p.reversalReason || 'No reason specified'}>
-                            {p.reversalReason || 'Reversed by Admin'}
-                          </span>
-                        </div>
-                      )}
                     </td>
                     <td className="py-3 px-3 text-slate-500">{p.receivedBy || 'Staff'}</td>
                     <td className="py-3 px-3 text-right">

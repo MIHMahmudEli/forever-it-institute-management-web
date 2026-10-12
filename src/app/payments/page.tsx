@@ -179,27 +179,6 @@ export default function PaymentsPage() {
                     </td>
                     <td className="py-3.5 px-4">
                       <StatusBadge status={p.status} />
-                      {p.status === 'REVERSED' && (
-                        <div className="mt-1.5 flex items-start gap-1.5 bg-red-50 border border-red-200/80 rounded-md p-1.5 max-w-[240px]">
-                          <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
-                          <div className="min-w-0">
-                            <span className="text-[10px] font-bold text-red-800 uppercase block tracking-wider">
-                              Reversal Reason:
-                            </span>
-                            <p
-                              className="text-[11px] text-red-950 font-medium truncate"
-                              title={p.reversalReason || 'No reason provided'}
-                            >
-                              {p.reversalReason || 'No reason provided'}
-                            </p>
-                            {p.reversedBy && (
-                              <span className="text-[9px] text-red-600/80 block mt-0.5 truncate">
-                                By: {p.reversedBy}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
