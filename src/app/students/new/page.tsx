@@ -18,6 +18,7 @@ import {
   Copy,
   KeyRound,
   ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function NewStudentRegistrationPage() {
@@ -93,6 +94,7 @@ export default function NewStudentRegistrationPage() {
   const totalCourseFee = selectedCourses.reduce((sum, c) => sum + c.agreedFee, 0);
   const totalDiscount = selectedCourses.reduce((sum, c) => sum + c.discount, 0);
   const totalPayable = Math.max(0, totalCourseFee - totalDiscount);
+  const isAdvanceOverpaying = (advancePayment || 0) > totalPayable;
   const outstandingDue = Math.max(0, totalPayable - (advancePayment || 0));
   const amountInWords = numberToWordsBDT(advancePayment || 0);
 
@@ -106,8 +108,10 @@ export default function NewStudentRegistrationPage() {
       return;
     }
 
-    if (advancePayment > totalPayable) {
-      setErrorMessage('Advance payment cannot exceed the total payable amount.');
+    if (isAdvanceOverpaying) {
+      setErrorMessage(
+        `Advance payment (${formatCurrency(advancePayment)}) cannot exceed the total payable fee (${formatCurrency(totalPayable)}). Registration cannot be submitted.`
+      );
       return;
     }
 
@@ -544,9 +548,20 @@ export default function NewStudentRegistrationPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Advance Payment Amount */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Advance Payment (অগ্রিম জমা - BDT)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Advance Payment (অগ্রিম জমা - BDT)
+                </label>
+                {totalPayable > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setAdvancePayment(totalPayable)}
+                    className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold underline"
+                  >
+                    Pay Full ({formatCurrency(totalPayable)})
+                  </button>
+                )}
+              </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold">
                   ৳
@@ -555,12 +570,29 @@ export default function NewStudentRegistrationPage() {
                   type="number"
                   min="0"
                   max={totalPayable}
-                  value={advancePayment}
+                  value={advancePayment || ''}
                   onChange={(e) => setAdvancePayment(parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
-                  className="w-full pl-8 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+                  className={`w-full pl-8 pr-3.5 py-2.5 rounded-lg border text-sm font-bold focus:outline-hidden ${
+                    isAdvanceOverpaying
+                      ? 'border-amber-500 bg-amber-50/50 text-amber-900 focus:ring-2 focus:ring-amber-500'
+                      : 'border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-600'
+                  }`}
                 />
               </div>
+
+              {/* Warning when Advance Payment > Total Payable Fee */}
+              {isAdvanceOverpaying && (
+                <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 flex items-start space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-bold">Overpayment Warning</p>
+                    <p className="mt-0.5 text-amber-800">
+                      Advance payment ({formatCurrency(advancePayment)}) cannot exceed total payable fee ({formatCurrency(totalPayable)}).
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Payment Method */}
@@ -611,11 +643,24 @@ export default function NewStudentRegistrationPage() {
             )}
 
             {/* Remaining Due Box */}
-            <div className="bg-red-50 p-4 rounded-xl border border-red-200">
-              <span className="text-xs font-medium text-red-700 block">Remaining Due (বকেয়া):</span>
-              <span className="text-xl font-black text-red-600">
+            <div className={`p-4 rounded-xl border ${
+              isAdvanceOverpaying ? 'bg-amber-50 border-amber-300' : 'bg-red-50 border-red-200'
+            }`}>
+              <span className={`text-xs font-medium block ${
+                isAdvanceOverpaying ? 'text-amber-800' : 'text-red-700'
+              }`}>
+                Remaining Due (বকেয়া):
+              </span>
+              <span className={`text-xl font-black ${
+                isAdvanceOverpaying ? 'text-amber-700' : 'text-red-600'
+              }`}>
                 {formatCurrency(outstandingDue)}
               </span>
+              {isAdvanceOverpaying && (
+                <span className="text-[10px] text-amber-700 font-semibold block mt-1">
+                  ⚠️ Advance exceeds payable fee
+                </span>
+              )}
             </div>
 
             {/* Amount in Words Box */}
@@ -630,6 +675,16 @@ export default function NewStudentRegistrationPage() {
           </div>
         </div>
 
+        {/* Overpayment Warning banner before action buttons */}
+        {isAdvanceOverpaying && (
+          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 flex items-center space-x-2.5 text-xs">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="font-semibold">
+              Registration submission disabled: Advance payment of {formatCurrency(advancePayment)} exceeds total payable fee of {formatCurrency(totalPayable)}. Total paid cannot exceed total course fee.
+            </span>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
           <Link
@@ -641,8 +696,19 @@ export default function NewStudentRegistrationPage() {
 
           <button
             type="submit"
-            disabled={submitting || selectedCourses.length === 0}
-            className="px-6 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white text-sm font-bold shadow-md shadow-emerald-900/30 transition-all flex items-center disabled:opacity-50"
+            disabled={submitting || selectedCourses.length === 0 || isAdvanceOverpaying}
+            title={
+              isAdvanceOverpaying
+                ? `Advance payment (${formatCurrency(advancePayment)}) cannot exceed total payable fee (${formatCurrency(totalPayable)}). Submission is disabled.`
+                : selectedCourses.length === 0
+                ? 'Please select at least one course'
+                : 'Complete Registration & Generate Receipt'
+            }
+            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center ${
+              submitting || selectedCourses.length === 0 || isAdvanceOverpaying
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
+                : 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-900/30'
+            }`}
           >
             {submitting ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
