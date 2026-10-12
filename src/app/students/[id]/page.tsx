@@ -337,10 +337,13 @@ export default function StudentDetailPage() {
             <div>
               <span className="text-slate-400 block font-medium">Portal Account:</span>
               {student.user ? (
-                <div className="flex items-center justify-between mt-1">
-                  <span className="font-semibold text-emerald-700 flex items-center">
+                <div className="flex items-center justify-between gap-2 mt-1">
+                  <span
+                    className="font-semibold text-emerald-700 flex items-center min-w-0"
+                    title={`Active (${student.user.username || student.user.email})`}
+                  >
                     <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600 shrink-0" />
-                    <span>Active ({student.user.username || student.user.email})</span>
+                    <span className="truncate">Active ({student.user.username || student.user.email})</span>
                   </span>
                   <button
                     type="button"
@@ -348,14 +351,15 @@ export default function StudentDetailPage() {
                       setRegenerateModalOpen(true);
                       setRegenerateError(null);
                     }}
-                    className="text-[11px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-md border border-amber-200 transition-colors shadow-2xs cursor-pointer shrink-0 ml-2"
-                    title="Regenerate temporary credentials"
+                    className="p-1.5 rounded-lg text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                    title="Reset Credentials"
+                    aria-label="Reset Credentials"
                   >
-                    Reset Credentials
+                    <KeyRound className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center justify-between gap-2 mt-1">
                   <span className="font-semibold text-amber-700 flex items-center">
                     Not Provisioned
                   </span>
@@ -367,9 +371,11 @@ export default function StudentDetailPage() {
                       setProvisionError(null);
                       setProvisionEmail('');
                     }}
-                    className="text-[11px] font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-md border border-teal-200 transition-colors shadow-2xs cursor-pointer shrink-0 ml-2"
+                    className="p-1.5 rounded-lg text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                    title="Create Portal Account"
+                    aria-label="Create Portal Account"
                   >
-                    Create Account
+                    <KeyRound className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
