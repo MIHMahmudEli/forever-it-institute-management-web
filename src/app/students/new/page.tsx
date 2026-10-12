@@ -548,22 +548,11 @@ export default function NewStudentRegistrationPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Advance Payment Amount */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Advance Payment (অগ্রিম জমা - BDT)
-                </label>
-                {totalPayable > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setAdvancePayment(totalPayable)}
-                    className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold underline"
-                  >
-                    Pay Full ({formatCurrency(totalPayable)})
-                  </button>
-                )}
-              </div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Advance Payment (অগ্রিম জমা - BDT)
+              </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold select-none">
                   ৳
                 </span>
                 <input
@@ -573,17 +562,39 @@ export default function NewStudentRegistrationPage() {
                   value={advancePayment || ''}
                   onChange={(e) => setAdvancePayment(parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
-                  className={`w-full pl-8 pr-3.5 py-2.5 rounded-lg border text-sm font-bold focus:outline-hidden ${
+                  className={`w-full pl-8 pr-24 py-2.5 rounded-lg border text-sm font-bold focus:outline-hidden transition-colors ${
                     isAdvanceOverpaying
                       ? 'border-amber-500 bg-amber-50/50 text-amber-900 focus:ring-2 focus:ring-amber-500'
                       : 'border-slate-300 text-slate-900 focus:ring-2 focus:ring-emerald-600'
                   }`}
                 />
+                {totalPayable > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setAdvancePayment(totalPayable)}
+                    className="absolute inset-y-1.5 right-1.5 px-2.5 flex items-center rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200/80 transition-colors shadow-2xs cursor-pointer select-none"
+                    title={`Fill full payable amount: ${formatCurrency(totalPayable)}`}
+                  >
+                    Pay Full
+                  </button>
+                )}
+              </div>
+
+              {/* Sub-label showing Net Payable fee and full settlement status */}
+              <div className="flex items-center justify-between text-[11px] mt-1.5 px-0.5 text-slate-500">
+                <span>
+                  Net Payable: <strong className="text-slate-800 font-semibold">{formatCurrency(totalPayable)}</strong>
+                </span>
+                {totalPayable > 0 && advancePayment === totalPayable && (
+                  <span className="text-emerald-700 font-semibold flex items-center">
+                    ✓ Full Fee Settled
+                  </span>
+                )}
               </div>
 
               {/* Warning when Advance Payment > Total Payable Fee */}
               {isAdvanceOverpaying && (
-                <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 flex items-start space-x-2">
+                <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 flex items-start space-x-2 animate-in fade-in">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div className="text-xs">
                     <p className="font-bold">Overpayment Warning</p>
