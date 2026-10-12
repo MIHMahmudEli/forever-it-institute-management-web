@@ -81,9 +81,10 @@ export default function StaffManagementPage() {
         status: statusFilter === 'ALL' ? undefined : statusFilter,
         limit: 100,
       });
-      setStaffList(res.data);
+      const staffOnly = (res.data || []).filter((u) => u.role !== 'STUDENT');
+      setStaffList(staffOnly);
       if (statusFilter === 'ALL' && !search.trim()) {
-        setAllStaff(res.data);
+        setAllStaff(staffOnly);
       }
     } catch (err: any) {
       setNotification({
@@ -100,7 +101,7 @@ export default function StaffManagementPage() {
     async function loadInitial() {
       try {
         const res = await api.staff.getAll({ limit: 100 });
-        setAllStaff(res.data);
+        setAllStaff((res.data || []).filter((u) => u.role !== 'STUDENT'));
       } catch {
         // fallback
       }
