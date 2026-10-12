@@ -166,7 +166,7 @@ export default function EnrollmentsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <button
             type="button"
             onClick={handleOpenEnrollModal}
@@ -187,7 +187,7 @@ export default function EnrollmentsPage() {
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-6 shadow-xs flex items-center justify-between">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <span className="text-xs font-semibold text-slate-700">
           Showing {enrollments.length} Enrollment Records
         </span>
@@ -195,7 +195,7 @@ export default function EnrollmentsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-700 bg-slate-50"
+          className="px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-700 bg-slate-50 w-full sm:w-auto"
         >
           <option value="">All Statuses</option>
           <option value="ACTIVE">ACTIVE</option>
@@ -208,9 +208,9 @@ export default function EnrollmentsPage() {
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[760px]">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                 <th className="py-3 px-4">Student</th>
                 <th className="py-3 px-4">Enrolled Course</th>
                 <th className="py-3 px-4">Enrollment Date</th>
@@ -250,7 +250,7 @@ export default function EnrollmentsPage() {
                 </tr>
               ) : (
                 enrollments.map((e) => (
-                  <tr key={e.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={e.id} className="hover:bg-slate-50 transition-colors whitespace-nowrap">
                     <td className="py-3.5 px-4">
                       <p className="font-bold text-slate-900">{e.student?.fullName || 'Student'}</p>
                       <p className="font-mono text-[10px] text-slate-400">
@@ -312,7 +312,7 @@ export default function EnrollmentsPage() {
       {/* Enroll Existing Student Modal */}
       {enrollModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-2xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
             <button
               onClick={() => setEnrollModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"

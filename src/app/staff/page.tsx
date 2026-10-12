@@ -445,9 +445,9 @@ export default function StaffManagementPage() {
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[720px]">
               <thead>
-                <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                   <th className="py-3.5 px-4">Staff Member</th>
                   <th className="py-3.5 px-4">Email Address</th>
                   <th className="py-3.5 px-4">Role & Access</th>
@@ -490,7 +490,7 @@ export default function StaffManagementPage() {
                       : 'U';
 
                     return (
-                      <tr key={member.id} className="hover:bg-slate-50/70 transition-colors">
+                      <tr key={member.id} className="hover:bg-slate-50/70 transition-colors whitespace-nowrap">
                         {/* Member Name & Avatar */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center space-x-3">
@@ -626,7 +626,7 @@ export default function StaffManagementPage() {
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-2xs transition-opacity"
             onClick={() => setCreateModalOpen(false)}
           />
-          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-4 sm:p-6 max-h-[92vh] overflow-y-auto z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
@@ -766,7 +766,7 @@ export default function StaffManagementPage() {
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-2xs transition-opacity"
             onClick={() => setEditUser(null)}
           />
-          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-4 sm:p-6 max-h-[92vh] overflow-y-auto z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
@@ -877,7 +877,7 @@ export default function StaffManagementPage() {
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-2xs transition-opacity"
             onClick={() => setStatusConfirmUser(null)}
           />
-          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full p-6 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150 text-center">
+          <div className="relative bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full p-4 sm:p-6 max-h-[92vh] overflow-y-auto z-10 animate-in fade-in zoom-in-95 duration-150 text-center">
             <div
               className={`w-14 h-14 rounded-2xl mx-auto mb-3.5 flex items-center justify-center ${
                 statusConfirmUser.isActive ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'

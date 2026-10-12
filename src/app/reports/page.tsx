@@ -81,10 +81,10 @@ export default function ReportsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200 mb-6 space-x-6 text-sm font-semibold">
+      <div className="flex border-b border-slate-200 mb-6 space-x-4 sm:space-x-6 text-xs sm:text-sm font-semibold overflow-x-auto whitespace-nowrap pb-0.5">
         <button
           onClick={() => setActiveTab('dues')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`pb-3 border-b-2 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'dues'
               ? 'border-red-600 text-red-600'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -94,7 +94,7 @@ export default function ReportsPage() {
         </button>
         <button
           onClick={() => setActiveTab('payments')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`pb-3 border-b-2 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'payments'
               ? 'border-emerald-600 text-emerald-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -104,7 +104,7 @@ export default function ReportsPage() {
         </button>
         <button
           onClick={() => setActiveTab('enrollments')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`pb-3 border-b-2 transition-colors cursor-pointer shrink-0 ${
             activeTab === 'enrollments'
               ? 'border-blue-600 text-blue-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -141,9 +141,9 @@ export default function ReportsPage() {
           {/* Table */}
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[720px]">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                  <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                     <th className="py-3 px-4">Student & Reg No</th>
                     <th className="py-3 px-4">Contact Phone</th>
                     <th className="py-3 px-4">Parents Contact</th>
@@ -177,7 +177,7 @@ export default function ReportsPage() {
                     </tr>
                   ) : (
                     duesData.items.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50">
+                      <tr key={idx} className="hover:bg-slate-50 whitespace-nowrap">
                         <td className="py-3.5 px-4">
                           <p className="font-bold text-slate-900">{item.fullName}</p>
                           <p className="font-mono text-[10px] text-slate-400">
@@ -189,11 +189,11 @@ export default function ReportsPage() {
                         </td>
                         <td className="py-3.5 px-4 text-slate-600">{item.parentMobileNumber}</td>
                         <td className="py-3.5 px-4">
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
                             {item.enrolledCourses.map((c: string, i: number) => (
                               <span
                                 key={i}
-                                className="px-2 py-0.5 rounded bg-slate-100 text-[10px] text-slate-700"
+                                className="px-2 py-0.5 rounded bg-slate-100 text-[10px] text-slate-700 whitespace-nowrap"
                               >
                                 {c}
                               </span>
@@ -234,9 +234,9 @@ export default function ReportsPage() {
 
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[720px]">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                  <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                     <th className="py-3 px-4">Receipt</th>
                     <th className="py-3 px-4">Date</th>
                     <th className="py-3 px-4">Student</th>
@@ -267,7 +267,7 @@ export default function ReportsPage() {
                     </tr>
                   ) : (
                     paymentsData.items.map((p) => (
-                      <tr key={p.id} className="hover:bg-slate-50">
+                      <tr key={p.id} className="hover:bg-slate-50 whitespace-nowrap">
                         <td className="py-3 px-4 font-mono font-bold text-slate-800">
                           {p.receiptNumber}
                         </td>
@@ -321,9 +321,9 @@ export default function ReportsPage() {
 
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[720px]">
                 <thead>
-                  <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                  <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                     <th className="py-3 px-4">Date</th>
                     <th className="py-3 px-4">Student</th>
                     <th className="py-3 px-4">Course</th>
@@ -354,7 +354,7 @@ export default function ReportsPage() {
                     </tr>
                   ) : (
                     enrollmentsData.items.map((e) => (
-                      <tr key={e.id} className="hover:bg-slate-50">
+                      <tr key={e.id} className="hover:bg-slate-50 whitespace-nowrap">
                         <td className="py-3 px-4 text-slate-600">{formatDate(e.enrollmentDate)}</td>
                         <td className="py-3 px-4 font-bold text-slate-900">{e.student?.fullName}</td>
                         <td className="py-3 px-4 font-semibold text-slate-800">{e.course?.name}</td>

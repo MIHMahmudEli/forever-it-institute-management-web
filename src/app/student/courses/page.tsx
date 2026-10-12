@@ -201,11 +201,11 @@ export default function StudentCoursesPage() {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs self-start sm:self-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs w-full sm:w-auto gap-1 sm:gap-0">
           <button
             type="button"
             onClick={() => setActiveTab('enrolled')}
-            className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`inline-flex items-center justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'enrolled'
                 ? 'bg-white text-emerald-800 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -217,7 +217,7 @@ export default function StudentCoursesPage() {
           <button
             type="button"
             onClick={() => setActiveTab('browse')}
-            className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`inline-flex items-center justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'browse'
                 ? 'bg-white text-emerald-800 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -510,7 +510,7 @@ export default function StudentCoursesPage() {
       {/* Course Drop Request Modal */}
       {dropModalOpen && selectedEnrollment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+          <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 relative max-h-[92vh] overflow-y-auto">
             <button
               onClick={handleCloseDropModal}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -587,7 +587,7 @@ export default function StudentCoursesPage() {
       {/* Course Enrollment Request Modal */}
       {requestModalOpen && courseToRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+          <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 relative max-h-[92vh] overflow-y-auto">
             <button
               onClick={handleCloseRequestModal}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"

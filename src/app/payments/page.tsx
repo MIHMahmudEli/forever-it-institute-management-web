@@ -111,9 +111,9 @@ export default function PaymentsPage() {
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[760px]">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                 <th className="py-3 px-4">Receipt No</th>
                 <th className="py-3 px-4">Student & Reg No</th>
                 <th className="py-3 px-4">Date</th>
@@ -136,7 +136,7 @@ export default function PaymentsPage() {
                     <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-20" /></td>
                     <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
                     <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
-                    <td className="py-3.5 px-4"><div className="h-3 bg-slate-100 rounded w-32" /></td>
+                    <td className="py-3.5 px-4"><div className="h-3.5 bg-slate-100 rounded w-32" /></td>
                     <td className="py-3.5 px-4"><div className="h-5 bg-slate-100 rounded-full w-20" /></td>
                     <td className="py-3.5 px-4 text-right"><div className="h-6 bg-slate-100 rounded w-16 ml-auto" /></td>
                   </tr>
@@ -150,7 +150,7 @@ export default function PaymentsPage() {
                 </tr>
               ) : (
                 payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={p.id} className="hover:bg-slate-50 transition-colors whitespace-nowrap">
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
                       {p.receiptNumber}
                     </td>
@@ -229,7 +229,7 @@ export default function PaymentsPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
+          <div className="p-3.5 sm:p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
             <span>
               Page <strong>{page}</strong> of <strong>{totalPages}</strong>
             </span>
@@ -237,14 +237,14 @@ export default function PaymentsPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="p-1.5 rounded border border-slate-300 disabled:opacity-40"
+                className="p-1.5 rounded border border-slate-300 disabled:opacity-40 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="p-1.5 rounded border border-slate-300 disabled:opacity-40"
+                className="p-1.5 rounded border border-slate-300 disabled:opacity-40 cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -256,7 +256,7 @@ export default function PaymentsPage() {
       {/* Reversal Confirmation Modal */}
       {reversalModalOpen && targetPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+          <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center space-x-3 pb-3 border-b border-slate-100 mb-4">
               <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" />
               <div>

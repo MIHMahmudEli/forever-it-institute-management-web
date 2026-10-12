@@ -35,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-50 flex flex-col justify-center items-center p-4 relative select-none">
+    <div className="min-h-screen w-full overflow-y-auto bg-slate-50 flex flex-col justify-center items-center py-8 px-4 sm:px-6 relative select-none">
       {/* Decorative Brand Corner Ribbons */}
       <CornerRibbons position="all" />
 

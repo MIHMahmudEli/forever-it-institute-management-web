@@ -96,22 +96,22 @@ export default function PrintableRegistrationForm() {
   return (
     <div className="min-h-screen bg-slate-200 py-6 px-4 flex flex-col items-center print:p-0 print:m-0 print:bg-white print:min-h-0 print:block text-black font-sans">
       {/* Floating Toolbar (Hidden when printing) */}
-      <div className="no-print w-full max-w-[210mm] mb-4 flex items-center justify-between px-2 sm:px-0">
+      <div className="no-print w-full max-w-[210mm] mb-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-2 sm:px-0">
         <button
           onClick={handleBack}
-          className="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition-colors"
+          className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
           {isStudent ? 'Back to My Courses' : 'Back to Students'}
         </button>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-600 font-mono bg-white px-2.5 py-1 rounded-md border border-slate-200">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 sm:gap-3">
+          <span className="text-xs text-slate-600 font-mono bg-white px-2.5 py-1.5 rounded-md border border-slate-200">
             Reg: {doc.student.registrationNumber}
           </span>
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center px-4 py-2 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold shadow-md transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold shadow-md transition-colors"
           >
             <Printer className="w-4 h-4 mr-1.5" />
             Print Official Form (A4)
@@ -119,8 +119,10 @@ export default function PrintableRegistrationForm() {
         </div>
       </div>
 
-      {/* Printable Sheet Canvas — Fixed Exact A4 Portrait Geometry (210mm x 297mm) */}
-      <div className="registration-page relative w-[210mm] h-[297mm] max-h-[297mm] min-h-[297mm] mx-auto bg-white shadow-2xl overflow-hidden box-border print:shadow-none print:m-0 print:border-none">
+      {/* Responsive Canvas Wrapper for mobile/tablet horizontal panning */}
+      <div className="w-full overflow-x-auto flex justify-start lg:justify-center pb-8 print:p-0 print:m-0 print:overflow-visible">
+        {/* Printable Sheet Canvas — Fixed Exact A4 Portrait Geometry (210mm x 297mm) */}
+        <div className="registration-page relative shrink-0 w-[210mm] h-[297mm] max-h-[297mm] min-h-[297mm] mx-auto bg-white shadow-2xl overflow-hidden box-border print:shadow-none print:m-0 print:border-none">
         {/* Distinctive Diagonal Corner Ribbons on all 4 corners (SVG, bleeding beyond canvas) */}
         <CornerRibbons position="all" />
 
@@ -330,6 +332,7 @@ export default function PrintableRegistrationForm() {
             <CorporateFooterBanner variant="print" />
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

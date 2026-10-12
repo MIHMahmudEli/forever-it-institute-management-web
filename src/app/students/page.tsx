@@ -118,9 +118,9 @@ export default function StudentsListPage() {
       {/* Students Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[720px]">
             <thead>
-              <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                 <th className="py-3 px-4">Reg Number</th>
                 <th className="py-3 px-4">Student & Parents</th>
                 <th className="py-3 px-4">Mobile / NID</th>
@@ -157,7 +157,7 @@ export default function StudentsListPage() {
                 </tr>
               ) : (
                 students.map((student) => (
-                  <tr key={student.id} className="hover:bg-slate-50/70 transition-colors">
+                  <tr key={student.id} className="hover:bg-slate-50/70 transition-colors whitespace-nowrap">
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-800">
                       {student.registrationNumber}
                     </td>
@@ -176,7 +176,7 @@ export default function StudentsListPage() {
                         {(student.enrollments || []).map((e) => (
                           <span
                             key={e.id}
-                            className="px-2 py-0.5 rounded bg-slate-100 text-[10px] font-medium text-slate-700"
+                            className="px-2 py-0.5 rounded bg-slate-100 text-[10px] font-medium text-slate-700 whitespace-nowrap"
                           >
                             {e.course?.name || 'Program'}
                           </span>
@@ -231,7 +231,7 @@ export default function StudentsListPage() {
 
         {/* Pagination Bar */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
+          <div className="p-3.5 sm:p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
             <span>
               Showing Page <strong>{page}</strong> of <strong>{totalPages}</strong>
             </span>
@@ -239,14 +239,14 @@ export default function StudentsListPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="p-1.5 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-50"
+                className="p-1.5 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="p-1.5 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-50"
+                className="p-1.5 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

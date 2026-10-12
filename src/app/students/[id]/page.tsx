@@ -634,9 +634,9 @@ export default function StudentDetailPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[650px]">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                 <th className="py-2.5 px-3">Course Code</th>
                 <th className="py-2.5 px-3">Course Name</th>
                 <th className="py-2.5 px-3">Duration</th>
@@ -649,7 +649,7 @@ export default function StudentDetailPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {(student.enrollments || []).map((enrollment) => (
-                <tr key={enrollment.id} className="hover:bg-slate-50">
+                <tr key={enrollment.id} className="hover:bg-slate-50 whitespace-nowrap">
                   <td className="py-3 px-3 font-mono font-bold text-slate-700">
                     {enrollment.course?.code}
                   </td>
@@ -700,9 +700,9 @@ export default function StudentDetailPage() {
         </h2>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[700px]">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
                 <th className="py-2.5 px-3">Receipt No</th>
                 <th className="py-2.5 px-3">Date</th>
                 <th className="py-2.5 px-3">Method</th>
@@ -726,7 +726,7 @@ export default function StudentDetailPage() {
                 </tr>
               ) : (
                 student.payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50">
+                  <tr key={p.id} className="hover:bg-slate-50 whitespace-nowrap">
                     <td className="py-3 px-3 font-mono font-bold text-slate-800">
                       {p.receiptNumber}
                     </td>
@@ -776,7 +776,7 @@ export default function StudentDetailPage() {
       {/* Record Payment Modal */}
       {paymentModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+          <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="text-base font-bold text-slate-900">Record Student Payment</h3>
               <button
@@ -989,7 +989,7 @@ export default function StudentDetailPage() {
       {/* Provision Portal Account Modal */}
       {provisionModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+          <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 relative max-h-[92vh] overflow-y-auto">
             <button
               onClick={() => setProvisionModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -1116,7 +1116,7 @@ export default function StudentDetailPage() {
       {/* Confirm Regenerate Credentials Modal */}
       {regenerateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-2xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 relative text-center animate-in zoom-in-95">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-4 sm:p-6 shadow-2xl border border-slate-200 relative text-center animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto mb-3.5">
               <KeyRound className="w-6 h-6" />
             </div>
@@ -1153,7 +1153,7 @@ export default function StudentDetailPage() {
       {/* Enroll Student in Course Modal */}
       {enrollModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-2xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
             <button
               onClick={() => setEnrollModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"

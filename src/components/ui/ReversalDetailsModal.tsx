@@ -33,7 +33,7 @@ export default function ReversalDetailsModal({
       aria-modal="true"
       aria-labelledby="reversal-modal-title"
     >
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5">
+      <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl border border-slate-200 space-y-4 sm:space-y-5 max-h-[92vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="flex items-start justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center space-x-3">

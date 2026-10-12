@@ -123,99 +123,99 @@ export default function StudentDashboardPage() {
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {/* Active Courses */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Enrolled Courses
-              </span>
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                <GraduationCap className="w-5 h-5" />
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            {/* Active Courses */}
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Enrolled
+                </span>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+              </div>
+              <div className="mt-2.5 sm:mt-3">
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {data?.stats.activeCoursesCount || 0}
+                </div>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 truncate">
+                  {data?.stats.totalEnrolledCourses || 0} total enrolled
+                </p>
               </div>
             </div>
-            <div className="mt-3">
-              <div className="text-2xl font-black text-slate-900">
-                {data?.stats.activeCoursesCount || 0}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                {data?.stats.totalEnrolledCourses || 0} total enrolled
-              </p>
-            </div>
-          </div>
 
-          {/* Total Payable */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Total Agreed Fee
-              </span>
-              <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
-                <CircleDollarSign className="w-5 h-5" />
+            {/* Total Payable */}
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Agreed Fee
+                </span>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                  <CircleDollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+              </div>
+              <div className="mt-2.5 sm:mt-3">
+                <div className="text-xl sm:text-2xl font-black text-slate-900">
+                  {formatCurrency(data?.financials.totalPayable || 0)}
+                </div>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 truncate">Total programs fee</p>
               </div>
             </div>
-            <div className="mt-3">
-              <div className="text-2xl font-black text-slate-900">
-                {formatCurrency(data?.financials.totalPayable || 0)}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Combined across all courses</p>
-            </div>
-          </div>
 
-          {/* Total Paid */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Total Paid
-              </span>
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                <Receipt className="w-5 h-5" />
+            {/* Total Paid */}
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-xs hover:border-emerald-500/40 transition-smooth">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Total Paid
+                </span>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <Receipt className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+              </div>
+              <div className="mt-2.5 sm:mt-3">
+                <div className="text-xl sm:text-2xl font-black text-emerald-700">
+                  {formatCurrency(data?.financials.totalPaid || 0)}
+                </div>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 truncate">Verified receipts</p>
               </div>
             </div>
-            <div className="mt-3">
-              <div className="text-2xl font-black text-emerald-700">
-                {formatCurrency(data?.financials.totalPaid || 0)}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Verified institute receipts</p>
-            </div>
-          </div>
 
-          {/* Outstanding Due */}
-          <div
-            className={`p-5 rounded-xl border shadow-xs transition-smooth ${
-              (data?.financials.outstandingDue || 0) > 0
-                ? 'bg-amber-50/50 border-amber-200/80 hover:border-amber-400'
-                : 'bg-white border-slate-200/80 hover:border-emerald-500/40'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Outstanding Due
-              </span>
-              <div
-                className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                  (data?.financials.outstandingDue || 0) > 0
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-slate-100 text-slate-700'
-                }`}
-              >
-                <CircleDollarSign className="w-5 h-5" />
+            {/* Outstanding Due */}
+            <div
+              className={`p-4 sm:p-5 rounded-xl border shadow-xs transition-smooth ${
+                (data?.financials.outstandingDue || 0) > 0
+                  ? 'bg-amber-50/50 border-amber-200/80 hover:border-amber-400'
+                  : 'bg-white border-slate-200/80 hover:border-emerald-500/40'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Due Balance
+                </span>
+                <div
+                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center ${
+                    (data?.financials.outstandingDue || 0) > 0
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  <CircleDollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
               </div>
-            </div>
-            <div className="mt-3">
-              <div
-                className={`text-2xl font-black ${
-                  (data?.financials.outstandingDue || 0) > 0 ? 'text-[#D81A22]' : 'text-slate-900'
-                }`}
-              >
-                {formatCurrency(data?.financials.outstandingDue || 0)}
+              <div className="mt-2.5 sm:mt-3">
+                <div
+                  className={`text-xl sm:text-2xl font-black ${
+                    (data?.financials.outstandingDue || 0) > 0 ? 'text-[#D81A22]' : 'text-slate-900'
+                  }`}
+                >
+                  {formatCurrency(data?.financials.outstandingDue || 0)}
+                </div>
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 truncate">
+                  {(data?.financials.outstandingDue || 0) > 0 ? 'Pending clearance' : 'Fully Cleared'}
+                </p>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                {(data?.financials.outstandingDue || 0) > 0 ? 'Payable before certificate' : 'Fully Cleared'}
-              </p>
             </div>
           </div>
-        </div>
 
         {/* Main Grid: Enrolled Courses & Recent Payments */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

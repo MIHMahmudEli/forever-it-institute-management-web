@@ -825,10 +825,10 @@ export default function NewStudentRegistrationPage() {
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-slate-200">
           <Link
             href="/students"
-            className="px-5 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="w-full sm:w-auto text-center px-5 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Cancel
           </Link>
@@ -854,7 +854,7 @@ export default function NewStudentRegistrationPage() {
                 ? 'Please select at least one course'
                 : 'Complete Registration & Generate Receipt'
             }
-            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center ${
+            className={`w-full sm:w-auto px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center ${
               submitting || selectedCourses.length === 0 || isAdvanceOverpaying || hasInvalidDiscount
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
                 : 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-900/30 cursor-pointer'
@@ -875,7 +875,7 @@ export default function NewStudentRegistrationPage() {
       {/* Success Modal Popup */}
       {successModalOpen && successData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-7 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 max-h-[92vh] overflow-y-auto">
             {/* Close button */}
             <button
               onClick={() => setSuccessModalOpen(false)}

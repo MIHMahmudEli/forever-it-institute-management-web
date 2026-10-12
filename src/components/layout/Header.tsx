@@ -28,17 +28,21 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         {onOpenMobileMenu && (
           <button
             onClick={onOpenMobileMenu}
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
-        {title && <h2 className="text-lg font-bold text-slate-800 tracking-tight">{title}</h2>}
+        {title && (
+          <h2 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight truncate max-w-[150px] xs:max-w-[220px] sm:max-w-md lg:max-w-none">
+            {title}
+          </h2>
+        )}
       </div>
 
       <div className="flex items-center space-x-3 sm:space-x-4">

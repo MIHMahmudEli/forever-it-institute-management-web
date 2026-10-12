@@ -96,8 +96,8 @@ export default function StudentPaymentsPage() {
       ) : (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+            <table className="w-full text-left text-xs min-w-[720px]">
+              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 whitespace-nowrap">
                 <tr>
                   <th className="px-5 py-3.5">Receipt #</th>
                   <th className="px-5 py-3.5">Payment Date</th>
@@ -112,7 +112,7 @@ export default function StudentPaymentsPage() {
               <tbody className="divide-y divide-slate-100">
                 {payments.map((p) => {
                   return (
-                    <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={p.id} className="hover:bg-slate-50/80 transition-colors whitespace-nowrap">
                       <td className="px-5 py-4 font-mono font-bold text-slate-900">
                         {p.receiptNumber}
                       </td>
