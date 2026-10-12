@@ -16,6 +16,7 @@ import {
   UserPlus,
   ArrowUpRight,
   RefreshCw,
+  Printer,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -220,7 +221,7 @@ export default function DashboardPage() {
                       <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-28" /></td>
                       <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-24" /></td>
                       <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-32" /></td>
-                      <td className="py-3 px-3 text-right"><div className="h-6 bg-slate-100 rounded w-16 ml-auto" /></td>
+                      <td className="py-3 px-3 text-right"><div className="h-7 w-7 bg-slate-100 rounded-lg ml-auto" /></td>
                     </tr>
                   ))
                 ) : !data?.recentRegistrations?.length ? (
@@ -252,9 +253,10 @@ export default function DashboardPage() {
                       <td className="py-3 px-3 text-right">
                         <Link
                           href={`/print/registration/${item.id}`}
-                          className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200"
+                          className="inline-flex items-center justify-center p-1.5 rounded-lg text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-2xs"
+                          title="Print Registration Form"
                         >
-                          Print Form
+                          <Printer className="w-4 h-4" />
                         </Link>
                       </td>
                     </tr>
