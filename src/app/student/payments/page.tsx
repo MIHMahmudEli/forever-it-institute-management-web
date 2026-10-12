@@ -12,14 +12,20 @@ import {
   Printer,
   CircleDollarSign,
   AlertCircle,
-  CheckCircle2,
-  FileCheck,
+  Info,
 } from 'lucide-react';
+import ReversalDetailsModal from '@/components/ui/ReversalDetailsModal';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function StudentPaymentsPage() {
+  const { user } = useAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Reversal Audit Details Modal State
+  const [reversalDetailsModalOpen, setReversalDetailsModalOpen] = useState(false);
+  const [selectedReversalPayment, setSelectedReversalPayment] = useState<Payment | null>(null);
 
   const loadPayments = async () => {
     setLoading(true);
@@ -100,13 +106,11 @@ export default function StudentPaymentsPage() {
                   <th className="px-5 py-3.5">Transaction Ref</th>
                   <th className="px-5 py-3.5">Amount</th>
                   <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Receipt Action</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {payments.map((p) => {
-                  const isPrintable = p.status === 'COMPLETED';
-
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-5 py-4 font-mono font-bold text-slate-900">
@@ -127,8 +131,8 @@ export default function StudentPaymentsPage() {
                         <StatusBadge status={p.status} />
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <div className="flex items-center justify-end">
-                          {isPrintable ? (
+                        <div className="flex items-center justify-end space-x-1.5">
+                          {p.status === 'COMPLETED' ? (
                             <Link
                               href={`/print/receipt/${p.id}`}
                               target="_blank"
@@ -138,13 +142,21 @@ export default function StudentPaymentsPage() {
                             >
                               <Printer className="w-4 h-4 text-emerald-700" />
                             </Link>
-                          ) : (
-                            <span
-                              className="inline-flex items-center justify-center p-1.5 text-slate-300 select-none cursor-not-allowed"
-                              title="Print unavailable for reversed payment"
+                          ) : p.status === 'REVERSED' ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedReversalPayment(p);
+                                setReversalDetailsModalOpen(true);
+                              }}
+                              className="inline-flex items-center justify-center p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition-colors shadow-2xs cursor-pointer"
+                              title="View Why This Payment Was Reversed (Reversal Reason)"
+                              aria-label="View Why This Payment Was Reversed"
                             >
-                              <Printer className="w-4 h-4 opacity-30" />
-                            </span>
+                              <Info className="w-4 h-4 text-red-600" />
+                            </button>
+                          ) : (
+                            <span className="text-slate-400 text-xs">—</span>
                           )}
                         </div>
                       </td>
@@ -156,6 +168,18 @@ export default function StudentPaymentsPage() {
           </div>
         </div>
       )}
+
+      {/* Reversal Audit Details Modal */}
+      <ReversalDetailsModal
+        payment={selectedReversalPayment}
+        isOpen={reversalDetailsModalOpen}
+        onClose={() => {
+          setReversalDetailsModalOpen(false);
+          setSelectedReversalPayment(null);
+        }}
+        studentName={selectedReversalPayment?.student?.fullName || user?.fullName}
+        studentRegNo={selectedReversalPayment?.student?.registrationNumber || user?.registrationNumber || ''}
+      />
     </DashboardLayout>
   );
 }
