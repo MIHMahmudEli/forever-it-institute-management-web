@@ -266,6 +266,12 @@ export interface DashboardSummary {
     paymentMethod: string;
     paymentDate: string;
     status: string;
+    reversalReason?: string | null;
+    reversedBy?: string | null;
+    reversedAt?: string | null;
+    transactionReference?: string | null;
+    student?: Student;
+    enrollment?: Enrollment;
   }>;
   courseDistribution: Array<{ name: string; value: number }>;
   monthlyPayments: Array<{ month: string; amount: number }>;

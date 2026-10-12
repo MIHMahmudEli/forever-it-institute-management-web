@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { api, DashboardSummary } from '@/lib/api/api-client';
+import { api, DashboardSummary, Payment } from '@/lib/api/api-client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { DashboardCardSkeleton } from '@/components/ui/skeletons';
+import ReversalDetailsModal from '@/components/ui/ReversalDetailsModal';
 import {
   Users,
   GraduationCap,
@@ -17,12 +18,31 @@ import {
   ArrowUpRight,
   RefreshCw,
   Printer,
+  Info,
 } from 'lucide-react';
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // View Reversal Details Modal
+  const [reversalDetailsModalOpen, setReversalDetailsModalOpen] = useState(false);
+  const [selectedReversalPayment, setSelectedReversalPayment] = useState<any | null>(null);
+
+  const handleOpenReversalDetails = async (paymentItem: any) => {
+    setSelectedReversalPayment(paymentItem);
+    setReversalDetailsModalOpen(true);
+
+    if (paymentItem.reversalReason === undefined) {
+      try {
+        const fullPayment = await api.payments.getOne(paymentItem.id);
+        setSelectedReversalPayment(fullPayment);
+      } catch {
+        // fallback to paymentItem
+      }
+    }
+  };
 
   const loadDashboard = async () => {
     setLoading(true);
@@ -341,7 +361,7 @@ export default function DashboardPage() {
                 <th className="py-2.5 px-3">Method</th>
                 <th className="py-2.5 px-3">Amount</th>
                 <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right">Receipt</th>
+                <th className="py-2.5 px-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -354,7 +374,7 @@ export default function DashboardPage() {
                     <td className="py-3 px-3"><div className="h-3.5 bg-slate-100 rounded w-16" /></td>
                     <td className="py-3 px-3"><div className="h-3.5 bg-slate-200 rounded w-16" /></td>
                     <td className="py-3 px-3"><div className="h-5 bg-slate-100 rounded-full w-20" /></td>
-                    <td className="py-3 px-3 text-right"><div className="h-6 bg-slate-100 rounded w-20 ml-auto" /></td>
+                    <td className="py-3 px-3 text-right"><div className="h-7 w-7 bg-slate-100 rounded-lg ml-auto" /></td>
                   </tr>
                 ))
               ) : !data?.recentPayments?.length ? (
@@ -385,14 +405,22 @@ export default function DashboardPage() {
                       {p.status === 'COMPLETED' ? (
                         <Link
                           href={`/print/receipt/${p.id}`}
-                          className="text-[11px] font-semibold text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors shadow-2xs"
+                          className="inline-flex items-center justify-center p-1.5 rounded-lg text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-2xs"
+                          title="Print Receipt"
+                          aria-label="Print Receipt"
                         >
-                          Print Receipt
+                          <Printer className="w-4 h-4" />
                         </Link>
                       ) : (
-                        <span className="text-slate-400 font-medium text-xs px-2 select-none" title="Print unavailable for reversed payment">
-                          —
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenReversalDetails(p)}
+                          className="inline-flex items-center justify-center p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition-colors shadow-2xs cursor-pointer"
+                          title="View Why This Payment Was Reversed (Reversal Reason)"
+                          aria-label="View Why This Payment Was Reversed"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
                       )}
                     </td>
                   </tr>
@@ -402,6 +430,18 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Reversal Audit Details Modal */}
+      <ReversalDetailsModal
+        payment={selectedReversalPayment}
+        isOpen={reversalDetailsModalOpen}
+        onClose={() => {
+          setReversalDetailsModalOpen(false);
+          setSelectedReversalPayment(null);
+        }}
+        studentName={selectedReversalPayment?.studentName}
+        studentRegNo={selectedReversalPayment?.registrationNumber}
+      />
     </DashboardLayout>
   );
 }
