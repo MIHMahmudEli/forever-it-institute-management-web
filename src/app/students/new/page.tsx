@@ -39,7 +39,12 @@ export default function NewStudentRegistrationPage() {
 
   // Course Selections
   const [selectedCourses, setSelectedCourses] = useState<
-    Array<{ courseId: string; agreedFee: number; discount: number }>
+    Array<{
+      courseId: string;
+      agreedFee: number;
+      discount: number;
+      discountPercent: number | string;
+    }>
   >([]);
 
   // Payment State
@@ -79,14 +84,44 @@ export default function NewStudentRegistrationPage() {
       if (exists) {
         return prev.filter((c) => c.courseId !== course.id);
       } else {
-        return [...prev, { courseId: course.id, agreedFee: Number(course.totalFee), discount: 0 }];
+        return [
+          ...prev,
+          {
+            courseId: course.id,
+            agreedFee: Number(course.totalFee),
+            discount: 0,
+            discountPercent: '',
+          },
+        ];
       }
     });
   };
 
-  const handleUpdateCourseDiscount = (courseId: string, discount: number) => {
+  const isPercentInvalid = (percentVal: number | string | undefined): boolean => {
+    if (percentVal === undefined || percentVal === '') return false;
+    const p = typeof percentVal === 'number' ? percentVal : parseFloat(percentVal);
+    if (isNaN(p)) return false;
+    return p >= 100 || p < 0;
+  };
+
+  const handleUpdateCourseDiscountPercent = (courseId: string, rawValue: string) => {
     setSelectedCourses((prev) =>
-      prev.map((c) => (c.courseId === courseId ? { ...c, discount: Math.max(0, discount) } : c))
+      prev.map((c) => {
+        if (c.courseId !== courseId) return c;
+        if (rawValue.trim() === '') {
+          return { ...c, discountPercent: '', discount: 0 };
+        }
+        const percent = parseFloat(rawValue);
+        if (isNaN(percent)) {
+          return { ...c, discountPercent: rawValue, discount: 0 };
+        }
+        const discountBDT = Math.max(0, Math.round((c.agreedFee * percent) / 100));
+        return {
+          ...c,
+          discountPercent: rawValue,
+          discount: discountBDT,
+        };
+      })
     );
   };
 
@@ -94,7 +129,8 @@ export default function NewStudentRegistrationPage() {
   const totalCourseFee = selectedCourses.reduce((sum, c) => sum + c.agreedFee, 0);
   const totalDiscount = selectedCourses.reduce((sum, c) => sum + c.discount, 0);
   const totalPayable = Math.max(0, totalCourseFee - totalDiscount);
-  const isAdvanceOverpaying = (advancePayment || 0) > totalPayable;
+  const hasInvalidDiscount = selectedCourses.some((c) => isPercentInvalid(c.discountPercent));
+  const isAdvanceOverpaying = !hasInvalidDiscount && (advancePayment || 0) > totalPayable;
   const outstandingDue = Math.max(0, totalPayable - (advancePayment || 0));
   const amountInWords = numberToWordsBDT(advancePayment || 0);
 
@@ -105,6 +141,13 @@ export default function NewStudentRegistrationPage() {
 
     if (selectedCourses.length === 0) {
       setErrorMessage('Please select at least one course for registration.');
+      return;
+    }
+
+    if (hasInvalidDiscount) {
+      setErrorMessage(
+        'Course discount percentage cannot reach or exceed 100%. Please ensure discount is less than 100%.'
+      );
       return;
     }
 
@@ -485,23 +528,60 @@ export default function NewStudentRegistrationPage() {
                     {/* Discount input if selected */}
                     {selected && (
                       <div
-                        className="mt-3 pt-3 border-t border-emerald-200/80 flex items-center justify-between text-xs"
+                        className="mt-3 pt-3 border-t border-emerald-200/80 space-y-2 text-xs"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="text-slate-600">Discounts / Concession:</span>
-                        <div className="flex items-center space-x-1.5">
-                          <span className="text-slate-500">৳</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max={course.totalFee}
-                            value={selected.discount}
-                            onChange={(e) =>
-                              handleUpdateCourseDiscount(course.id, parseFloat(e.target.value) || 0)
-                            }
-                            className="w-24 px-2 py-1 rounded border border-slate-300 text-right text-xs focus:ring-1 focus:ring-emerald-600 font-semibold"
-                          />
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-600 font-medium">Discounts / Concession (%):</span>
+                          <div className="flex items-center space-x-2">
+                            <div className="relative">
+                              <input
+                                type="number"
+                                min="0"
+                                max="99.99"
+                                step="any"
+                                value={selected.discountPercent}
+                                onChange={(e) =>
+                                  handleUpdateCourseDiscountPercent(course.id, e.target.value)
+                                }
+                                placeholder="0"
+                                className={`w-20 pl-2 pr-6 py-1 rounded-md border text-right text-xs font-bold transition-all focus:outline-hidden ${
+                                  isPercentInvalid(selected.discountPercent)
+                                    ? 'border-red-400 bg-red-50 text-red-700 focus:ring-2 focus:ring-red-400'
+                                    : 'border-slate-300 bg-white text-slate-800 focus:ring-2 focus:ring-emerald-600'
+                                }`}
+                              />
+                              <span className="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 font-bold pointer-events-none text-xs">
+                                %
+                              </span>
+                            </div>
+                            <div className="text-right min-w-[76px]">
+                              <span className="text-[11px] font-bold text-emerald-800">
+                                {selected.discount > 0 ? `-${formatCurrency(selected.discount)}` : '৳ 0'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* Live calculated fee hint */}
+                        {selected.discount > 0 && !isPercentInvalid(selected.discountPercent) && (
+                          <div className="flex items-center justify-between text-[11px] text-slate-600 bg-emerald-100/60 px-2.5 py-1 rounded border border-emerald-200/60">
+                            <span>Effective Course Fee:</span>
+                            <span className="font-bold text-emerald-900">
+                              {formatCurrency(Math.max(0, course.totalFee - selected.discount))}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Percentage warning message if >= 100% or < 0 */}
+                        {isPercentInvalid(selected.discountPercent) && (
+                          <div className="p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 flex items-start space-x-1.5 text-[11px]">
+                            <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
+                            <span className="font-semibold leading-tight">
+                              Discount percentage cannot reach or exceed 100% ({selected.discountPercent}% entered). Must be less than 100%.
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -696,6 +776,16 @@ export default function NewStudentRegistrationPage() {
           </div>
         )}
 
+        {/* Invalid Discount Warning banner before action buttons */}
+        {hasInvalidDiscount && (
+          <div className="p-3.5 rounded-xl bg-red-50 border border-red-300 text-red-900 flex items-center space-x-2.5 text-xs">
+            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+            <span className="font-semibold">
+              Registration submission disabled: Course discount percentage cannot reach or exceed 100%. All discounts must be less than 100%.
+            </span>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
           <Link
@@ -707,16 +797,18 @@ export default function NewStudentRegistrationPage() {
 
           <button
             type="submit"
-            disabled={submitting || selectedCourses.length === 0 || isAdvanceOverpaying}
+            disabled={submitting || selectedCourses.length === 0 || isAdvanceOverpaying || hasInvalidDiscount}
             title={
-              isAdvanceOverpaying
+              hasInvalidDiscount
+                ? 'Course discount percentage cannot reach or exceed 100%. Submission is disabled.'
+                : isAdvanceOverpaying
                 ? `Advance payment (${formatCurrency(advancePayment)}) cannot exceed total payable fee (${formatCurrency(totalPayable)}). Submission is disabled.`
                 : selectedCourses.length === 0
                 ? 'Please select at least one course'
                 : 'Complete Registration & Generate Receipt'
             }
             className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center ${
-              submitting || selectedCourses.length === 0 || isAdvanceOverpaying
+              submitting || selectedCourses.length === 0 || isAdvanceOverpaying || hasInvalidDiscount
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
                 : 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white shadow-md shadow-emerald-900/30'
             }`}
