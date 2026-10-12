@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import React, { Suspense } from 'react';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth/auth-context';
+import { NotificationProvider } from '@/lib/notifications/notification-context';
 
 export const metadata: Metadata = {
   title: 'Forever IT Institute — Management System',
@@ -25,7 +26,9 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
         <Suspense fallback={null}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+          </AuthProvider>
         </Suspense>
       </body>
     </html>

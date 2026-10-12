@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { Menu, Calendar } from 'lucide-react';
-
 import Link from 'next/link';
+import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
   title?: string;
@@ -41,7 +41,7 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
         {title && <h2 className="text-lg font-bold text-slate-800 tracking-tight">{title}</h2>}
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3 sm:space-x-4">
         {/* Date Display */}
         {today && (
           <div className="hidden sm:flex items-center text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">
@@ -49,6 +49,9 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
             <span>{today}</span>
           </div>
         )}
+
+        {/* Central Web Notifications Bell */}
+        <NotificationBell />
 
         {/* User Mini Badge */}
         <Link

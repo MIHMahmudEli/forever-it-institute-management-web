@@ -584,4 +584,61 @@ export const api = {
         body: JSON.stringify(data),
       }),
   },
+
+  notifications: {
+    getAll: (params?: { page?: number; limit?: number; isRead?: string; type?: string }) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.set('page', String(params.page));
+      if (params?.limit) q.set('limit', String(params.limit));
+      if (params?.isRead !== undefined) q.set('isRead', params.isRead);
+      if (params?.type) q.set('type', params.type);
+      const qs = q.toString();
+      return apiRequest<NotificationsResponse>(`/notifications${qs ? `?${qs}` : ''}`);
+    },
+    getUnreadCount: () => apiRequest<{ unreadCount: number }>('/notifications/unread-count'),
+    getVapidPublicKey: () => apiRequest<{ publicKey: string }>('/notifications/vapid-public-key'),
+    subscribePush: (data: { endpoint: string; keys: { p256dh: string; auth: string }; userAgent?: string }) =>
+      apiRequest<{ success: boolean; message: string }>('/notifications/push-subscription', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    unsubscribePush: (endpoint: string) =>
+      apiRequest<{ success: boolean; message: string }>('/notifications/push-subscription', {
+        method: 'DELETE',
+        body: JSON.stringify({ endpoint }),
+      }),
+    markAsRead: (id: string) =>
+      apiRequest<NotificationItem>(`/notifications/${id}/read`, { method: 'PATCH' }),
+    markAllAsRead: () =>
+      apiRequest<{ success: boolean; message: string }>('/notifications/read-all', { method: 'PATCH' }),
+    delete: (id: string) =>
+      apiRequest<{ success: boolean; message: string }>(`/notifications/${id}`, { method: 'DELETE' }),
+    sendTest: () =>
+      apiRequest<NotificationItem>('/notifications/test', { method: 'POST' }),
+  },
 };
+
+export interface NotificationItem {
+  id: string;
+  userId: string | null;
+  targetRole: string | null;
+  title: string;
+  message: string;
+  type: string;
+  link: string | null;
+  isRead: boolean;
+  readAt: string | null;
+  metadata: any;
+  createdAt: string;
+}
+
+export interface NotificationsResponse {
+  data: NotificationItem[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    unreadCount: number;
+  };
+}

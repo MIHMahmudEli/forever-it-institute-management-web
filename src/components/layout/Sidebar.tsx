@@ -18,7 +18,9 @@ import {
   ExternalLink,
   Clock,
   KeyRound,
+  Bell,
 } from 'lucide-react';
+import { useNotifications } from '@/lib/notifications/notification-context';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -27,6 +29,7 @@ interface SidebarProps {
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user, isAdmin, isStudent, logout } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const adminStaffNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -36,6 +39,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { name: 'Enrollments', href: '/enrollments', icon: ClipboardList },
     { name: 'Payments & Receipts', href: '/payments', icon: Receipt },
     { name: 'Drop Requests', href: '/drop-requests', icon: Clock },
+    { name: 'Notifications', href: '/notifications', icon: Bell, isNotification: true },
     { name: 'Financial Reports', href: '/reports', icon: BarChart3, adminOnly: true },
     { name: 'Staff Management', href: '/staff', icon: ShieldCheck, adminOnly: true },
     { name: 'My Account', href: '/account', icon: UserCog },
@@ -46,6 +50,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { name: 'My Courses', href: '/student/courses', icon: GraduationCap },
     { name: 'Payments & Receipts', href: '/student/payments', icon: Receipt },
     { name: 'Drop Requests', href: '/student/drop-requests', icon: Clock },
+    { name: 'Notifications', href: '/notifications', icon: Bell, isNotification: true },
     { name: 'My Profile', href: '/student/profile', icon: UserCog },
     { name: 'Change Password', href: '/student/change-password', icon: KeyRound },
   ];
@@ -114,7 +119,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
               }`}
             >
               <Icon className={`w-4 h-4 mr-3 shrink-0 ${isActive ? 'text-white' : 'text-emerald-300'}`} />
-              <span className="truncate">{item.name}</span>
+              <span className="truncate flex-1">{item.name}</span>
+              {item.isNotification && unreadCount > 0 && (
+                <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-black bg-red-500 text-white shadow-xs">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
           );
         })}
