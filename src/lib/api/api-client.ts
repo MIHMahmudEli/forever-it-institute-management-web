@@ -687,6 +687,21 @@ export const api = {
       apiRequest<{ offering: CourseOffering; students: any[] }>(`/teacher-portal/courses/${id}/roster`),
     getCourseSessions: (id: string) =>
       apiRequest<ClassSession[]>(`/teacher-portal/courses/${id}/sessions`),
+    createCourseSession: (
+      id: string,
+      data: {
+        title: string;
+        sessionDate: string;
+        startTime: string;
+        endTime: string;
+        classroom?: string;
+        topic?: string;
+      }
+    ) =>
+      apiRequest<ClassSession>(`/teacher-portal/courses/${id}/sessions`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     markSessionAttendance: (sessionId: string, records: any[]) =>
       apiRequest<any>(`/teacher-portal/sessions/${sessionId}/attendance`, {
         method: 'POST',
