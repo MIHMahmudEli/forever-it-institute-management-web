@@ -1,5 +1,18 @@
 function getApiBase(): string {
   let base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1').trim();
+
+  // If in browser, detect LAN IP or network host (e.g. 192.168.x.x from phone)
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const currentHost = window.location.hostname;
+    if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+      if (base.includes('localhost')) {
+        base = base.replace('localhost', currentHost);
+      } else if (base.includes('127.0.0.1')) {
+        base = base.replace('127.0.0.1', currentHost);
+      }
+    }
+  }
+
   base = base.replace(/\/+$/, '');
   if (!base.endsWith('/api/v1')) {
     if (base.endsWith('/api')) {
@@ -10,8 +23,6 @@ function getApiBase(): string {
   }
   return base;
 }
-
-const API_BASE = getApiBase();
 
 export class ApiError extends Error {
   statusCode: number;
@@ -44,7 +55,8 @@ export async function apiRequest<T = any>(
   }
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = `${API_BASE}${cleanEndpoint}`;
+  const apiBase = getApiBase();
+  const url = `${apiBase}${cleanEndpoint}`;
 
   try {
     const res = await fetch(url, {

@@ -135,8 +135,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
       previousCountRef.current = newUnread;
       isInitialLoadRef.current = false;
-    } catch (err) {
-      console.error('Error fetching notifications:', err);
+    } catch (err: any) {
+      if (err?.statusCode === 401 || err?.statusCode === 403) {
+        return;
+      }
+      console.warn('Notification refresh paused:', err?.message || err);
     } finally {
       setIsLoading(false);
     }
