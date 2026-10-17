@@ -70,18 +70,18 @@ export default function StudentRoutinePage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold backdrop-blur-md mb-2">
                 <Calendar className="w-3.5 h-3.5 text-emerald-300" />
-                <span>RoutinePro Visualizer • Asia/Dhaka (UTC+6)</span>
+                <span>Weekly Schedule • Asia/Dhaka (UTC+6)</span>
               </div>
               <h1 className="text-2xl md:text-3xl font-black tracking-tight">
                 My Class Routine
               </h1>
               <p className="text-emerald-100/90 text-sm mt-1">
-                Visual university-style timetable and rolling 7-day academic routine
+                Visual weekly timetable and rolling 7-day academic routine
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
-              {/* View Switcher: RoutinePro vs Agenda */}
+              {/* View Switcher */}
               <div className="flex items-center bg-white/15 p-1 rounded-2xl border border-white/20 backdrop-blur-md">
                 <button
                   onClick={() => setViewMode('routinepro')}
@@ -91,8 +91,8 @@ export default function StudentRoutinePage() {
                       : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>RoutinePro Grid</span>
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Weekly Routine</span>
                 </button>
                 <button
                   onClick={() => setViewMode('agenda')}

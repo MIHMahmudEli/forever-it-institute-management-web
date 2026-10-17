@@ -87,7 +87,7 @@ export default function ParentRoutinePage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold backdrop-blur-md mb-2">
                 <Calendar className="w-3.5 h-3.5 text-emerald-300" />
-                <span>RoutinePro Visualizer • Asia/Dhaka (UTC+6)</span>
+                <span>Weekly Schedule • Asia/Dhaka (UTC+6)</span>
               </div>
               <h1 className="text-2xl md:text-3xl font-black tracking-tight">
                 {selectedChild?.student?.fullName
@@ -110,8 +110,8 @@ export default function ParentRoutinePage() {
                       : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>RoutinePro Grid</span>
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Weekly Routine</span>
                 </button>
                 <button
                   onClick={() => setViewMode('cards')}
