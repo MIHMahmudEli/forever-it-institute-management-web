@@ -1017,27 +1017,39 @@ export interface StudentAttendanceReport {
   }[];
 }
 
+export interface StudentCourseGrade {
+  offeringId: string;
+  offeringCode: string;
+  courseName: string;
+  courseCode?: string;
+  section?: string;
+  termName?: string;
+  termCode?: string;
+  teacherName?: string;
+  teacherId?: string;
+  teacherDisplay?: string;
+  totalMark?: number;
+  passingMark?: number;
+  contributes?: number;
+  totalScore: number;
+  letterGrade: string;
+  gpa: number;
+  assessments: {
+    id: string;
+    assessmentTitle: string;
+    assessmentType: string;
+    totalMarks: number;
+    obtainedMarks: number;
+    weightage: number;
+    weightedContribution: number;
+    feedback: string | null;
+    gradedAt: string | null;
+  }[];
+}
+
 export interface StudentGradesResponse {
   studentId: string;
-  courses: {
-    offeringId: string;
-    offeringCode: string;
-    courseName: string;
-    totalScore: number;
-    letterGrade: string;
-    gpa: number;
-    assessments: {
-      id: string;
-      assessmentTitle: string;
-      assessmentType: string;
-      totalMarks: number;
-      obtainedMarks: number;
-      weightage: number;
-      weightedContribution: number;
-      feedback: string | null;
-      gradedAt: string | null;
-    }[];
-  }[];
+  courses: StudentCourseGrade[];
 }
 
 export interface OfferingGradebook {
