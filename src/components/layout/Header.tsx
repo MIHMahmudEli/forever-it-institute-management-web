@@ -1,19 +1,40 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
-import { Menu, Calendar } from 'lucide-react';
+import { Menu, Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import NotificationBell from './NotificationBell';
 
 interface HeaderProps {
   title?: string;
   onOpenMobileMenu?: () => void;
+  showBack?: boolean;
+  backHref?: string;
 }
 
-export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
+export default function Header({
+  title,
+  onOpenMobileMenu,
+  showBack: explicitShowBack,
+  backHref,
+}: HeaderProps) {
   const { user } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
   const [today, setToday] = useState('');
+
+  // Auto-detect detail/nested views for showing a native mobile back button
+  const isNestedRoute =
+    explicitShowBack !== undefined
+      ? explicitShowBack
+      : pathname === '/students/new' ||
+        pathname.startsWith('/students/') ||
+        pathname === '/account' ||
+        pathname === '/notifications' ||
+        pathname === '/student/change-password' ||
+        (pathname.startsWith('/student/courses/') && pathname !== '/student/courses');
 
   useEffect(() => {
     setToday(
@@ -26,20 +47,40 @@ export default function Header({ title, onOpenMobileMenu }: HeaderProps) {
     );
   }, []);
 
+  const handleBack = () => {
+    if (backHref) {
+      router.push(backHref);
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(user?.role === 'STUDENT' ? '/student/dashboard' : '/dashboard');
+    }
+  };
+
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-6 py-3.5 flex items-center justify-between shadow-xs">
+    <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 px-3.5 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xs pt-[env(safe-area-inset-top,0px)]">
       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-        {onOpenMobileMenu && (
+        {isNestedRoute ? (
           <button
-            onClick={onOpenMobileMenu}
-            className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
-            aria-label="Open navigation menu"
+            onClick={handleBack}
+            className="lg:hidden p-2 -ml-1 rounded-xl text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0 cursor-pointer"
+            aria-label="Go back"
           >
-            <Menu className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-slate-800" />
           </button>
+        ) : (
+          onOpenMobileMenu && (
+            <button
+              onClick={onOpenMobileMenu}
+              className="lg:hidden p-2 -ml-1 rounded-xl text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0 cursor-pointer"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-5 h-5 text-slate-800" />
+            </button>
+          )
         )}
         {title && (
-          <h2 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight truncate max-w-[150px] xs:max-w-[220px] sm:max-w-md lg:max-w-none">
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate max-w-[160px] xs:max-w-[220px] sm:max-w-md lg:max-w-none">
             {title}
           </h2>
         )}

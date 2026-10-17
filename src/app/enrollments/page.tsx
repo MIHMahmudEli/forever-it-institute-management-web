@@ -205,9 +205,95 @@ export default function EnrollmentsPage() {
         </select>
       </div>
 
-      {/* Table */}
+      {/* Enrollments Data: Mobile Card List (< lg) + Desktop Table (lg+) */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
+        {/* Mobile Card List (< lg) */}
+        <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-3 space-y-2.5 animate-pulse">
+                <div className="h-4 bg-slate-200 rounded w-36" />
+                <div className="h-3 bg-slate-100 rounded w-48" />
+                <div className="h-8 bg-slate-100 rounded-lg" />
+              </div>
+            ))
+          ) : enrollments.length === 0 ? (
+            <div className="py-12 text-center text-slate-400">
+              <ClipboardList className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+              <p className="font-semibold text-slate-600">No enrollments recorded.</p>
+            </div>
+          ) : (
+            enrollments.map((e) => (
+              <div key={e.id} className="p-3 space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900">
+                      {e.student?.fullName || 'Student'}
+                    </h3>
+                    <p className="font-mono text-xs text-slate-400 font-semibold">
+                      {e.student?.registrationNumber}
+                    </p>
+                  </div>
+                  <StatusBadge status={e.status} />
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100/80">
+                  <span className="font-mono text-[10px] text-blue-700 font-bold block">
+                    {e.course?.code}
+                  </span>
+                  <span className="font-bold text-xs text-blue-950 block">
+                    {e.course?.name}
+                  </span>
+                  <span className="text-[11px] text-slate-500 block mt-0.5">
+                    Enrolled: {formatDate(e.enrollmentDate)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50/80 rounded-xl border border-slate-100">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Agreed / Discount</span>
+                    <span className="font-medium text-slate-700 block mt-0.5">
+                      {formatCurrency(e.agreedFee)}{' '}
+                      {e.discount > 0 && <span className="text-red-600 font-bold">(-{formatCurrency(e.discount)})</span>}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Final Course Fee</span>
+                    <span className="text-sm font-black text-emerald-800 block mt-0.5">
+                      {formatCurrency(e.finalFee)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                  {e.status === 'PENDING' && (
+                    <button
+                      type="button"
+                      onClick={() => handleApproveEnrollment(e.id)}
+                      disabled={approvingId === e.id}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                      {approvingId === e.id ? 'Approving...' : 'Approve Enrollment'}
+                    </button>
+                  )}
+
+                  {e.student && (
+                    <Link
+                      href={`/students/${e.student.id}`}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold transition-colors shadow-xs"
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1" /> Profile
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table (hidden on mobile, visible on lg+) */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[760px]">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">

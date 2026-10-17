@@ -360,7 +360,7 @@ export default function StudentDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {student.user ? (
             <button
               onClick={() => {
@@ -633,7 +633,60 @@ export default function StudentDetailPage() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Card List (< lg) */}
+        <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+          {(!student.enrollments || student.enrollments.length === 0) ? (
+            <p className="text-center text-xs text-slate-400 py-6">No enrolled programs.</p>
+          ) : (
+            student.enrollments.map((enrollment) => (
+              <div key={enrollment.id} className="p-3 space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                      {enrollment.course?.code}
+                    </span>
+                    <h3 className="font-bold text-sm text-slate-900 mt-1">
+                      {enrollment.course?.name}
+                    </h3>
+                    <p className="text-xs text-slate-500">{enrollment.course?.duration}</p>
+                  </div>
+                  <StatusBadge status={enrollment.status} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Agreed / Discount</span>
+                    <span className="font-medium text-slate-700">
+                      {formatCurrency(enrollment.agreedFee)}{' '}
+                      {enrollment.discount > 0 && <span className="text-red-600 font-bold">(-{formatCurrency(enrollment.discount)})</span>}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Final Fee</span>
+                    <span className="text-sm font-black text-emerald-800">{formatCurrency(enrollment.finalFee)}</span>
+                  </div>
+                </div>
+
+                {enrollment.status === 'PENDING' && (
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleApproveEnrollment(enrollment.id)}
+                      disabled={approvingEnrollmentId === enrollment.id}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-2xs cursor-pointer disabled:opacity-50"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                      {approvingEnrollmentId === enrollment.id ? 'Approving...' : 'Approve Enrollment'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table (hidden on mobile, visible on lg+) */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[650px]">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
@@ -699,7 +752,56 @@ export default function StudentDetailPage() {
           Payment Transactions & Receipts ({student.payments?.length || 0})
         </h2>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Card List (< lg) */}
+        <div className="block lg:hidden divide-y divide-slate-100 mb-3">
+          {(!student.payments || student.payments.length === 0) ? (
+            <p className="text-center text-xs text-slate-400 py-6">No payments recorded.</p>
+          ) : (
+            student.payments.map((p) => (
+              <div key={p.id} className="py-3 first:pt-0 last:pb-0 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-slate-800">{p.receiptNumber}</span>
+                    <p className="text-[11px] text-slate-500 mt-0.5">{formatDate(p.paymentDate)} • <span className="uppercase font-semibold">{p.paymentMethod}</span></p>
+                  </div>
+                  <StatusBadge status={p.status} />
+                </div>
+
+                <div className="flex items-center justify-between text-xs py-1.5 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-slate-500 text-[11px]">Received by: {p.receivedBy || 'Staff'}</span>
+                  <span className="font-black text-emerald-800 text-sm">{formatCurrency(p.amount)}</span>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  {p.status === 'COMPLETED' ? (
+                    <Link
+                      href={`/print/receipt/${p.id}`}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-2xs"
+                    >
+                      <Printer className="w-3.5 h-3.5 mr-1" />
+                      Print Receipt
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedReversalPayment(p);
+                        setReversalDetailsModalOpen(true);
+                      }}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold shadow-2xs cursor-pointer"
+                    >
+                      <Info className="w-3.5 h-3.5 mr-1" />
+                      Reversal Reason
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table (hidden on mobile, visible on lg+) */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[700px]">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">

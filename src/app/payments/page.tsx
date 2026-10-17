@@ -108,9 +108,100 @@ export default function PaymentsPage() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Payments Data: Mobile Card List (< lg) + Desktop Table (lg+) */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
+        {/* Mobile Card List (< lg) */}
+        <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-3 space-y-2.5 animate-pulse">
+                <div className="h-4 bg-slate-200 rounded w-32" />
+                <div className="h-3 bg-slate-100 rounded w-44" />
+                <div className="h-6 bg-slate-100 rounded-md w-full" />
+              </div>
+            ))
+          ) : payments.length === 0 ? (
+            <div className="py-12 text-center text-slate-400">
+              <Receipt className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+              <p className="font-semibold text-slate-600">No payment transactions recorded.</p>
+            </div>
+          ) : (
+            payments.map((p) => (
+              <div key={p.id} className="p-3 space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-slate-800">
+                      {p.receiptNumber}
+                    </span>
+                    <p className="font-bold text-sm text-slate-900 mt-0.5">
+                      {p.student?.fullName || 'Student'}
+                    </p>
+                    <p className="font-mono text-[11px] text-slate-400 font-semibold">
+                      {p.student?.registrationNumber}
+                    </p>
+                  </div>
+                  <StatusBadge status={p.status} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50/80 rounded-xl border border-slate-100">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Date & Method</span>
+                    <span className="font-medium text-slate-700 block mt-0.5">
+                      {formatDate(p.paymentDate)} • <span className="uppercase font-bold">{p.paymentMethod}</span>
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Collected Amount</span>
+                    <span className="text-sm font-black text-emerald-800 block mt-0.5">
+                      {formatCurrency(p.amount)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                  {p.status === 'COMPLETED' ? (
+                    <Link
+                      href={`/print/receipt/${p.id}`}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-2xs"
+                    >
+                      <Printer className="w-3.5 h-3.5 mr-1" />
+                      Print Receipt
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedReversalPayment(p);
+                        setReversalDetailsModalOpen(true);
+                      }}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold shadow-2xs cursor-pointer"
+                    >
+                      <Info className="w-3.5 h-3.5 mr-1" />
+                      Reversal Reason
+                    </button>
+                  )}
+
+                  {isAdmin && p.status === 'COMPLETED' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTargetPayment(p);
+                        setReversalModalOpen(true);
+                      }}
+                      className="inline-flex items-center px-2.5 py-1.5 rounded-lg text-red-600 hover:bg-red-50 border border-red-200 text-xs font-semibold shadow-2xs cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                      Reverse
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table (hidden on mobile, visible on lg+) */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[760px]">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">

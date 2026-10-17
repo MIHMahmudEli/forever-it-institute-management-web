@@ -95,8 +95,69 @@ export default function StudentPaymentsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[720px]">
+          {/* Student Payments: Mobile Card List (< lg) + Desktop Table (lg+) */}
+        {/* Mobile Card List (< lg) */}
+        <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+          {payments.map((p) => (
+            <div key={p.id} className="p-3 space-y-2.5">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="font-mono text-xs font-bold text-slate-800">
+                    {p.receiptNumber}
+                  </span>
+                  <p className="font-bold text-sm text-slate-900 mt-0.5">
+                    {p.enrollment?.course?.name || 'Registration Fee'}
+                  </p>
+                </div>
+                <StatusBadge status={p.status} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50/80 rounded-xl border border-slate-100">
+                <div>
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Date & Method</span>
+                  <span className="font-medium text-slate-700 block mt-0.5">
+                    {formatDate(p.paymentDate)} • <span className="uppercase font-bold">{p.paymentMethod}</span>
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-slate-400 block text-[10px] uppercase font-bold">Amount Paid</span>
+                  <span className="text-sm font-black text-emerald-800 block mt-0.5">
+                    {formatCurrency(p.amount)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                {p.status === 'COMPLETED' ? (
+                  <Link
+                    href={`/print/receipt/${p.id}`}
+                    target="_blank"
+                    className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80 text-xs font-semibold shadow-2xs"
+                  >
+                    <Printer className="w-3.5 h-3.5 mr-1" />
+                    Print Receipt
+                  </Link>
+                ) : p.status === 'REVERSED' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedReversalPayment(p);
+                      setReversalDetailsModalOpen(true);
+                    }}
+                    className="inline-flex items-center px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold shadow-2xs cursor-pointer"
+                  >
+                    <Info className="w-3.5 h-3.5 mr-1" />
+                    Reversal Reason
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table (hidden on mobile, visible on lg+) */}
+        <div className="hidden lg:block overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-[720px]">
               <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 whitespace-nowrap">
                 <tr>
                   <th className="px-5 py-3.5">Receipt #</th>

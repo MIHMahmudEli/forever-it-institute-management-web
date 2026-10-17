@@ -80,37 +80,37 @@ export default function ReportsPage() {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-slate-200 mb-6 space-x-4 sm:space-x-6 text-xs sm:text-sm font-semibold overflow-x-auto whitespace-nowrap pb-0.5">
+      {/* Segmented App-Style Tabs Bar */}
+      <div className="flex items-center space-x-1.5 p-1 bg-slate-100 rounded-xl overflow-x-auto scrollbar-none mb-6">
         <button
           onClick={() => setActiveTab('dues')}
-          className={`pb-3 border-b-2 transition-colors cursor-pointer shrink-0 ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             activeTab === 'dues'
-              ? 'border-red-600 text-red-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-red-600 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Outstanding Dues Report
+          Outstanding Dues
         </button>
         <button
           onClick={() => setActiveTab('payments')}
-          className={`pb-3 border-b-2 transition-colors cursor-pointer shrink-0 ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             activeTab === 'payments'
-              ? 'border-emerald-600 text-emerald-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-emerald-800 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Payment Collections Report
+          Payment Collections
         </button>
         <button
           onClick={() => setActiveTab('enrollments')}
-          className={`pb-3 border-b-2 transition-colors cursor-pointer shrink-0 ${
+          className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
             activeTab === 'enrollments'
-              ? 'border-blue-600 text-blue-700'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-blue-700 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          Enrollments & Concessions Report
+          Enrollments & Concessions
         </button>
       </div>
 
@@ -138,9 +138,64 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Table */}
+          {/* Dues Data: Mobile Card List (< lg) + Desktop Table (lg+) */}
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="overflow-x-auto">
+            {/* Mobile Card List (< lg) */}
+            <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="p-3 space-y-2 animate-pulse">
+                    <div className="h-4 bg-slate-200 rounded w-36" />
+                    <div className="h-3 bg-slate-100 rounded w-28" />
+                    <div className="h-5 bg-slate-100 rounded-md w-full" />
+                  </div>
+                ))
+              ) : !duesData?.items?.length ? (
+                <div className="py-8 text-center text-xs text-slate-500">
+                  🎉 All students have completely settled their course tuition fees!
+                </div>
+              ) : (
+                duesData.items.map((item, idx) => (
+                  <div key={idx} className="p-3 space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">{item.fullName}</h4>
+                        <p className="font-mono text-xs text-slate-500 font-bold">{item.registrationNumber}</p>
+                      </div>
+                      <span className="text-sm font-black text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">
+                        {formatCurrency(item.outstandingDue)}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Student Phone</span>
+                        <span className="font-semibold text-slate-800">{item.mobileNumber}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Total Paid / Fee</span>
+                        <span className="font-semibold text-slate-700">
+                          {formatCurrency(item.totalPaid)} / {formatCurrency(item.totalPayable)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {item.enrolledCourses && item.enrolledCourses.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {item.enrolledCourses.map((c: string, i: number) => (
+                          <span key={i} className="px-2 py-0.5 rounded bg-slate-100 text-[10.5px] font-medium text-slate-700">
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table (hidden on mobile, visible on lg+) */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[720px]">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
@@ -233,7 +288,50 @@ export default function ReportsPage() {
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="overflow-x-auto">
+            {/* Mobile Card List (< lg) */}
+            <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="p-3 space-y-2 animate-pulse">
+                    <div className="h-4 bg-slate-200 rounded w-32" />
+                    <div className="h-3 bg-slate-100 rounded w-44" />
+                    <div className="h-4 bg-slate-200 rounded w-20" />
+                  </div>
+                ))
+              ) : !paymentsData?.items?.length ? (
+                <div className="py-8 text-center text-xs text-slate-500">
+                  No payment collections found.
+                </div>
+              ) : (
+                paymentsData.items.map((p) => (
+                  <div key={p.id} className="p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="font-mono text-xs font-bold text-slate-800">{p.receiptNumber}</span>
+                        <p className="font-bold text-sm text-slate-900 mt-0.5">{p.student?.fullName || 'Student'}</p>
+                      </div>
+                      <StatusBadge status={p.status} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Date & Method</span>
+                        <span className="font-medium text-slate-700">
+                          {formatDate(p.paymentDate)} • <span className="uppercase font-semibold">{p.paymentMethod}</span>
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Collected Amount</span>
+                        <span className="text-sm font-black text-emerald-800">{formatCurrency(p.amount)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table (hidden on mobile, visible on lg+) */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[720px]">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
@@ -320,7 +418,53 @@ export default function ReportsPage() {
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="overflow-x-auto">
+            {/* Mobile Card List (< lg) */}
+            <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="p-3 space-y-2 animate-pulse">
+                    <div className="h-4 bg-slate-200 rounded w-36" />
+                    <div className="h-3 bg-slate-100 rounded w-28" />
+                    <div className="h-4 bg-slate-200 rounded w-24" />
+                  </div>
+                ))
+              ) : !enrollmentsData?.items?.length ? (
+                <div className="py-8 text-center text-xs text-slate-500">
+                  No enrollments found.
+                </div>
+              ) : (
+                enrollmentsData.items.map((e) => (
+                  <div key={e.id} className="p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">{e.student?.fullName || 'Student'}</h4>
+                        <p className="text-xs text-slate-600 font-semibold">{e.course?.name}</p>
+                      </div>
+                      <span className="text-xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">
+                        {e.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Agreed / Discount</span>
+                        <span className="font-medium text-slate-700">
+                          {formatCurrency(e.agreedFee)}{' '}
+                          {e.discount > 0 && <span className="text-red-600 font-bold">(-{formatCurrency(e.discount)})</span>}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-slate-400 block text-[10px] uppercase font-bold">Net Payable</span>
+                        <span className="text-sm font-black text-emerald-800">{formatCurrency(e.finalFee)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table (hidden on mobile, visible on lg+) */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[720px]">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">

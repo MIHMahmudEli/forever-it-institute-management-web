@@ -204,7 +204,75 @@ export default function AdminDropRequestsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Mobile Card List (< lg) */}
+          <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
+            {requests.map((req) => {
+              const isPending = req.status === 'PENDING';
+              return (
+                <div key={req.id} className="p-3 space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <Link
+                        href={`/students/${req.student?.id}`}
+                        className="font-bold text-sm text-slate-900 hover:text-emerald-700 transition-colors"
+                      >
+                        {req.student?.fullName || 'Student'}
+                      </Link>
+                      <p className="font-mono text-xs text-slate-500 font-semibold">
+                        {req.student?.registrationNumber}
+                      </p>
+                    </div>
+                    <StatusBadge status={req.status} />
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="font-mono text-[10px] text-emerald-800 font-bold block">
+                      {req.enrollment?.course?.code}
+                    </span>
+                    <span className="font-bold text-xs text-slate-900 block">
+                      {req.enrollment?.course?.name}
+                    </span>
+                    <span className="text-[11px] text-slate-500 block mt-0.5">
+                      Requested: {formatDate(req.requestDate)}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-slate-600 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100">
+                    <span className="font-bold text-slate-700 block mb-0.5">Reason:</span>
+                    <p className="italic text-slate-800">{req.reason || 'No reason provided'}</p>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                    {isPending ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => openReviewModal(req, 'reject')}
+                          className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openReviewModal(req, 'approve')}
+                          className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors shadow-xs cursor-pointer"
+                        >
+                          Approve
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 italic">
+                        Reviewed {req.reviewerName ? `by ${req.reviewerName}` : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table (hidden on mobile, visible on lg+) */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[760px]">
               <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 whitespace-nowrap">
                 <tr>
