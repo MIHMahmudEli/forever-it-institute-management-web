@@ -100,10 +100,12 @@ export interface User {
   email: string;
   username?: string | null;
   fullName: string;
-  role: 'ADMIN' | 'STAFF' | 'STUDENT' | 'VIEWER';
+  role: 'ADMIN' | 'STAFF' | 'STUDENT' | 'TEACHER' | 'PARENT' | 'VIEWER';
   isActive: boolean;
   mustChangePassword?: boolean;
   studentId?: string | null;
+  teacherId?: string | null;
+  parentId?: string | null;
   registrationNumber?: string | null;
 }
 
@@ -572,6 +574,153 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    getRoutine: () => apiRequest<RoutineResponse>('/student-portal/routine'),
+    getGrades: (offeringId?: string) =>
+      apiRequest<StudentGradesResponse>(`/student-portal/grades${offeringId ? `?offeringId=${offeringId}` : ''}`),
+    getAttendance: (offeringId?: string) =>
+      apiRequest<StudentAttendanceReport>(`/student-portal/attendance${offeringId ? `?offeringId=${offeringId}` : ''}`),
+    getOfferings: () => apiRequest<CourseOffering[]>('/student-portal/offerings'),
+    registerOffering: (offeringId: string) =>
+      apiRequest<Enrollment>(`/student-portal/offerings/${offeringId}/register`, { method: 'POST' }),
+  },
+
+  academicTerms: {
+    list: () => apiRequest<AcademicTerm[]>('/academic-terms'),
+    getCurrent: () => apiRequest<AcademicTerm | null>('/academic-terms/current'),
+    get: (id: string) => apiRequest<AcademicTerm>(`/academic-terms/${id}`),
+    create: (data: Partial<AcademicTerm>) =>
+      apiRequest<AcademicTerm>('/academic-terms', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: Partial<AcademicTerm>) =>
+      apiRequest<AcademicTerm>(`/academic-terms/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    delete: (id: string) => apiRequest<void>(`/academic-terms/${id}`, { method: 'DELETE' }),
+  },
+
+  teachers: {
+    list: () => apiRequest<TeacherProfile[]>('/teachers'),
+    get: (id: string) => apiRequest<TeacherProfile>(`/teachers/${id}`),
+    create: (data: any) =>
+      apiRequest<TeacherProfile & { temporaryPassword?: string }>('/teachers', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: string, data: any) =>
+      apiRequest<TeacherProfile>(`/teachers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    resetPassword: (id: string) =>
+      apiRequest<any>(`/teachers/${id}/reset-password`, { method: 'POST' }),
+  },
+
+  courseOfferings: {
+    list: (params?: { termId?: string; courseId?: string; teacherId?: string; status?: string }) => {
+      const q = new URLSearchParams();
+      if (params?.termId) q.set('termId', params.termId);
+      if (params?.courseId) q.set('courseId', params.courseId);
+      if (params?.teacherId) q.set('teacherId', params.teacherId);
+      if (params?.status) q.set('status', params.status);
+      const qs = q.toString();
+      return apiRequest<CourseOffering[]>(`/course-offerings${qs ? `?${qs}` : ''}`);
+    },
+    getAvailable: (termId?: string) =>
+      apiRequest<CourseOffering[]>(`/course-offerings/available${termId ? `?termId=${termId}` : ''}`),
+    get: (id: string) => apiRequest<CourseOffering>(`/course-offerings/${id}`),
+    create: (data: any) =>
+      apiRequest<CourseOffering>('/course-offerings', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: string, data: any) =>
+      apiRequest<CourseOffering>(`/course-offerings/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    publish: (id: string) =>
+      apiRequest<CourseOffering>(`/course-offerings/${id}/publish`, { method: 'POST' }),
+    register: (id: string) =>
+      apiRequest<Enrollment>(`/course-offerings/${id}/register`, { method: 'POST' }),
+  },
+
+  attendance: {
+    getSession: (sessionId: string) => apiRequest<any>(`/attendance/session/${sessionId}`),
+    bulkMark: (sessionId: string, records: any[]) =>
+      apiRequest<any>(`/attendance/session/${sessionId}`, {
+        method: 'POST',
+        body: JSON.stringify({ records }),
+      }),
+    getStudent: (studentId: string, offeringId?: string) =>
+      apiRequest<StudentAttendanceReport>(
+        `/attendance/student/${studentId}${offeringId ? `?offeringId=${offeringId}` : ''}`
+      ),
+  },
+
+  gradebook: {
+    createAssessment: (data: any) =>
+      apiRequest<Assessment>('/gradebook/assessments', { method: 'POST', body: JSON.stringify(data) }),
+    getOfferingAssessments: (offeringId: string) =>
+      apiRequest<Assessment[]>(`/gradebook/offerings/${offeringId}/assessments`),
+    getOfferingGradebook: (offeringId: string) =>
+      apiRequest<OfferingGradebook>(`/gradebook/offerings/${offeringId}`),
+    recordGrades: (assessmentId: string, data: { grades: any[]; publish?: boolean }) =>
+      apiRequest<any>(`/gradebook/assessments/${assessmentId}/grades`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    getStudent: (studentId: string, offeringId?: string) =>
+      apiRequest<StudentGradesResponse>(
+        `/gradebook/student/${studentId}${offeringId ? `?offeringId=${offeringId}` : ''}`
+      ),
+  },
+
+  teacherPortal: {
+    getMe: () => apiRequest<TeacherProfile>('/teacher-portal/me'),
+    changePassword: (data: any) =>
+      apiRequest<any>('/teacher-portal/change-password', { method: 'POST', body: JSON.stringify(data) }),
+    getDashboard: () => apiRequest<any>('/teacher-portal/dashboard'),
+    getTimetable: () => apiRequest<{ teacherId: string; routine: RoutineClass[] }>('/teacher-portal/timetable'),
+    getCourses: () => apiRequest<CourseOffering[]>('/teacher-portal/courses'),
+    getCourse: (id: string) => apiRequest<CourseOffering>(`/teacher-portal/courses/${id}`),
+    getCourseRoster: (id: string) =>
+      apiRequest<{ offering: CourseOffering; students: any[] }>(`/teacher-portal/courses/${id}/roster`),
+    getCourseSessions: (id: string) =>
+      apiRequest<ClassSession[]>(`/teacher-portal/courses/${id}/sessions`),
+    markSessionAttendance: (sessionId: string, records: any[]) =>
+      apiRequest<any>(`/teacher-portal/sessions/${sessionId}/attendance`, {
+        method: 'POST',
+        body: JSON.stringify({ records }),
+      }),
+    getCourseGradebook: (id: string) =>
+      apiRequest<OfferingGradebook>(`/teacher-portal/courses/${id}/gradebook`),
+    createAssessment: (data: any) =>
+      apiRequest<Assessment>('/teacher-portal/assessments', { method: 'POST', body: JSON.stringify(data) }),
+    recordGrades: (assessmentId: string, data: { grades: any[]; publish?: boolean }) =>
+      apiRequest<any>(`/teacher-portal/assessments/${assessmentId}/grades`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
+
+  parents: {
+    list: () => apiRequest<ParentProfile[]>('/parents'),
+    get: (id: string) => apiRequest<ParentProfile>(`/parents/${id}`),
+    create: (data: any) =>
+      apiRequest<ParentProfile & { temporaryPassword?: string }>('/parents', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    linkStudent: (id: string, data: { studentId: string; isPrimaryGuardian?: boolean }) =>
+      apiRequest<any>(`/parents/${id}/link-student`, { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  parentPortal: {
+    getMe: () => apiRequest<ParentProfile>('/parent-portal/me'),
+    changePassword: (data: any) =>
+      apiRequest<any>('/parent-portal/change-password', { method: 'POST', body: JSON.stringify(data) }),
+    getChildren: () =>
+      apiRequest<{ relationshipId: string; isPrimaryGuardian: boolean; student: Student }[]>(
+        '/parent-portal/children'
+      ),
+    getChildDashboard: (studentId: string) =>
+      apiRequest<any>(`/parent-portal/children/${studentId}/dashboard`),
+    getChildTimetable: (studentId: string) =>
+      apiRequest<{ studentId: string; routine: any[] }>(`/parent-portal/children/${studentId}/timetable`),
+    getChildAttendance: (studentId: string) =>
+      apiRequest<StudentAttendanceReport>(`/parent-portal/children/${studentId}/attendance`),
+    getChildGrades: (studentId: string) =>
+      apiRequest<StudentGradesResponse>(`/parent-portal/children/${studentId}/grades`),
+    getChildPayments: (studentId: string) =>
+      apiRequest<Payment[]>(`/parent-portal/children/${studentId}/payments`),
   },
 
   account: {
@@ -642,3 +791,252 @@ export interface NotificationsResponse {
     unreadCount: number;
   };
 }
+
+// -----------------------------------------------------------------------------
+// Academic Management System Types
+// -----------------------------------------------------------------------------
+
+export interface AcademicTerm {
+  id: string;
+  code: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  registrationStartDate: string;
+  registrationEndDate: string;
+  status: 'UPCOMING' | 'ACTIVE' | 'COMPLETED' | 'ARCHIVED';
+  isCurrent: boolean;
+  offerings?: CourseOffering[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeacherProfile {
+  id: string;
+  teacherId: string;
+  userId: string;
+  department: string;
+  designation: string;
+  specialization: string | null;
+  phone: string;
+  officeLocation: string | null;
+  bio: string | null;
+  hireDate: string;
+  status: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE';
+  user?: User;
+  offerings?: CourseOffering[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ParentProfile {
+  id: string;
+  userId: string;
+  phone: string;
+  relationship: string;
+  occupation: string | null;
+  emergencyContact: string | null;
+  user?: User;
+  studentRelationships?: {
+    id: string;
+    studentId: string;
+    isPrimaryGuardian: boolean;
+    isVerified: boolean;
+    student: Student;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OfferingSchedule {
+  id: string;
+  offeringId: string;
+  dayOfWeek: number;
+  dayName: string;
+  startTime: string;
+  endTime: string;
+  classroom: string | null;
+}
+
+export interface CourseOffering {
+  id: string;
+  courseId: string;
+  termId: string;
+  teacherId: string | null;
+  section: string;
+  code: string;
+  classroom: string;
+  capacity: number;
+  enrolledCount: number;
+  status: 'DRAFT' | 'PUBLISHED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  startDate: string;
+  endDate: string;
+  feeOverride: number | null;
+  course?: Course;
+  term?: AcademicTerm;
+  teacher?: TeacherProfile;
+  schedules?: OfferingSchedule[];
+  enrollments?: Enrollment[];
+  classSessions?: ClassSession[];
+  assessments?: Assessment[];
+  isEnrolled?: boolean;
+  isFull?: boolean;
+  remainingSeats?: number;
+}
+
+export interface ClassSession {
+  id: string;
+  offeringId: string;
+  sessionNumber: number;
+  title: string;
+  sessionDate: string;
+  startTime: string;
+  endTime: string;
+  classroom: string | null;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  topic: string | null;
+  offering?: CourseOffering;
+  attendanceRecords?: AttendanceRecord[];
+}
+
+export interface AttendanceRecord {
+  id: string;
+  sessionId: string;
+  studentId: string;
+  status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
+  remarks: string | null;
+  markedBy: string | null;
+  markedAt: string;
+  session?: ClassSession;
+  student?: Student;
+}
+
+export interface Assessment {
+  id: string;
+  offeringId: string;
+  title: string;
+  type: 'QUIZ' | 'ASSIGNMENT' | 'MIDTERM' | 'FINAL' | 'PROJECT' | 'PARTICIPATION' | 'OTHER';
+  totalMarks: number;
+  weightage: number;
+  dueDate: string | null;
+  isPublished: boolean;
+  grades?: Grade[];
+}
+
+export interface Grade {
+  id: string;
+  assessmentId: string;
+  studentId: string;
+  obtainedMarks: number;
+  feedback: string | null;
+  status: 'DRAFT' | 'SUBMITTED' | 'PUBLISHED';
+  gradedBy: string | null;
+  gradedAt: string | null;
+  assessment?: Assessment;
+}
+
+export interface RoutineClass {
+  sessionId?: string | null;
+  sessionNumber?: number | null;
+  sessionTitle: string;
+  offeringId: string;
+  offeringCode: string;
+  courseName: string;
+  section: string;
+  classroom: string;
+  teacherName: string;
+  startTime: string;
+  endTime: string;
+  topic?: string | null;
+  status: string;
+  attendanceStatus?: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED' | null;
+  dayOfWeek?: number;
+  dayName?: string;
+}
+
+export interface RoutineDay {
+  date: string;
+  dayOfWeek: number;
+  dayName: string;
+  isToday: boolean;
+  dayOffset: number;
+  classesCount: number;
+  classes: RoutineClass[];
+}
+
+export interface RoutineResponse {
+  studentId: string;
+  timezone: string;
+  rollingWindow: RoutineDay[];
+}
+
+export interface StudentAttendanceReport {
+  studentId: string;
+  totalSessions: number;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  excusedCount: number;
+  attendancePercentage: number;
+  records: {
+    id: string;
+    sessionId: string;
+    courseName: string;
+    offeringCode: string;
+    sessionNumber: number;
+    sessionTitle: string;
+    sessionDate: string;
+    startTime: string;
+    endTime: string;
+    classroom: string;
+    status: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
+    remarks: string | null;
+    markedAt: string;
+  }[];
+}
+
+export interface StudentGradesResponse {
+  studentId: string;
+  courses: {
+    offeringId: string;
+    offeringCode: string;
+    courseName: string;
+    totalScore: number;
+    letterGrade: string;
+    gpa: number;
+    assessments: {
+      id: string;
+      assessmentTitle: string;
+      assessmentType: string;
+      totalMarks: number;
+      obtainedMarks: number;
+      weightage: number;
+      weightedContribution: number;
+      feedback: string | null;
+      gradedAt: string | null;
+    }[];
+  }[];
+}
+
+export interface OfferingGradebook {
+  offering: CourseOffering;
+  assessments: Assessment[];
+  students: {
+    studentId: string;
+    registrationNumber: string;
+    fullName: string;
+    totalWeightedScore: number;
+    letterGrade: string;
+    gpa: number;
+    marks: {
+      assessmentId: string;
+      assessmentTitle: string;
+      weightage: number;
+      totalMarks: number;
+      obtainedMarks: number | null;
+      status: string;
+      feedback: string | null;
+    }[];
+  }[];
+}
+

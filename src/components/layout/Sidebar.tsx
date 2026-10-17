@@ -20,6 +20,13 @@ import {
   KeyRound,
   Bell,
   X,
+  Calendar,
+  BookOpen,
+  Award,
+  CheckSquare,
+  Users2,
+  Layers,
+  HeartHandshake,
 } from 'lucide-react';
 import { useNotifications } from '@/lib/notifications/notification-context';
 
@@ -29,14 +36,18 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user, isAdmin, isStudent, logout } = useAuth();
+  const { user, isAdmin, isStudent, isTeacher, isParent, logout } = useAuth();
   const { unreadCount } = useNotifications();
 
   const adminStaffNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Academic Offerings', href: '/academic/offerings', icon: Layers },
+    { name: 'Academic Terms', href: '/academic/terms', icon: Calendar },
+    { name: 'Teachers Directory', href: '/academic/teachers', icon: Users2 },
+    { name: 'Parents Directory', href: '/academic/parents', icon: HeartHandshake },
     { name: 'New Registration', href: '/students/new', icon: UserPlus },
     { name: 'Students', href: '/students', icon: Users },
-    { name: 'Courses', href: '/courses', icon: GraduationCap },
+    { name: 'Course Catalog', href: '/courses', icon: GraduationCap },
     { name: 'Enrollments', href: '/enrollments', icon: ClipboardList },
     { name: 'Payments & Receipts', href: '/payments', icon: Receipt },
     { name: 'Drop Requests', href: '/drop-requests', icon: Clock },
@@ -46,9 +57,31 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { name: 'My Account', href: '/account', icon: UserCog },
   ];
 
+  const teacherNavigation = [
+    { name: 'Teacher Dashboard', href: '/teacher/dashboard', icon: LayoutDashboard },
+    { name: 'My Routine / Schedule', href: '/teacher/timetable', icon: Calendar },
+    { name: 'Assigned Offerings', href: '/teacher/courses', icon: GraduationCap },
+    { name: 'Notifications', href: '/notifications', icon: Bell, isNotification: true },
+    { name: 'Change Password', href: '/teacher/change-password', icon: KeyRound },
+  ];
+
+  const parentNavigation = [
+    { name: 'Family Dashboard', href: '/parent/dashboard', icon: LayoutDashboard },
+    { name: 'Child Routine', href: '/parent/routine', icon: Calendar },
+    { name: 'Attendance Record', href: '/parent/attendance', icon: CheckSquare },
+    { name: 'Academic Grades', href: '/parent/grades', icon: Award },
+    { name: 'Fee Ledger', href: '/parent/payments', icon: Receipt },
+    { name: 'Notifications', href: '/notifications', icon: Bell, isNotification: true },
+    { name: 'Change Password', href: '/parent/change-password', icon: KeyRound },
+  ];
+
   const studentNavigation = [
     { name: 'Portal Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
-    { name: 'My Courses', href: '/student/courses', icon: GraduationCap },
+    { name: 'Course Registration', href: '/student/courses/register', icon: BookOpen },
+    { name: '7-Day Routine', href: '/student/routine', icon: Calendar },
+    { name: 'My Grades', href: '/student/grades', icon: Award },
+    { name: 'My Attendance', href: '/student/attendance', icon: CheckSquare },
+    { name: 'Enrolled Courses', href: '/student/courses', icon: GraduationCap },
     { name: 'Payments & Receipts', href: '/student/payments', icon: Receipt },
     { name: 'Drop Requests', href: '/student/drop-requests', icon: Clock },
     { name: 'Notifications', href: '/notifications', icon: Bell, isNotification: true },
@@ -56,13 +89,25 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { name: 'Change Password', href: '/student/change-password', icon: KeyRound },
   ];
 
-  const visibleNavigation = isStudent
-    ? studentNavigation
-    : adminStaffNavigation.filter((item) => !item.adminOnly || isAdmin);
+  let visibleNavigation = adminStaffNavigation.filter((item) => !item.adminOnly || isAdmin);
+  if (isStudent) {
+    visibleNavigation = studentNavigation;
+  } else if (isTeacher) {
+    visibleNavigation = teacherNavigation;
+  } else if (isParent) {
+    visibleNavigation = parentNavigation;
+  }
 
   const checkIsActive = (href: string) => {
     if (pathname === href) return true;
-    if (href === '/dashboard' || href === '/student/dashboard') return false;
+    if (
+      href === '/dashboard' ||
+      href === '/student/dashboard' ||
+      href === '/teacher/dashboard' ||
+      href === '/parent/dashboard'
+    ) {
+      return false;
+    }
     // When on /students/new, only New Registration should be active, not general Students list
     if (href === '/students' && pathname.startsWith('/students/new')) {
       return false;
@@ -70,8 +115,18 @@ export default function Sidebar({ onClose }: SidebarProps) {
     return pathname.startsWith(href);
   };
 
-  const homeHref = isStudent ? '/student/dashboard' : '/dashboard';
-  const profileHref = isStudent ? '/student/profile' : '/account';
+  let homeHref = '/dashboard';
+  let profileHref = '/account';
+  if (isStudent) {
+    homeHref = '/student/dashboard';
+    profileHref = '/student/profile';
+  } else if (isTeacher) {
+    homeHref = '/teacher/dashboard';
+    profileHref = '/teacher/dashboard';
+  } else if (isParent) {
+    homeHref = '/parent/dashboard';
+    profileHref = '/parent/dashboard';
+  }
 
   return (
     <aside className="w-full lg:w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
@@ -111,7 +166,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
         {/* Line 2: Tag / Subtitle */}
         <span className="mt-2 text-[11px] tracking-[0.3em] font-extrabold uppercase text-emerald-200 text-center">
-          {isStudent ? 'STUDENT PORTAL' : 'INSTITUTE'}
+          {isStudent
+            ? 'STUDENT PORTAL'
+            : isTeacher
+            ? 'TEACHER PORTAL'
+            : isParent
+            ? 'PARENT PORTAL'
+            : 'ACADEMIC INSTITUTE'}
         </span>
 
         {/* Line 3: Bengali Tagline */}

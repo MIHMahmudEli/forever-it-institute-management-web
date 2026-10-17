@@ -11,7 +11,10 @@ import {
   ClipboardList,
   Receipt,
   GraduationCap,
-  User,
+  Calendar,
+  Award,
+  CheckSquare,
+  Layers,
   Menu as MenuIcon,
 } from 'lucide-react';
 
@@ -21,7 +24,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ onOpenMenu }: BottomNavProps) {
   const pathname = usePathname();
-  const { user, isStudent } = useAuth();
+  const { user, isStudent, isTeacher, isParent } = useAuth();
   const { unreadCount } = useNotifications();
 
   // If on login or print page, do not render bottom nav
@@ -37,22 +40,76 @@ export default function BottomNav({ onOpenMenu }: BottomNavProps) {
       isActive: pathname === '/dashboard',
     },
     {
+      label: 'Offerings',
+      href: '/academic/offerings',
+      icon: Layers,
+      isActive: pathname.startsWith('/academic/offerings'),
+    },
+    {
       label: 'Students',
       href: '/students',
       icon: Users,
       isActive: pathname.startsWith('/students') && pathname !== '/students/new',
     },
     {
-      label: 'Enroll',
-      href: '/enrollments',
-      icon: ClipboardList,
-      isActive: pathname.startsWith('/enrollments'),
-    },
-    {
       label: 'Payments',
       href: '/payments',
       icon: Receipt,
       isActive: pathname.startsWith('/payments'),
+    },
+  ];
+
+  const teacherTabs = [
+    {
+      label: 'Home',
+      href: '/teacher/dashboard',
+      icon: LayoutDashboard,
+      isActive: pathname === '/teacher/dashboard',
+    },
+    {
+      label: 'Routine',
+      href: '/teacher/timetable',
+      icon: Calendar,
+      isActive: pathname === '/teacher/timetable',
+    },
+    {
+      label: 'Courses',
+      href: '/teacher/courses',
+      icon: GraduationCap,
+      isActive: pathname.startsWith('/teacher/courses'),
+    },
+    {
+      label: 'Attendance',
+      href: '/teacher/attendance',
+      icon: CheckSquare,
+      isActive: pathname === '/teacher/attendance',
+    },
+  ];
+
+  const parentTabs = [
+    {
+      label: 'Home',
+      href: '/parent/dashboard',
+      icon: LayoutDashboard,
+      isActive: pathname === '/parent/dashboard',
+    },
+    {
+      label: 'Routine',
+      href: '/parent/routine',
+      icon: Calendar,
+      isActive: pathname === '/parent/routine',
+    },
+    {
+      label: 'Attendance',
+      href: '/parent/attendance',
+      icon: CheckSquare,
+      isActive: pathname === '/parent/attendance',
+    },
+    {
+      label: 'Grades',
+      href: '/parent/grades',
+      icon: Award,
+      isActive: pathname === '/parent/grades',
     },
   ];
 
@@ -64,26 +121,33 @@ export default function BottomNav({ onOpenMenu }: BottomNavProps) {
       isActive: pathname === '/student/dashboard',
     },
     {
-      label: 'Courses',
-      href: '/student/courses',
-      icon: GraduationCap,
-      isActive: pathname.startsWith('/student/courses'),
+      label: 'Routine',
+      href: '/student/routine',
+      icon: Calendar,
+      isActive: pathname === '/student/routine',
     },
     {
-      label: 'Payments',
-      href: '/student/payments',
-      icon: Receipt,
-      isActive: pathname.startsWith('/student/payments'),
+      label: 'Register',
+      href: '/student/courses/register',
+      icon: Layers,
+      isActive: pathname === '/student/courses/register',
     },
     {
-      label: 'Profile',
-      href: '/student/profile',
-      icon: User,
-      isActive: pathname === '/student/profile',
+      label: 'Grades',
+      href: '/student/grades',
+      icon: Award,
+      isActive: pathname === '/student/grades',
     },
   ];
 
-  const primaryTabs = isStudent ? studentTabs : staffAdminTabs;
+  let primaryTabs = staffAdminTabs;
+  if (isStudent) {
+    primaryTabs = studentTabs;
+  } else if (isTeacher) {
+    primaryTabs = teacherTabs;
+  } else if (isParent) {
+    primaryTabs = parentTabs;
+  }
 
   return (
     <nav
