@@ -29,6 +29,7 @@ export default function StudentCourseRegistrationPage() {
   const [loading, setLoading] = useState(true);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Clash conflict modal state
   const [conflictData, setConflictData] = useState<{
@@ -73,6 +74,7 @@ export default function StudentCourseRegistrationPage() {
     try {
       setRegisteringId(offering.id);
       setSuccessMessage(null);
+      setErrorMessage(null);
       setConflictData(null);
 
       await api.studentPortal.registerOffering(offering.id);
@@ -90,7 +92,7 @@ export default function StudentCourseRegistrationPage() {
           conflicts: err.data.conflicts,
         });
       } else {
-        alert(err.message || 'Course registration failed.');
+        setErrorMessage(err.message || 'Course registration failed.');
       }
     } finally {
       setRegisteringId(null);
@@ -148,6 +150,22 @@ export default function StudentCourseRegistrationPage() {
             <button
               onClick={() => setSuccessMessage(null)}
               className="text-emerald-700 hover:text-emerald-900 cursor-pointer text-xs font-bold"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-900 flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              <p className="text-sm font-bold">{errorMessage}</p>
+            </div>
+            <button
+              onClick={() => setErrorMessage(null)}
+              className="text-red-700 hover:text-red-900 cursor-pointer text-xs font-bold"
             >
               Dismiss
             </button>
