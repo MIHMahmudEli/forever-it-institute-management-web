@@ -35,6 +35,7 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<'profile' | 'courses' | 'payments'>('profile');
 
   // Reversal Details Modal State
   const [reversalDetailsModalOpen, setReversalDetailsModalOpen] = useState(false);
@@ -340,62 +341,57 @@ export default function StudentDetailPage() {
 
   return (
     <DashboardLayout title={`Student: ${student.fullName}`}>
-      {/* Top Header Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 mb-6">
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div>
-            <div className="flex items-center space-x-2.5">
-              <h1 className="text-2xl font-bold text-slate-900">{student.fullName}</h1>
-              <StatusBadge status={student.status} />
+      {/* ------------------------------------------------------------- */}
+      {/* MOBILE EXPERIENCE (< lg): Sleek Hero, Action Grid & Segmented Tabs */}
+      {/* ------------------------------------------------------------- */}
+      <div className="block lg:hidden space-y-3.5 mb-8">
+        {/* Mobile Hero Card with Financial Snapshot */}
+        <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-[#004225] text-white font-black flex items-center justify-center text-base shadow-xs shrink-0">
+                {student.fullName?.charAt(0) || 'S'}
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-base font-bold text-slate-900 truncate">
+                  {student.fullName}
+                </h1>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    {student.registrationNumber}
+                  </span>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">
-              Registration Number: <strong className="text-slate-800">{student.registrationNumber}</strong>
-            </p>
+            <StatusBadge status={student.status} />
+          </div>
+
+          {/* Compact 3-Stat Financial Snapshot */}
+          <div className="grid grid-cols-3 gap-2 py-2 px-2.5 bg-slate-50/80 rounded-xl border border-slate-100 text-center">
+            <div>
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Payable</span>
+              <span className="font-bold text-slate-900 text-xs mt-0.5 block truncate">
+                {formatCurrency(totalPayable)}
+              </span>
+            </div>
+            <div className="border-x border-slate-200 px-1">
+              <span className="text-[10px] text-emerald-600 uppercase font-bold block">Paid</span>
+              <span className="font-bold text-emerald-700 text-xs mt-0.5 block truncate">
+                {formatCurrency(totalPaid)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-red-600 uppercase font-bold block">Due</span>
+              <span className="font-black text-red-600 text-xs mt-0.5 block truncate">
+                {formatCurrency(outstandingDue)}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {student.user ? (
-            <button
-              onClick={() => {
-                setRegenerateModalOpen(true);
-                setRegenerateError(null);
-              }}
-              className="inline-flex items-center px-3.5 py-2 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold shadow-2xs transition-colors cursor-pointer"
-              title="Regenerate temporary credentials for forgotten password"
-            >
-              <KeyRound className="w-3.5 h-3.5 mr-1.5 text-amber-700" />
-              Reset Credentials
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                setProvisionModalOpen(true);
-                setGeneratedCredentials(null);
-                setProvisionError(null);
-                setProvisionEmail('');
-              }}
-              className="inline-flex items-center px-3.5 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-xs transition-smooth cursor-pointer"
-            >
-              <KeyRound className="w-3.5 h-3.5 mr-1.5" />
-              Create Portal Account
-            </button>
-          )}
-
-          <Link
-            href={`/print/registration/${student.id}`}
-            className="inline-flex items-center px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs"
-          >
-            <Printer className="w-3.5 h-3.5 mr-1.5" />
-            Print Form
-          </Link>
-
+        {/* Mobile Quick Action 2x2 Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Action 1: Record Payment */}
           <button
             onClick={() => {
               if (isFullyPaid) return;
@@ -414,171 +410,431 @@ export default function StudentDetailPage() {
               setPaymentModalOpen(true);
             }}
             disabled={isFullyPaid}
-            title={
+            className={`p-3 rounded-2xl flex items-center gap-2.5 font-bold text-xs shadow-2xs active:scale-98 transition-all ${
               isFullyPaid
-                ? 'Total Payable Fee and Total Paid to Date are equal. No outstanding due to collect.'
-                : 'Record new payment'
-            }
-            className={`inline-flex items-center px-4 py-2 rounded-lg text-xs font-bold transition-smooth ${
-              isFullyPaid
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
+                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
                 : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs'
             }`}
           >
-            <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
-            Record Payment
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                isFullyPaid ? 'bg-slate-200 text-slate-400' : 'bg-white/20 text-white'
+              }`}
+            >
+              <PlusCircle className="w-4 h-4" />
+            </div>
+            <div className="text-left min-w-0">
+              <span className="block truncate">Pay Due</span>
+              <span
+                className={`text-[10px] font-normal block truncate ${
+                  isFullyPaid ? 'text-slate-400' : 'text-emerald-100'
+                }`}
+              >
+                {isFullyPaid ? 'Paid in Full' : formatCurrency(outstandingDue)}
+              </span>
+            </div>
           </button>
 
+          {/* Action 2: Enroll New Course */}
           <button
             type="button"
             onClick={handleOpenEnrollModal}
-            className="inline-flex items-center px-3.5 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold shadow-2xs transition-smooth cursor-pointer"
-            title="Enroll this student into another available course"
+            className="p-3 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 flex items-center gap-2.5 font-bold text-xs shadow-2xs active:scale-98 transition-all cursor-pointer"
           >
-            <GraduationCap className="w-3.5 h-3.5 mr-1.5 text-blue-700" />
-            Enroll New Course
+            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <GraduationCap className="w-4 h-4" />
+            </div>
+            <div className="text-left min-w-0">
+              <span className="block truncate">New Course</span>
+              <span className="text-[10px] text-blue-700/80 font-normal block truncate">
+                Enroll Program
+              </span>
+            </div>
+          </button>
+
+          {/* Action 3: Print Registration Form */}
+          <Link
+            href={`/print/registration/${student.id}`}
+            className="p-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 flex items-center gap-2.5 font-bold text-xs shadow-2xs active:scale-98 transition-all"
+          >
+            <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+              <Printer className="w-4 h-4" />
+            </div>
+            <div className="text-left min-w-0">
+              <span className="block truncate">Print Form</span>
+              <span className="text-[10px] text-slate-400 font-normal block truncate">
+                Official PDF / A4
+              </span>
+            </div>
+          </Link>
+
+          {/* Action 4: Account Credentials */}
+          {student.user ? (
+            <button
+              onClick={() => {
+                setRegenerateModalOpen(true);
+                setRegenerateError(null);
+              }}
+              className="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 flex items-center gap-2.5 font-bold text-xs shadow-2xs active:scale-98 transition-all cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <KeyRound className="w-4 h-4" />
+              </div>
+              <div className="text-left min-w-0">
+                <span className="block truncate">Reset Pass</span>
+                <span className="text-[10px] text-amber-700/80 font-normal block truncate">
+                  Generate Temp
+                </span>
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setProvisionModalOpen(true);
+                setGeneratedCredentials(null);
+                setProvisionError(null);
+                setProvisionEmail('');
+              }}
+              className="p-3 rounded-2xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 flex items-center gap-2.5 font-bold text-xs shadow-2xs active:scale-98 transition-all cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <KeyRound className="w-4 h-4" />
+              </div>
+              <div className="text-left min-w-0">
+                <span className="block truncate">Create Login</span>
+                <span className="text-[10px] text-teal-700/80 font-normal block truncate">
+                  Portal Access
+                </span>
+              </div>
+            </button>
+          )}
+        </div>
+
+        {/* Mobile Segmented Tab Navigation */}
+        <div className="flex items-center p-1 bg-slate-200/80 rounded-2xl gap-1 text-xs font-bold shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setMobileTab('profile')}
+            className={`flex-1 py-2 rounded-xl text-center transition-all cursor-pointer ${
+              mobileTab === 'profile'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Profile
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('courses')}
+            className={`flex-1 py-2 rounded-xl text-center transition-all cursor-pointer ${
+              mobileTab === 'courses'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Courses ({student.enrollments?.length || 0})
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('payments')}
+            className={`flex-1 py-2 rounded-xl text-center transition-all cursor-pointer ${
+              mobileTab === 'payments'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Receipts ({student.payments?.length || 0})
           </button>
         </div>
-      </div>
 
-      {/* Profile & Financial Summary Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Profile Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs lg:col-span-1">
-          <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
-            <User className="w-4 h-4 mr-2 text-emerald-700" />
-            Personal & Contact Information
-          </h2>
+        {/* Tab 1: Profile View */}
+        {mobileTab === 'profile' && (
+          <div className="space-y-3 animate-in fade-in duration-150">
+            {/* Contact Details Card */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 text-xs">
+              <h3 className="font-bold text-slate-900 flex items-center gap-1.5 pb-2 border-b border-slate-100">
+                <User className="w-4 h-4 text-[#006838]" />
+                Personal & Portal Details
+              </h3>
 
-          <div className="space-y-3.5 text-xs">
-            <div>
-              <span className="text-slate-400 block font-medium">Portal Account:</span>
-              {student.user ? (
-                <div className="flex items-center justify-between gap-2 mt-1">
-                  <span
-                    className="font-semibold text-emerald-700 flex items-center min-w-0"
-                    title={`Active (${student.user.username || student.user.email})`}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10.5px] text-slate-400 block font-medium">Mobile Number</span>
+                  <a
+                    href={`tel:${student.mobileNumber}`}
+                    className="font-bold text-[#006838] block mt-0.5 truncate"
                   >
-                    <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600 shrink-0" />
-                    <span className="truncate">Active ({student.user.username || student.user.email})</span>
+                    {student.mobileNumber}
+                  </a>
+                </div>
+                <div>
+                  <span className="text-[10.5px] text-slate-400 block font-medium">NID / Birth Cert</span>
+                  <span className="font-mono font-semibold text-slate-800 block mt-0.5 truncate">
+                    {student.nidOrBirthCertificateNumber || '—'}
                   </span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <span className="text-[10.5px] text-slate-400 block font-medium">Present Address</span>
+                <span className="text-slate-700 block mt-0.5 leading-relaxed">
+                  {student.presentAddress}
+                </span>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <div className="min-w-0 pr-2">
+                  <span className="text-[10.5px] text-slate-400 block font-medium">Portal Access</span>
+                  {student.user ? (
+                    <span className="font-bold text-emerald-700 flex items-center gap-1 mt-0.5 truncate">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="truncate">Active ({student.user.username || student.user.email})</span>
+                    </span>
+                  ) : (
+                    <span className="font-bold text-amber-700 mt-0.5 block">Not Provisioned</span>
+                  )}
+                </div>
+                {student.user && (
                   <button
-                    type="button"
                     onClick={() => {
                       setRegenerateModalOpen(true);
                       setRegenerateError(null);
                     }}
-                    className="p-1.5 rounded-lg text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                    className="p-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold hover:bg-amber-100 shrink-0 cursor-pointer"
                     title="Reset Credentials"
-                    aria-label="Reset Credentials"
                   >
                     <KeyRound className="w-3.5 h-3.5" />
                   </button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between gap-2 mt-1">
-                  <span className="font-semibold text-amber-700 flex items-center">
-                    Not Provisioned
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProvisionModalOpen(true);
-                      setGeneratedCredentials(null);
-                      setProvisionError(null);
-                      setProvisionEmail('');
-                    }}
-                    className="p-1.5 rounded-lg text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors shadow-2xs cursor-pointer shrink-0"
-                    title="Create Portal Account"
-                    aria-label="Create Portal Account"
-                  >
-                    <KeyRound className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div>
-              <span className="text-slate-400 block font-medium">NID / Birth Certificate:</span>
-              <span className="font-mono font-semibold text-slate-800">
-                {student.nidOrBirthCertificateNumber}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-slate-400 block font-medium">Mobile Number:</span>
-              <span className="font-semibold text-slate-800 flex items-center mt-0.5">
-                <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                {student.mobileNumber}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-slate-400 block font-medium">Present Address:</span>
-              <span className="text-slate-800 flex items-start mt-0.5">
-                <Home className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0 mt-0.5" />
-                {student.presentAddress}
-              </span>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100">
-              <span className="text-slate-400 block font-medium">Parents&apos; Name:</span>
-              <span className="font-semibold text-slate-800">{student.parentName}</span>
-            </div>
-
-            <div>
-              <span className="text-slate-400 block font-medium">Parents&apos; Mobile:</span>
-              <span className="font-semibold text-slate-800">{student.parentMobileNumber}</span>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-400">
-              Registered on: {formatDate(student.createdAt)}
-            </div>
-          </div>
-        </div>
-
-        {/* Financial Balance Summary (2 cols) */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs lg:col-span-2 flex flex-col justify-between">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
-              <CreditCard className="w-4 h-4 mr-2 text-emerald-700" />
-              Financial Balance Overview
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <span className="text-xs text-slate-500 block">Total Payable Fee</span>
-                <span className="text-2xl font-bold text-slate-900 mt-1 block">
-                  {formatCurrency(student.financials?.totalPayable)}
-                </span>
-                <span className="text-[10px] text-slate-400">Across enrolled courses</span>
+                )}
               </div>
+            </div>
 
-              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-                <span className="text-xs text-emerald-800 block">Total Paid to Date</span>
-                <span className="text-2xl font-bold text-emerald-700 mt-1 block">
-                  {formatCurrency(student.financials?.totalPaid)}
-                </span>
-                <span className="text-[10px] text-emerald-700">Verified receipts</span>
+            {/* Parents Information Card */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5 text-xs">
+              <h3 className="font-bold text-slate-900 pb-2 border-b border-slate-100">
+                Parents&apos; Information
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10.5px] text-slate-400 block font-medium">Parents&apos; Name</span>
+                  <span className="font-bold text-slate-800 block mt-0.5 truncate">{student.parentName || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-[10.5px] text-slate-400 block font-medium">Parents&apos; Mobile</span>
+                  {student.parentMobileNumber ? (
+                    <a
+                      href={`tel:${student.parentMobileNumber}`}
+                      className="font-semibold text-slate-800 block mt-0.5 truncate"
+                    >
+                      {student.parentMobileNumber}
+                    </a>
+                  ) : (
+                    <span className="text-slate-400 block mt-0.5">—</span>
+                  )}
+                </div>
               </div>
-
-              <div className="bg-red-50 p-4 rounded-xl border border-red-200">
-                <span className="text-xs text-red-700 block">Outstanding Due</span>
-                <span className="text-2xl font-black text-red-600 mt-1 block">
-                  {formatCurrency(student.financials?.outstandingDue)}
-                </span>
-                <span className="text-[10px] text-red-600">Pending settlement</span>
+              <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                Registered on: {formatDate(student.createdAt)}
               </div>
             </div>
           </div>
+        )}
 
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between text-xs">
-            <span className="text-slate-600">
-              Outstanding Balance:{' '}
-              <strong className="text-slate-900 font-mono">
-                {formatCurrency(student.financials?.outstandingDue)}
-              </strong>
-            </span>
+        {/* Tab 2: Courses View */}
+        {mobileTab === 'courses' && (
+          <div className="space-y-3 animate-in fade-in duration-150">
+            {(!student.enrollments || student.enrollments.length === 0) ? (
+              <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <GraduationCap className="w-9 h-9 mx-auto text-slate-300 mb-2" />
+                <p className="font-bold text-sm text-slate-800">No enrolled courses</p>
+                <button
+                  type="button"
+                  onClick={handleOpenEnrollModal}
+                  className="mt-3 px-3.5 py-1.5 rounded-xl bg-blue-700 text-white font-bold text-xs"
+                >
+                  Enroll First Course
+                </button>
+              </div>
+            ) : (
+              student.enrollments.map((enrollment) => (
+                <div
+                  key={enrollment.id}
+                  className="p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="font-mono text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                        {enrollment.course?.code}
+                      </span>
+                      <h4 className="font-bold text-sm text-slate-900 mt-1 truncate">
+                        {enrollment.course?.name}
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-0.5">{enrollment.course?.duration}</p>
+                    </div>
+                    <StatusBadge status={enrollment.status} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Agreed Fee</span>
+                      <span className="font-semibold text-slate-800 block mt-0.5 truncate">
+                        {formatCurrency(enrollment.agreedFee)}{' '}
+                        {enrollment.discount > 0 && (
+                          <span className="text-red-600 text-[11px] font-bold">
+                            (-{formatCurrency(enrollment.discount)})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Final Payable</span>
+                      <span className="font-black text-emerald-800 text-sm block mt-0.5 truncate">
+                        {formatCurrency(enrollment.finalFee)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {enrollment.status === 'PENDING' && (
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleApproveEnrollment(enrollment.id)}
+                        disabled={approvingEnrollmentId === enrollment.id}
+                        className="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-2xs cursor-pointer disabled:opacity-50"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                        {approvingEnrollmentId === enrollment.id ? 'Approving...' : 'Approve Enrollment'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Tab 3: Receipts View */}
+        {mobileTab === 'payments' && (
+          <div className="space-y-3 animate-in fade-in duration-150">
+            {(!student.payments || student.payments.length === 0) ? (
+              <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-2xs">
+                <CreditCard className="w-9 h-9 mx-auto text-slate-300 mb-2" />
+                <p className="font-bold text-sm text-slate-800">No payment records found</p>
+                <p className="text-xs text-slate-500 mt-0.5">Payments recorded will appear here.</p>
+              </div>
+            ) : (
+              student.payments.map((p) => (
+                <div
+                  key={p.id}
+                  className="p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="font-mono text-xs font-bold text-slate-800 block">
+                        {p.receiptNumber}
+                      </span>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        {formatDate(p.paymentDate)} • <span className="uppercase font-semibold">{p.paymentMethod}</span>
+                      </p>
+                    </div>
+                    <StatusBadge status={p.status} />
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="text-slate-500 text-[11px]">Received by: {p.receivedBy || 'Staff'}</span>
+                    <span className="font-black text-emerald-800 text-sm">{formatCurrency(p.amount)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+                    {p.status === 'COMPLETED' ? (
+                      <Link
+                        href={`/print/receipt/${p.id}`}
+                        className="inline-flex items-center px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs transition-all active:scale-95"
+                      >
+                        <Printer className="w-3.5 h-3.5 mr-1" />
+                        Print Receipt
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedReversalPayment(p);
+                          setReversalDetailsModalOpen(true);
+                        }}
+                        className="inline-flex items-center px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold shadow-2xs cursor-pointer active:scale-95"
+                      >
+                        <Info className="w-3.5 h-3.5 mr-1" />
+                        Reversal Reason
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* DESKTOP EXPERIENCE (lg+): Full Grid & Tables (Unchanged) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="hidden lg:block space-y-6 mb-8">
+        {/* Top Header Actions */}
+        <div className="flex flex-row items-center justify-between gap-4 pb-6 border-b border-slate-200">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div>
+              <div className="flex items-center space-x-2.5">
+                <h1 className="text-2xl font-bold text-slate-900">{student.fullName}</h1>
+                <StatusBadge status={student.status} />
+              </div>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                Registration Number: <strong className="text-slate-800">{student.registrationNumber}</strong>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {student.user ? (
+              <button
+                onClick={() => {
+                  setRegenerateModalOpen(true);
+                  setRegenerateError(null);
+                }}
+                className="inline-flex items-center px-3.5 py-2 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+                title="Regenerate temporary credentials for forgotten password"
+              >
+                <KeyRound className="w-3.5 h-3.5 mr-1.5 text-amber-700" />
+                Reset Credentials
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setProvisionModalOpen(true);
+                  setGeneratedCredentials(null);
+                  setProvisionError(null);
+                  setProvisionEmail('');
+                }}
+                className="inline-flex items-center px-3.5 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-xs transition-smooth cursor-pointer"
+              >
+                <KeyRound className="w-3.5 h-3.5 mr-1.5" />
+                Create Portal Account
+              </button>
+            )}
+
+            <Link
+              href={`/print/registration/${student.id}`}
+              className="inline-flex items-center px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs"
+            >
+              <Printer className="w-3.5 h-3.5 mr-1.5" />
+              Print Form
+            </Link>
+
             <button
               onClick={() => {
                 if (isFullyPaid) return;
@@ -591,10 +847,8 @@ export default function StudentDetailPage() {
                     setSelectedEnrollmentId(firstWithDue.id);
                     setPaymentAmount(Math.min(getEnrollmentBalance(firstWithDue.id).due, outstandingDue));
                   } else {
-                    setPaymentAmount(outstandingDue);
+                    setPaymentAmount(0);
                   }
-                } else {
-                  setPaymentAmount(Math.min(currentBal.due, outstandingDue));
                 }
                 setPaymentModalOpen(true);
               }}
@@ -602,276 +856,360 @@ export default function StudentDetailPage() {
               title={
                 isFullyPaid
                   ? 'Total Payable Fee and Total Paid to Date are equal. No outstanding due to collect.'
-                  : 'Collect remaining due balance'
+                  : 'Record new payment'
               }
-              className={`px-3 py-1.5 rounded text-xs font-semibold transition-smooth ${
+              className={`inline-flex items-center px-4 py-2 rounded-lg text-xs font-bold transition-smooth ${
                 isFullyPaid
                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
                   : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs'
               }`}
             >
-              Collect Due Amount
+              <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
+              Record Payment
+            </button>
+
+            <button
+              type="button"
+              onClick={handleOpenEnrollModal}
+              className="inline-flex items-center px-3.5 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold shadow-2xs transition-smooth cursor-pointer"
+              title="Enroll this student into another available course"
+            >
+              <GraduationCap className="w-3.5 h-3.5 mr-1.5 text-blue-700" />
+              Enroll New Course
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Enrolled Courses Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5 mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 mb-4 gap-2">
-          <h2 className="text-sm font-bold text-slate-900 flex items-center">
-            <GraduationCap className="w-4 h-4 mr-2 text-blue-700" />
-            Enrolled Programs & Fee Snapshots ({student.enrollments?.length || 0})
-          </h2>
-          <button
-            type="button"
-            onClick={handleOpenEnrollModal}
-            className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-xs transition-smooth cursor-pointer self-start sm:self-auto"
-          >
-            <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
-            Enroll in New Course
-          </button>
-        </div>
+        {/* Profile & Financial Summary Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Profile Card */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs lg:col-span-1">
+            <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
+              <User className="w-4 h-4 mr-2 text-emerald-700" />
+              Personal & Contact Information
+            </h2>
 
-        {/* Mobile Card List (< lg) */}
-        <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
-          {(!student.enrollments || student.enrollments.length === 0) ? (
-            <p className="text-center text-xs text-slate-400 py-6">No enrolled programs.</p>
-          ) : (
-            student.enrollments.map((enrollment) => (
-              <div key={enrollment.id} className="p-3 space-y-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                      {enrollment.course?.code}
+            <div className="space-y-3.5 text-xs">
+              <div>
+                <span className="text-slate-400 block font-medium">Portal Account:</span>
+                {student.user ? (
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <span
+                      className="font-semibold text-emerald-700 flex items-center min-w-0"
+                      title={`Active (${student.user.username || student.user.email})`}
+                    >
+                      <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600 shrink-0" />
+                      <span className="truncate">Active ({student.user.username || student.user.email})</span>
                     </span>
-                    <h3 className="font-bold text-sm text-slate-900 mt-1">
-                      {enrollment.course?.name}
-                    </h3>
-                    <p className="text-xs text-slate-500">{enrollment.course?.duration}</p>
-                  </div>
-                  <StatusBadge status={enrollment.status} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                  <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Agreed / Discount</span>
-                    <span className="font-medium text-slate-700">
-                      {formatCurrency(enrollment.agreedFee)}{' '}
-                      {enrollment.discount > 0 && <span className="text-red-600 font-bold">(-{formatCurrency(enrollment.discount)})</span>}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Final Fee</span>
-                    <span className="text-sm font-black text-emerald-800">{formatCurrency(enrollment.finalFee)}</span>
-                  </div>
-                </div>
-
-                {enrollment.status === 'PENDING' && (
-                  <div className="flex justify-end pt-1">
                     <button
                       type="button"
-                      onClick={() => handleApproveEnrollment(enrollment.id)}
-                      disabled={approvingEnrollmentId === enrollment.id}
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-2xs cursor-pointer disabled:opacity-50"
+                      onClick={() => {
+                        setRegenerateModalOpen(true);
+                        setRegenerateError(null);
+                      }}
+                      className="p-1.5 rounded-lg text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                      title="Reset Credentials"
+                      aria-label="Reset Credentials"
                     >
-                      <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                      {approvingEnrollmentId === enrollment.id ? 'Approving...' : 'Approve Enrollment'}
+                      <KeyRound className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <span className="font-semibold text-amber-700 flex items-center">
+                      Not Provisioned
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProvisionModalOpen(true);
+                        setGeneratedCredentials(null);
+                        setProvisionError(null);
+                        setProvisionEmail('');
+                      }}
+                      className="p-1.5 rounded-lg text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors shadow-2xs cursor-pointer shrink-0"
+                      title="Create Portal Account"
+                      aria-label="Create Portal Account"
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
               </div>
-            ))
-          )}
-        </div>
 
-        {/* Desktop Table (hidden on mobile, visible on lg+) */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[650px]">
-            <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
-                <th className="py-2.5 px-3">Course Code</th>
-                <th className="py-2.5 px-3">Course Name</th>
-                <th className="py-2.5 px-3">Duration</th>
-                <th className="py-2.5 px-3">Agreed Fee</th>
-                <th className="py-2.5 px-3">Discount</th>
-                <th className="py-2.5 px-3">Final Fee</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {(student.enrollments || []).map((enrollment) => (
-                <tr key={enrollment.id} className="hover:bg-slate-50 whitespace-nowrap">
-                  <td className="py-3 px-3 font-mono font-bold text-slate-700">
-                    {enrollment.course?.code}
-                  </td>
-                  <td className="py-3 px-3 font-semibold text-slate-900">
-                    {enrollment.course?.name}
-                  </td>
-                  <td className="py-3 px-3 text-slate-600">{enrollment.course?.duration}</td>
-                  <td className="py-3 px-3 font-medium text-slate-800">
-                    {formatCurrency(enrollment.agreedFee)}
-                  </td>
-                  <td className="py-3 px-3 text-red-600 font-medium">
-                    {enrollment.discount > 0 ? `-${formatCurrency(enrollment.discount)}` : '৳ 0'}
-                  </td>
-                  <td className="py-3 px-3 font-bold text-emerald-800">
-                    {formatCurrency(enrollment.finalFee)}
-                  </td>
-                  <td className="py-3 px-3">
-                    <StatusBadge status={enrollment.status} />
-                  </td>
-                  <td className="py-3 px-3 text-right">
-                    {enrollment.status === 'PENDING' ? (
-                      <button
-                        type="button"
-                        onClick={() => handleApproveEnrollment(enrollment.id)}
-                        disabled={approvingEnrollmentId === enrollment.id}
-                        className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
-                        title="Approve and activate enrollment"
-                      >
-                        <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                        {approvingEnrollmentId === enrollment.id ? 'Approving...' : 'Approve'}
-                      </button>
-                    ) : (
-                      <span className="text-slate-400 font-mono text-xs">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              <div>
+                <span className="text-slate-400 block font-medium">NID / Birth Certificate:</span>
+                <span className="font-mono font-semibold text-slate-800">
+                  {student.nidOrBirthCertificateNumber}
+                </span>
+              </div>
 
-      {/* Payment History Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5">
-        <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
-          <CreditCard className="w-4 h-4 mr-2 text-emerald-700" />
-          Payment Transactions & Receipts ({student.payments?.length || 0})
-        </h2>
+              <div>
+                <span className="text-slate-400 block font-medium">Mobile Number:</span>
+                <span className="font-semibold text-slate-800 flex items-center mt-0.5">
+                  <Phone className="w-3.5 h-3.5 mr-1 text-slate-400" />
+                  {student.mobileNumber}
+                </span>
+              </div>
 
-        {/* Mobile Card List (< lg) */}
-        <div className="block lg:hidden divide-y divide-slate-100 mb-3">
-          {(!student.payments || student.payments.length === 0) ? (
-            <p className="text-center text-xs text-slate-400 py-6">No payments recorded.</p>
-          ) : (
-            student.payments.map((p) => (
-              <div key={p.id} className="py-3 first:pt-0 last:pb-0 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="font-mono text-xs font-bold text-slate-800">{p.receiptNumber}</span>
-                    <p className="text-[11px] text-slate-500 mt-0.5">{formatDate(p.paymentDate)} • <span className="uppercase font-semibold">{p.paymentMethod}</span></p>
-                  </div>
-                  <StatusBadge status={p.status} />
+              <div>
+                <span className="text-slate-400 block font-medium">Present Address:</span>
+                <span className="text-slate-800 flex items-start mt-0.5">
+                  <Home className="w-3.5 h-3.5 mr-1 text-slate-400 shrink-0 mt-0.5" />
+                  {student.presentAddress}
+                </span>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <span className="text-slate-400 block font-medium">Parents&apos; Name:</span>
+                <span className="font-semibold text-slate-800">{student.parentName}</span>
+              </div>
+
+              <div>
+                <span className="text-slate-400 block font-medium">Parents&apos; Mobile:</span>
+                <span className="font-semibold text-slate-800">{student.parentMobileNumber}</span>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-400">
+                Registered on: {formatDate(student.createdAt)}
+              </div>
+            </div>
+          </div>
+
+          {/* Financial Balance Summary (2 cols) */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs lg:col-span-2 flex flex-col justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
+                <CreditCard className="w-4 h-4 mr-2 text-emerald-700" />
+                Financial Balance Overview
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <span className="text-xs text-slate-500 block">Total Payable Fee</span>
+                  <span className="text-2xl font-bold text-slate-900 mt-1 block">
+                    {formatCurrency(student.financials?.totalPayable)}
+                  </span>
+                  <span className="text-[10px] text-slate-400">Across enrolled courses</span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs py-1.5 px-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-slate-500 text-[11px]">Received by: {p.receivedBy || 'Staff'}</span>
-                  <span className="font-black text-emerald-800 text-sm">{formatCurrency(p.amount)}</span>
+                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                  <span className="text-xs text-emerald-800 block">Total Paid to Date</span>
+                  <span className="text-2xl font-bold text-emerald-700 mt-1 block">
+                    {formatCurrency(student.financials?.totalPaid)}
+                  </span>
+                  <span className="text-[10px] text-emerald-700">Verified receipts</span>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  {p.status === 'COMPLETED' ? (
-                    <Link
-                      href={`/print/receipt/${p.id}`}
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold shadow-2xs"
-                    >
-                      <Printer className="w-3.5 h-3.5 mr-1" />
-                      Print Receipt
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedReversalPayment(p);
-                        setReversalDetailsModalOpen(true);
-                      }}
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold shadow-2xs cursor-pointer"
-                    >
-                      <Info className="w-3.5 h-3.5 mr-1" />
-                      Reversal Reason
-                    </button>
-                  )}
+                <div className="bg-red-50 p-4 rounded-xl border border-red-200">
+                  <span className="text-xs text-red-700 block">Outstanding Due</span>
+                  <span className="text-2xl font-black text-red-600 mt-1 block">
+                    {formatCurrency(student.financials?.outstandingDue)}
+                  </span>
+                  <span className="text-[10px] text-red-600">Pending settlement</span>
                 </div>
               </div>
-            ))
-          )}
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between text-xs">
+              <span className="text-slate-600">
+                Outstanding Balance:{' '}
+                <strong className="text-slate-900 font-mono">
+                  {formatCurrency(student.financials?.outstandingDue)}
+                </strong>
+              </span>
+              <button
+                onClick={() => {
+                  if (isFullyPaid) return;
+                  setPaymentError(null);
+                  setPaymentSuccessReceiptId(null);
+                  const currentBal = selectedEnrollmentId ? getEnrollmentBalance(selectedEnrollmentId) : null;
+                  if (!currentBal || currentBal.due <= 0) {
+                    const firstWithDue = student.enrollments?.find((e) => getEnrollmentBalance(e.id).due > 0);
+                    if (firstWithDue) {
+                      setSelectedEnrollmentId(firstWithDue.id);
+                      setPaymentAmount(Math.min(getEnrollmentBalance(firstWithDue.id).due, outstandingDue));
+                    } else {
+                      setPaymentAmount(outstandingDue);
+                    }
+                  } else {
+                    setPaymentAmount(Math.min(currentBal.due, outstandingDue));
+                  }
+                  setPaymentModalOpen(true);
+                }}
+                disabled={isFullyPaid}
+                title={
+                  isFullyPaid
+                    ? 'Total Payable Fee and Total Paid to Date are equal. No outstanding due to collect.'
+                    : 'Collect remaining due balance'
+                }
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition-smooth ${
+                  isFullyPaid
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none'
+                    : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs'
+                }`}
+              >
+                Collect Due Amount
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Desktop Table (hidden on mobile, visible on lg+) */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[700px]">
-            <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
-                <th className="py-2.5 px-3">Receipt No</th>
-                <th className="py-2.5 px-3">Date</th>
-                <th className="py-2.5 px-3">Method</th>
-                <th className="py-2.5 px-3">Amount</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Received By</th>
-                <th className="py-2.5 px-3 text-right">
-                  <span className="inline-flex items-center justify-end gap-1.5 text-slate-700">
-                    <Printer className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Receipt Action</span>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {(!student.payments || student.payments.length === 0) ? (
-                <tr>
-                  <td colSpan={7} className="py-6 text-center text-slate-400">
-                    No payment transactions recorded for this student.
-                  </td>
+        {/* Enrolled Courses Table */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5">
+          <div className="flex flex-row items-center justify-between pb-3 border-b border-slate-100 mb-4 gap-2">
+            <h2 className="text-sm font-bold text-slate-900 flex items-center">
+              <GraduationCap className="w-4 h-4 mr-2 text-blue-700" />
+              Enrolled Programs & Fee Snapshots ({student.enrollments?.length || 0})
+            </h2>
+            <button
+              type="button"
+              onClick={handleOpenEnrollModal}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-xs transition-smooth cursor-pointer"
+            >
+              <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
+              Enroll in New Course
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[650px]">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
+                  <th className="py-2.5 px-3">Course Code</th>
+                  <th className="py-2.5 px-3">Course Name</th>
+                  <th className="py-2.5 px-3">Duration</th>
+                  <th className="py-2.5 px-3">Agreed Fee</th>
+                  <th className="py-2.5 px-3">Discount</th>
+                  <th className="py-2.5 px-3">Final Fee</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
-              ) : (
-                student.payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50 whitespace-nowrap">
-                    <td className="py-3 px-3 font-mono font-bold text-slate-800">
-                      {p.receiptNumber}
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {(student.enrollments || []).map((enrollment) => (
+                  <tr key={enrollment.id} className="hover:bg-slate-50 whitespace-nowrap">
+                    <td className="py-3 px-3 font-mono font-bold text-slate-700">
+                      {enrollment.course?.code}
                     </td>
-                    <td className="py-3 px-3 text-slate-600">{formatDate(p.paymentDate)}</td>
-                    <td className="py-3 px-3 uppercase font-medium text-slate-700">
-                      {p.paymentMethod}
+                    <td className="py-3 px-3 font-semibold text-slate-900">
+                      {enrollment.course?.name}
                     </td>
-                    <td className="py-3 px-3 font-bold text-emerald-700">
-                      {formatCurrency(p.amount)}
+                    <td className="py-3 px-3 text-slate-600">{enrollment.course?.duration}</td>
+                    <td className="py-3 px-3 font-medium text-slate-800">
+                      {formatCurrency(enrollment.agreedFee)}
+                    </td>
+                    <td className="py-3 px-3 text-red-600 font-medium">
+                      {enrollment.discount > 0 ? `-${formatCurrency(enrollment.discount)}` : '৳ 0'}
+                    </td>
+                    <td className="py-3 px-3 font-bold text-emerald-800">
+                      {formatCurrency(enrollment.finalFee)}
                     </td>
                     <td className="py-3 px-3">
-                      <StatusBadge status={p.status} />
+                      <StatusBadge status={enrollment.status} />
                     </td>
-                    <td className="py-3 px-3 text-slate-500">{p.receivedBy || 'Staff'}</td>
                     <td className="py-3 px-3 text-right">
-                      {p.status === 'COMPLETED' ? (
-                        <Link
-                          href={`/print/receipt/${p.id}`}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition-colors shadow-2xs"
-                          title="Print Money Receipt"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                          <span>Print Receipt</span>
-                        </Link>
-                      ) : (
+                      {enrollment.status === 'PENDING' ? (
                         <button
-                          onClick={() => {
-                            setSelectedReversalPayment(p);
-                            setReversalDetailsModalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-semibold border border-red-200 transition-colors shadow-2xs text-xs"
-                          title="View Reversal Reason & Audit Record"
+                          type="button"
+                          onClick={() => handleApproveEnrollment(enrollment.id)}
+                          disabled={approvingEnrollmentId === enrollment.id}
+                          className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-2xs cursor-pointer disabled:opacity-50"
+                          title="Approve and activate enrollment"
                         >
-                          <Info className="w-3.5 h-3.5" />
-                          <span>Reversal Reason</span>
+                          <CheckCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                          {approvingEnrollmentId === enrollment.id ? 'Approving...' : 'Approve'}
                         </button>
+                      ) : (
+                        <span className="text-slate-400 font-mono text-xs">—</span>
                       )}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Payment History Table */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-5">
+          <h2 className="text-sm font-bold text-slate-900 pb-3 border-b border-slate-100 mb-4 flex items-center">
+            <CreditCard className="w-4 h-4 mr-2 text-emerald-700" />
+            Payment Transactions & Receipts ({student.payments?.length || 0})
+          </h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[700px]">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
+                  <th className="py-2.5 px-3">Receipt No</th>
+                  <th className="py-2.5 px-3">Date</th>
+                  <th className="py-2.5 px-3">Method</th>
+                  <th className="py-2.5 px-3">Amount</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Received By</th>
+                  <th className="py-2.5 px-3 text-right">
+                    <span className="inline-flex items-center justify-end gap-1.5 text-slate-700">
+                      <Printer className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Receipt Action</span>
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {(!student.payments || student.payments.length === 0) ? (
+                  <tr>
+                    <td colSpan={7} className="py-6 text-center text-slate-400">
+                      No payment transactions recorded for this student.
+                    </td>
+                  </tr>
+                ) : (
+                  student.payments.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-50 whitespace-nowrap">
+                      <td className="py-3 px-3 font-mono font-bold text-slate-800">
+                        {p.receiptNumber}
+                      </td>
+                      <td className="py-3 px-3 text-slate-600">{formatDate(p.paymentDate)}</td>
+                      <td className="py-3 px-3 uppercase font-medium text-slate-700">
+                        {p.paymentMethod}
+                      </td>
+                      <td className="py-3 px-3 font-bold text-emerald-700">
+                        {formatCurrency(p.amount)}
+                      </td>
+                      <td className="py-3 px-3">
+                        <StatusBadge status={p.status} />
+                      </td>
+                      <td className="py-3 px-3 text-slate-500">{p.receivedBy || 'Staff'}</td>
+                      <td className="py-3 px-3 text-right">
+                        {p.status === 'COMPLETED' ? (
+                          <Link
+                            href={`/print/receipt/${p.id}`}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition-colors shadow-2xs"
+                            title="Print Money Receipt"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                            <span>Print Receipt</span>
+                          </Link>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setSelectedReversalPayment(p);
+                              setReversalDetailsModalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-semibold border border-red-200 transition-colors shadow-2xs text-xs"
+                            title="View Reversal Reason & Audit Record"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                            <span>Reversal Reason</span>
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
