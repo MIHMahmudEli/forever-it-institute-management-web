@@ -247,7 +247,9 @@ export default function StudentRoutinePage() {
                                 {cls.courseName}
                               </h3>
                               <div className="flex items-center gap-2 mt-1 text-xs text-slate-600">
-                                <span className="font-semibold text-slate-700">Section: {cls.section}</span>
+                                <span className="font-semibold text-slate-700">
+                                  Section: {cls.section ? cls.section.replace(/^(section|sec)\s*[-:]?\s*/i, '') : 'A'}
+                                </span>
                                 {cls.sessionNumber && (
                                   <>
                                     <span>•</span>

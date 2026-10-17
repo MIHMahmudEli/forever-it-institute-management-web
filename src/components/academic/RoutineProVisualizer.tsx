@@ -96,6 +96,25 @@ function format12h(timeStr: string): string {
   return `${h}:${m.padStart(2, '0')} ${ampm}`;
 }
 
+export function formatSectionTag(section?: string): string {
+  if (!section) return 'SEC A';
+  const clean = section.trim().replace(/^(section|sec)\s*[-:]?\s*/i, '').trim();
+  return clean ? `SEC ${clean.toUpperCase()}` : 'SEC A';
+}
+
+export function formatClassroomTag(classroom?: string): string {
+  if (!classroom) return 'RM TBD';
+  const trimmed = classroom.trim();
+  if (/^rm\s*[-:]?\s*/i.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  if (/^room\s*[-:]?\s*/i.test(trimmed)) {
+    const clean = trimmed.replace(/^room\s*[-:]?\s*/i, '').trim();
+    return `RM ${clean.toUpperCase()}`;
+  }
+  return `RM ${trimmed.toUpperCase()}`;
+}
+
 export default function RoutineProVisualizer({
   classes = [],
   academicSession,
@@ -282,11 +301,11 @@ export default function RoutineProVisualizer({
 
                               {/* Section & Room */}
                               <div className="pt-1 mt-1 border-t border-slate-200/50 flex items-center justify-between text-[9px] font-mono font-semibold text-slate-500">
-                                <span className="uppercase">
-                                  {cls.section ? `SEC ${cls.section}` : 'SEC A'}
+                                <span>
+                                  {formatSectionTag(cls.section)}
                                 </span>
-                                <span className="uppercase">
-                                  {cls.classroom ? `RM ${cls.classroom}` : 'RM TBD'}
+                                <span>
+                                  {formatClassroomTag(cls.classroom)}
                                 </span>
                               </div>
                             </div>
@@ -338,7 +357,7 @@ export default function RoutineProVisualizer({
                 {activeModalClass.courseName}
               </h3>
               <p className="text-[11px] text-slate-500">
-                Section: <span className="font-semibold text-slate-700">{activeModalClass.section}</span>
+                Section: <span className="font-semibold text-slate-700">{formatSectionTag(activeModalClass.section).replace(/^SEC\s+/i, '')}</span>
                 {activeModalClass.sessionNumber && (
                   <span> • Session #{activeModalClass.sessionNumber}</span>
                 )}
@@ -361,7 +380,7 @@ export default function RoutineProVisualizer({
                 <div>
                   <span className="text-slate-400 block text-[9.5px] uppercase font-bold">Classroom / Lab</span>
                   <span className="font-semibold text-slate-800">
-                    {activeModalClass.classroom || 'Main Lab'}
+                    {formatClassroomTag(activeModalClass.classroom)}
                   </span>
                 </div>
               </div>

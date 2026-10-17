@@ -175,7 +175,9 @@ export default function TeacherTimetablePage() {
                               </h4>
 
                               <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                                <span>Section: {cls.section}</span>
+                                <span>
+                                  Section: {cls.section ? cls.section.replace(/^(section|sec)\s*[-:]?\s*/i, '') : 'A'}
+                                </span>
                                 <div className="flex items-center gap-1">
                                   <MapPin className="w-3 h-3 text-slate-400" />
                                   <span>{cls.classroom}</span>
