@@ -14,7 +14,10 @@ import {
   Printer,
   ChevronLeft,
   ChevronRight,
-  Filter,
+  Phone,
+  GraduationCap,
+  X,
+  CreditCard,
 } from 'lucide-react';
 
 export default function StudentsListPage() {
@@ -55,168 +58,257 @@ export default function StudentsListPage() {
     fetchStudents();
   };
 
+  const handleClearSearch = () => {
+    setSearch('');
+    setPage(1);
+  };
+
   return (
     <DashboardLayout title="Student Directory">
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 mb-6">
+      <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6 pb-3 sm:pb-5 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Registered Students</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Browse, manage, search, and inspect enrolled student records ({totalCount} total).
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
+              Registered Students
+            </h1>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-[#006838] border border-emerald-200">
+              {totalCount}
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
+            Browse, manage, search, and inspect enrolled student records.
           </p>
         </div>
 
         <Link
           href="/students/new"
-          className="inline-flex items-center px-4 py-2 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs transition-colors shrink-0"
+          className="inline-flex items-center px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white shadow-xs transition-all shrink-0"
         >
           <UserPlus className="w-3.5 h-3.5 mr-1.5" />
-          Register New Student
+          <span>New Student</span>
         </Link>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 mb-6 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
-        <form onSubmit={handleSearchSubmit} className="flex-1 w-full flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by student name, registration number, phone, or NID..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
-            />
-          </div>
+      {/* Search & Status Filter Section */}
+      <div className="space-y-2.5 mb-5">
+        {/* Search Bar */}
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+          <Search className="w-4 h-4 absolute left-3.5 text-slate-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search student, reg #, phone, NID..."
+            className="w-full pl-10 pr-20 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-600 focus:outline-hidden shadow-2xs transition-all"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-18 p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold"
+            className="absolute right-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white text-xs font-bold transition-all shadow-xs"
           >
             Search
           </button>
         </form>
 
-        <div className="flex items-center space-x-2 shrink-0 w-full md:w-auto">
-          <Filter className="w-4 h-4 text-slate-400" />
-          <select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 focus:bg-white focus:outline-hidden"
-          >
-            <option value="">All Statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="INACTIVE">Inactive</option>
-            <option value="DROPPED">Dropped</option>
-          </select>
+        {/* Horizontal Status Filter Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          {[
+            { label: 'All', value: '' },
+            { label: 'Active', value: 'ACTIVE' },
+            { label: 'Completed', value: 'COMPLETED' },
+            { label: 'Inactive', value: 'INACTIVE' },
+            { label: 'Dropped', value: 'DROPPED' },
+          ].map((tab) => {
+            const isSelected = status === tab.value;
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => {
+                  setStatus(tab.value);
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Students Data: Mobile Card List (< lg) + Desktop Table (lg+) */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        {/* Mobile Card List */}
-        <div className="block lg:hidden divide-y divide-slate-100 p-2 sm:p-3">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="p-3 space-y-2.5 animate-pulse">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-200" />
-                  <div className="space-y-1.5 flex-1">
-                    <div className="h-4 bg-slate-200 rounded w-36" />
-                    <div className="h-3 bg-slate-100 rounded w-24" />
-                  </div>
+      {/* ------------------------------------------------------------- */}
+      {/* MOBILE VIEW: Discrete Touch-Friendly Cards (< lg) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="block lg:hidden space-y-3">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-3 animate-pulse"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-11 h-11 rounded-2xl bg-slate-200" />
+                <div className="space-y-1.5 flex-1">
+                  <div className="h-4 bg-slate-200 rounded w-36" />
+                  <div className="h-3 bg-slate-100 rounded w-24" />
                 </div>
-                <div className="h-10 bg-slate-100 rounded-lg" />
               </div>
-            ))
-          ) : students.length === 0 ? (
-            <div className="py-12 text-center text-slate-400">
-              <Users className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-              <p className="font-semibold text-slate-600">No students found.</p>
+              <div className="h-10 bg-slate-100 rounded-xl" />
+              <div className="h-8 bg-slate-100 rounded-xl" />
             </div>
-          ) : (
-            students.map((student) => (
-              <div key={student.id} className="p-3 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#006838] font-black flex items-center justify-center text-sm shrink-0 border border-emerald-200">
-                      {student.fullName?.charAt(0) || 'S'}
-                    </div>
-                    <div className="min-w-0">
-                      <Link
-                        href={`/students/${student.id}`}
-                        className="font-bold text-sm text-slate-900 hover:text-emerald-800 transition-colors truncate block"
-                      >
-                        {student.fullName}
-                      </Link>
-                      <p className="font-mono text-xs text-slate-500 font-bold">
-                        {student.registrationNumber}
-                      </p>
-                    </div>
+          ))
+        ) : students.length === 0 ? (
+          <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-2xs">
+            <Users className="w-9 h-9 mx-auto text-slate-300 mb-2" />
+            <p className="font-bold text-sm text-slate-800">No students found</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Try adjusting your search query or status filter.
+            </p>
+          </div>
+        ) : (
+          students.map((student) => (
+            <div
+              key={student.id}
+              className="p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all space-y-3"
+            >
+              {/* Card Header: Avatar, Name, Reg Number, Status */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center space-x-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-[#004225] text-white font-black flex items-center justify-center text-sm shadow-xs shrink-0">
+                    {student.fullName?.charAt(0) || 'S'}
                   </div>
-                  <StatusBadge status={student.status} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50/80 rounded-xl border border-slate-100">
-                  <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Mobile</span>
-                    <span className="font-medium text-slate-800 truncate block mt-0.5">
-                      {student.mobileNumber}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Due Balance</span>
-                    <span
-                      className={`font-black block mt-0.5 ${
-                        student.financials && student.financials.outstandingDue > 0
-                          ? 'text-red-600'
-                          : 'text-emerald-700'
-                      }`}
+                  <div className="min-w-0">
+                    <Link
+                      href={`/students/${student.id}`}
+                      className="font-bold text-sm text-slate-900 hover:text-emerald-700 transition-colors truncate block"
                     >
-                      {student.financials && student.financials.outstandingDue > 0
-                        ? formatCurrency(student.financials.outstandingDue)
-                        : '৳ 0 (Cleared)'}
-                    </span>
+                      {student.fullName}
+                    </Link>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                        {student.registrationNumber}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <StatusBadge status={student.status} />
+              </div>
 
-                {student.enrollments && student.enrollments.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {student.enrollments.map((e) => (
+              {/* Card Meta: Phone & Due Balance */}
+              <div className="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 bg-slate-50/80 rounded-xl border border-slate-100 items-center">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <a
+                    href={`tel:${student.mobileNumber}`}
+                    className="font-semibold text-slate-700 hover:text-emerald-700 truncate"
+                  >
+                    {student.mobileNumber}
+                  </a>
+                </div>
+                <div className="flex items-center justify-end gap-1.5">
+                  <span className="text-slate-400 text-[11px]">Due:</span>
+                  <span
+                    className={`font-black text-xs px-2 py-0.5 rounded-md ${
+                      student.financials && student.financials.outstandingDue > 0
+                        ? 'bg-red-50 text-red-600 border border-red-200'
+                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    }`}
+                  >
+                    {student.financials && student.financials.outstandingDue > 0
+                      ? formatCurrency(student.financials.outstandingDue)
+                      : '৳ 0 (Paid)'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Enrolled Programs List */}
+              {student.enrollments && student.enrollments.length > 0 && (
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                  <GraduationCap className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {student.enrollments.slice(0, 2).map((e) => (
                       <span
                         key={e.id}
-                        className="px-2 py-0.5 rounded-md bg-slate-100 text-[10.5px] font-medium text-slate-700"
+                        className="px-2 py-0.5 rounded-lg bg-emerald-50/80 border border-emerald-100 text-[10.5px] font-semibold text-emerald-800 truncate max-w-[150px]"
                       >
                         {e.course?.name || 'Program'}
                       </span>
                     ))}
+                    {student.enrollments.length > 2 && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-slate-100 text-[10px] font-bold text-slate-600">
+                        +{student.enrollments.length - 2} more
+                      </span>
+                    )}
                   </div>
-                )}
-
-                <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
-                  <Link
-                    href={`/print/registration/${student.id}`}
-                    className="inline-flex items-center px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition-colors"
-                  >
-                    <Printer className="w-3.5 h-3.5 mr-1" /> Form
-                  </Link>
-                  <Link
-                    href={`/students/${student.id}`}
-                    className="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-[#006838] hover:bg-[#015333] text-white text-xs font-bold transition-colors shadow-xs"
-                  >
-                    <Eye className="w-3.5 h-3.5 mr-1" /> Profile
-                  </Link>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              )}
 
-        {/* Desktop Table (hidden on mobile, visible on lg+) */}
-        <div className="hidden lg:block overflow-x-auto">
+              {/* Card Footer Actions */}
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                <Link
+                  href={`/print/registration/${student.id}`}
+                  className="inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold active:scale-95 transition-all"
+                >
+                  <Printer className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+                  <span>Print Form</span>
+                </Link>
+                <Link
+                  href={`/students/${student.id}`}
+                  className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl bg-[#006838] hover:bg-[#015333] active:scale-95 text-white text-xs font-bold shadow-xs transition-all"
+                >
+                  <Eye className="w-3.5 h-3.5 mr-1" />
+                  <span>Profile</span>
+                  <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                </Link>
+              </div>
+            </div>
+          ))
+        )}
+
+        {/* Mobile Pagination */}
+        {totalPages > 1 && (
+          <div className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center justify-between text-xs text-slate-600 shadow-2xs mt-3">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="inline-flex items-center px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 disabled:opacity-40 hover:bg-slate-100 text-slate-700 font-bold active:scale-95 transition-all cursor-pointer"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Previous
+            </button>
+            <span className="font-bold text-slate-700">
+              {page} / {totalPages}
+            </span>
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="inline-flex items-center px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 disabled:opacity-40 hover:bg-slate-100 text-slate-700 font-bold active:scale-95 transition-all cursor-pointer"
+            >
+              Next <ChevronRight className="w-3.5 h-3.5 ml-1" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* DESKTOP VIEW: Full Data Table (hidden on mobile, visible on lg+) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="hidden lg:block bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[720px]">
             <thead>
               <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">
@@ -328,7 +420,7 @@ export default function StudentsListPage() {
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* Desktop Pagination Bar */}
         {totalPages > 1 && (
           <div className="p-3.5 sm:p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
             <span>
