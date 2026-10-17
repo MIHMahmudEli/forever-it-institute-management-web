@@ -19,6 +19,7 @@ import {
   Clock,
   KeyRound,
   Bell,
+  X,
 } from 'lucide-react';
 import { useNotifications } from '@/lib/notifications/notification-context';
 
@@ -73,11 +74,22 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const profileHref = isStudent ? '/student/profile' : '/account';
 
   return (
-    <aside className="w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
+    <aside className="w-full lg:w-64 bg-[#015333] text-white flex flex-col h-full border-r border-[#006838]/60 shadow-2xl">
       {/* Brand Header */}
-      <div className="p-4 border-b border-[#006838]/80 bg-[#004225] flex flex-col items-center text-center">
+      <div className="relative p-4 border-b border-[#006838]/80 bg-[#004225] flex flex-col items-center text-center">
+        {/* Minimal Close Button for Mobile Drawer */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-2.5 right-2.5 p-1.5 rounded-full text-emerald-200/80 hover:text-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all cursor-pointer z-10"
+            aria-label="Close menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Line 1: Logo */}
-        <Link href={homeHref} className="block w-full group">
+        <Link href={homeHref} onClick={onClose} className="block w-full group">
           <div className="bg-white rounded-xl p-2.5 shadow-md flex items-center justify-center hover:opacity-95 transition-all">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

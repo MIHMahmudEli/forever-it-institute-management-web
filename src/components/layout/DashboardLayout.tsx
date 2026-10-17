@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { X } from 'lucide-react';
-
 import BottomNav from './BottomNav';
 
 interface DashboardLayoutProps {
@@ -32,18 +30,14 @@ export default function DashboardLayout({
       {/* Mobile Drawer (visible on screens below lg) */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200"
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity duration-200"
             onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
           />
-          <div className="relative flex w-full max-w-[280px] sm:max-w-xs flex-1 flex-col bg-[#015333] shadow-2xl animate-in slide-in-from-left duration-200">
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="absolute top-3.5 right-3.5 z-10 p-2 text-emerald-200 hover:text-white rounded-xl bg-emerald-900/50 hover:bg-emerald-900 transition-colors cursor-pointer"
-              aria-label="Close menu"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          {/* Drawer Panel */}
+          <div className="relative flex w-68 sm:w-72 max-w-[80vw] flex-1 flex-col shadow-2xl animate-in slide-in-from-left duration-200 z-10">
             <Sidebar onClose={() => setMobileMenuOpen(false)} />
           </div>
         </div>
