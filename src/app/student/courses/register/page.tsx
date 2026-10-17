@@ -19,9 +19,13 @@ import {
   Filter,
   ArrowRight,
   ShieldAlert,
+  LayoutGrid,
+  List,
 } from 'lucide-react';
+import OfferedSectionsTable from '@/components/academic/OfferedSectionsTable';
 
 export default function StudentCourseRegistrationPage() {
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [terms, setTerms] = useState<AcademicTerm[]>([]);
   const [selectedTermId, setSelectedTermId] = useState<string>('');
@@ -130,13 +134,42 @@ export default function StudentCourseRegistrationPage() {
                 Browse published course offerings, inspect schedule slots, and register with automatic clash prevention
               </p>
             </div>
-            <Link
-              href="/student/routine"
-              className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-900 rounded-xl text-xs font-black hover:bg-emerald-50 active:scale-95 transition-all shadow-md"
-            >
-              <span>View My Routine</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+              <div className="bg-white/15 p-1 rounded-xl flex items-center border border-white/20">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('table')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'table'
+                      ? 'bg-white text-emerald-950 shadow-xs'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <List className="w-3.5 h-3.5" />
+                  <span>Sections Table</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('cards')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'cards'
+                      ? 'bg-white text-emerald-950 shadow-xs'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <span>Cards</span>
+                </button>
+              </div>
+
+              <Link
+                href="/student/routine"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-900 rounded-xl text-xs font-black hover:bg-emerald-50 active:scale-95 transition-all shadow-md"
+              >
+                <span>View My Routine</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -172,62 +205,90 @@ export default function StudentCourseRegistrationPage() {
           </div>
         )}
 
-        {/* Filter & Search Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            {/* Term Dropdown */}
-            <div className="relative shrink-0">
-              <select
-                value={selectedTermId}
-                onChange={(e) => setSelectedTermId(e.target.value)}
-                className="appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pr-8 text-xs font-bold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-              >
-                <option value="">All Academic Terms</option>
-                {terms.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} ({t.code}) {t.isCurrent ? '• Current' : ''}
-                  </option>
-                ))}
-              </select>
+        {/* TABULAR OFFERED SECTIONS VIEW (University Standard - Default) */}
+        {viewMode === 'table' && (
+          loading ? (
+            <div className="bg-white rounded-2xl p-12 border border-slate-200 text-center text-slate-400">
+              <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-xs font-semibold">Loading offered sections...</p>
             </div>
-
-            {/* Total Results */}
-            <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
-              Showing {filteredOfferings.length} offering{filteredOfferings.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {/* Search Box */}
-          <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search course name, code, section, or teacher..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+          ) : (
+            <OfferedSectionsTable
+              offerings={offerings}
+              terms={terms}
+              selectedTermName={terms.find((t) => t.id === selectedTermId)?.name || '2026-2027, Fall'}
+              onTermChange={(tName) => {
+                const matched = terms.find((t) => t.name === tName);
+                if (matched) {
+                  setSelectedTermId(matched.id);
+                  fetchOfferings(matched.id);
+                }
+              }}
+              onRegister={handleRegister}
+              registeringId={registeringId}
             />
-          </div>
-        </div>
+          )
+        )}
 
-        {/* Offerings Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
-            ))}
-          </div>
-        ) : filteredOfferings.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
-              <BookOpen className="w-6 h-6" />
+        {/* CARDS VIEW (Alternative view) */}
+        {viewMode === 'cards' && (
+          <>
+            {/* Filter & Search Bar */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                {/* Term Dropdown */}
+                <div className="relative shrink-0">
+                  <select
+                    value={selectedTermId}
+                    onChange={(e) => setSelectedTermId(e.target.value)}
+                    className="appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pr-8 text-xs font-bold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value="">All Academic Terms</option>
+                    {terms.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} ({t.code}) {t.isCurrent ? '• Current' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Total Results */}
+                <span className="text-xs text-slate-500 font-semibold hidden sm:inline">
+                  Showing {filteredOfferings.length} offering{filteredOfferings.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+
+              {/* Search Box */}
+              <div className="relative w-full md:w-80">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search course name, code, section, or teacher..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
-            <h3 className="text-base font-bold text-slate-800">No Offerings Available</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-              There are no published course offerings matching your selected term or search filter.
-            </p>
-          </div>
-        ) : (
+
+            {/* Offerings Grid */}
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
+                ))}
+              </div>
+            ) : filteredOfferings.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-slate-800">No Offerings Available</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                  There are no published course offerings matching your selected term or search filter.
+                </p>
+              </div>
+            ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredOfferings.map((off) => {
               const capacity = off.capacity || 30;
@@ -372,6 +433,8 @@ export default function StudentCourseRegistrationPage() {
               );
             })}
           </div>
+        )}
+          </>
         )}
 
         {/* Timetable Clash Modal */}

@@ -30,7 +30,10 @@ import {
   Edit2,
   GraduationCap,
   Sparkles,
+  List,
+  SlidersHorizontal,
 } from 'lucide-react';
+import OfferedSectionsTable from '@/components/academic/OfferedSectionsTable';
 
 const DAYS = [
   { val: 0, label: 'Sunday' },
@@ -43,6 +46,7 @@ const DAYS = [
 ];
 
 export default function AcademicOfferingsPage() {
+  const [viewMode, setViewMode] = useState<'standard' | 'manage'>('standard');
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);
   const [terms, setTerms] = useState<AcademicTerm[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -254,13 +258,42 @@ export default function AcademicOfferingsPage() {
               </p>
             </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="self-start md:self-auto px-5 py-2.5 rounded-xl bg-white text-emerald-900 text-xs font-black shadow-md hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>Create Course Offering</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+              <div className="bg-white/15 p-1 rounded-xl flex items-center border border-white/20">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('standard')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'standard'
+                      ? 'bg-white text-emerald-950 shadow-xs'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <List className="w-3.5 h-3.5" />
+                  <span>Offered Sections</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('manage')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'manage'
+                      ? 'bg-white text-emerald-950 shadow-xs'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>Management View</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-5 py-2.5 rounded-xl bg-white text-emerald-900 text-xs font-black shadow-md hover:bg-emerald-50 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+                <span>Create Course Offering</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -277,8 +310,28 @@ export default function AcademicOfferingsPage() {
           </div>
         )}
 
-        {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        {/* STANDARD UNIVERSITY OFFERED SECTIONS TABLE */}
+        {viewMode === 'standard' && (
+          <OfferedSectionsTable
+            offerings={offerings}
+            terms={terms}
+            selectedTermName={terms.find((t) => t.id === selectedTermId)?.name || '2026-2027, Fall'}
+            onTermChange={(tName) => {
+              const found = terms.find((t) => t.name === tName);
+              if (found) handleTermChange(found.id);
+            }}
+            isAdmin={true}
+            onAssignInstructor={openAssignModal}
+            onPublish={handlePublish}
+            publishingId={publishingId}
+          />
+        )}
+
+        {/* MANAGEMENT VIEW */}
+        {viewMode === 'manage' && (
+          <>
+            {/* Filter Bar */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <span className="text-xs font-extrabold text-slate-500 uppercase">Term:</span>
@@ -534,6 +587,8 @@ export default function AcademicOfferingsPage() {
             </table>
           </div>
         </div>
+          </>
+        )}
 
         {/* Modal: Quick Assign Instructor */}
         {assignModalOffering && (

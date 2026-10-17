@@ -10,9 +10,12 @@ import {
   CreditCard,
   Printer,
   AlertCircle,
+  FileText,
 } from 'lucide-react';
+import FinancialDetailsLedger from '@/components/academic/FinancialDetailsLedger';
 
 export default function ParentPaymentsPage() {
+  const [activeView, setActiveView] = useState<'ledger' | 'receipts'>('ledger');
   const [children, setChildren] = useState<any[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -69,77 +72,119 @@ export default function ParentPaymentsPage() {
               </p>
             </div>
 
-            {children.length > 1 && (
-              <div className="flex items-center gap-2 bg-white/15 p-1.5 rounded-2xl border border-white/20">
-                {children.map((c) => (
-                  <button
-                    key={c.student.id}
-                    onClick={() => handleSelectChild(c.student.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      c.student.id === selectedStudentId
-                        ? 'bg-white text-emerald-950 shadow-sm'
-                        : 'text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {c.student.fullName}
-                  </button>
-                ))}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="bg-white/15 p-1 rounded-2xl flex items-center border border-white/20">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('ledger')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeView === 'ledger'
+                      ? 'bg-white text-emerald-950 shadow-sm'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Financial Ledger</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('receipts')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeView === 'receipts'
+                      ? 'bg-white text-emerald-950 shadow-sm'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Receipt className="w-3.5 h-3.5" />
+                  <span>Receipt Slips</span>
+                </button>
               </div>
-            )}
+
+              {children.length > 1 && (
+                <div className="flex items-center gap-2 bg-white/15 p-1.5 rounded-2xl border border-white/20">
+                  {children.map((c) => (
+                    <button
+                      key={c.student.id}
+                      onClick={() => handleSelectChild(c.student.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        c.student.id === selectedStudentId
+                          ? 'bg-white text-emerald-950 shadow-sm'
+                          : 'text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {c.student.fullName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 font-extrabold uppercase tracking-wider border-b border-slate-100">
-                <tr>
-                  <th className="py-3.5 px-4">Receipt No</th>
-                  <th className="py-3.5 px-4">Date</th>
-                  <th className="py-3.5 px-4">Course</th>
-                  <th className="py-3.5 px-4">Method</th>
-                  <th className="py-3.5 px-4 text-right">Amount Paid</th>
-                  <th className="py-3.5 px-4 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
-                {payments.length === 0 ? (
+        {/* FINANCIAL DETAILS LEDGER (University Standard - Default) */}
+        {activeView === 'ledger' && (
+          <FinancialDetailsLedger
+            payments={payments}
+            studentName={children.find((c) => c.student.id === selectedStudentId)?.student?.fullName}
+            studentRegNo={children.find((c) => c.student.id === selectedStudentId)?.student?.registrationNumber}
+            role="parent"
+          />
+        )}
+
+        {/* RECEIPT SLIPS TABLE */}
+        {activeView === 'receipts' && (
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 font-extrabold uppercase tracking-wider border-b border-slate-100">
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400">
-                      No payment records found for this student.
-                    </td>
+                    <th className="py-3.5 px-4">Receipt No</th>
+                    <th className="py-3.5 px-4">Date</th>
+                    <th className="py-3.5 px-4">Course</th>
+                    <th className="py-3.5 px-4">Method</th>
+                    <th className="py-3.5 px-4 text-right">Amount Paid</th>
+                    <th className="py-3.5 px-4 text-center">Action</th>
                   </tr>
-                ) : (
-                  payments.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50/50">
-                      <td className="py-3.5 px-4 font-mono font-bold text-emerald-800">
-                        {p.receiptNumber}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-600">{p.paymentDate}</td>
-                      <td className="py-3.5 px-4 font-bold text-slate-900">
-                        {p.enrollment?.course?.name || 'Course'}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-600">{p.paymentMethod}</td>
-                      <td className="py-3.5 px-4 text-right font-black text-slate-900">
-                        ৳ {Number(p.amount).toLocaleString()}
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <Link
-                          href={`/print/receipt/${p.id}`}
-                          target="_blank"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
-                        >
-                          <Printer className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Print</span>
-                        </Link>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-medium">
+                  {payments.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                        No payment records found for this student.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    payments.map((p) => (
+                      <tr key={p.id} className="hover:bg-slate-50/50">
+                        <td className="py-3.5 px-4 font-mono font-bold text-emerald-800">
+                          {p.receiptNumber}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600">{p.paymentDate}</td>
+                        <td className="py-3.5 px-4 font-bold text-slate-900">
+                          {p.enrollment?.course?.name || 'Course'}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600">{p.paymentMethod}</td>
+                        <td className="py-3.5 px-4 text-right font-black text-slate-900">
+                          ৳ {Number(p.amount).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <Link
+                            href={`/print/receipt/${p.id}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
+                          >
+                            <Printer className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Print</span>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -3,10 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { api, Enrollment, AvailableCourse } from '@/lib/api/api-client';
+import { api, Enrollment, AvailableCourse, AcademicTerm } from '@/lib/api/api-client';
+import { useAuth } from '@/lib/auth/auth-context';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { TableSkeleton } from '@/components/ui/skeletons';
+import RegistrationSummaryVisualizer from '@/components/academic/RegistrationSummaryVisualizer';
 import {
   GraduationCap,
   Clock,
@@ -20,11 +22,14 @@ import {
   Search,
   BookOpen,
   Compass,
+  FileText,
 } from 'lucide-react';
 
 export default function StudentCoursesPage() {
-  const [activeTab, setActiveTab] = useState<'enrolled' | 'browse'>('enrolled');
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<'summary' | 'enrolled' | 'browse'>('summary');
   const [courses, setCourses] = useState<Enrollment[]>([]);
+  const [terms, setTerms] = useState<AcademicTerm[]>([]);
   const [availableCourses, setAvailableCourses] = useState<AvailableCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingAvailable, setLoadingAvailable] = useState(false);
@@ -57,8 +62,12 @@ export default function StudentCoursesPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.studentPortal.getCourses();
-      setCourses(data);
+      const [coursesData, termsData] = await Promise.all([
+        api.studentPortal.getCourses(),
+        api.academicTerms.list().catch(() => []),
+      ]);
+      setCourses(coursesData);
+      setTerms(termsData);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch enrolled courses.');
     } finally {
@@ -204,6 +213,18 @@ export default function StudentCoursesPage() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs w-full sm:w-auto gap-1 sm:gap-0">
           <button
             type="button"
+            onClick={() => setActiveTab('summary')}
+            className={`inline-flex items-center justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'summary'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 mr-1.5" />
+            Registration Summary
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('enrolled')}
             className={`inline-flex items-center justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'enrolled'
@@ -234,6 +255,16 @@ export default function StudentCoursesPage() {
           <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
           <span className="text-sm font-medium">{error}</span>
         </div>
+      )}
+
+      {/* TAB 0: REGISTRATION SUMMARY */}
+      {activeTab === 'summary' && (
+        <RegistrationSummaryVisualizer
+          enrolledCourses={courses}
+          terms={terms}
+          studentName={user?.fullName}
+          studentId={user?.registrationNumber}
+        />
       )}
 
       {/* TAB 1: MY ENROLLED COURSES */}

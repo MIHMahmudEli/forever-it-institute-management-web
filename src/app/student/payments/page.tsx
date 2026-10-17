@@ -13,12 +13,15 @@ import {
   CircleDollarSign,
   AlertCircle,
   Info,
+  FileText,
 } from 'lucide-react';
 import ReversalDetailsModal from '@/components/ui/ReversalDetailsModal';
 import { useAuth } from '@/lib/auth/auth-context';
+import FinancialDetailsLedger from '@/components/academic/FinancialDetailsLedger';
 
 export default function StudentPaymentsPage() {
   const { user } = useAuth();
+  const [activeView, setActiveView] = useState<'ledger' | 'receipts'>('ledger');
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,24 +56,38 @@ export default function StudentPaymentsPage() {
     <DashboardLayout title="Payments & Receipts">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Financial Transactions & Receipts</h1>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Financial & Payment Records</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Verified official receipts issued by Forever IT Institute.
+            Audit ledger and verified official payment receipts issued by Forever IT Institute.
           </p>
         </div>
 
-        <div className="bg-emerald-50 border border-emerald-200/80 px-4 py-2.5 rounded-xl flex items-center space-x-3 shadow-xs">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
-            <CircleDollarSign className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">
-              Total Verified Paid
-            </span>
-            <span className="text-base font-black text-emerald-900">
-              {formatCurrency(totalPaid)}
-            </span>
-          </div>
+        {/* Tab Switcher */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs gap-1 sm:gap-0">
+          <button
+            type="button"
+            onClick={() => setActiveView('ledger')}
+            className={`inline-flex items-center justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeView === 'ledger'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 mr-1.5" />
+            Financial Details Ledger
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView('receipts')}
+            className={`inline-flex items-center justify-center px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeView === 'receipts'
+                ? 'bg-white text-emerald-800 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Receipt className="w-3.5 h-3.5 mr-1.5" />
+            Payment Receipts ({payments.length})
+          </button>
         </div>
       </div>
 
@@ -81,9 +98,22 @@ export default function StudentPaymentsPage() {
         </div>
       )}
 
-      {loading ? (
-        <TableSkeleton rows={5} />
-      ) : payments.length === 0 ? (
+      {/* FINANCIAL DETAILS LEDGER (University Standard - Default) */}
+      {activeView === 'ledger' && (
+        <FinancialDetailsLedger
+          payments={payments}
+          studentName={user?.fullName}
+          studentRegNo={user?.registrationNumber}
+          role="student"
+        />
+      )}
+
+      {/* PAYMENT RECEIPTS & SLIPS */}
+      {activeView === 'receipts' && (
+        <>
+          {loading ? (
+            <TableSkeleton rows={5} />
+          ) : payments.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center shadow-xs">
           <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
             <Receipt className="w-6 h-6" />
@@ -229,6 +259,8 @@ export default function StudentPaymentsPage() {
           </div>
         </div>
       )}
+    </>
+  )}
 
       {/* Reversal Audit Details Modal */}
       <ReversalDetailsModal
