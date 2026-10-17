@@ -701,6 +701,16 @@ export const api = {
       }),
     linkStudent: (id: string, data: { studentId: string; isPrimaryGuardian?: boolean }) =>
       apiRequest<any>(`/parents/${id}/link-student`, { method: 'POST', body: JSON.stringify(data) }),
+    resetPassword: (id: string) =>
+      apiRequest<{
+        message: string;
+        parentCode: string;
+        fullName: string;
+        username: string;
+        email: string;
+        temporaryPassword: string;
+        linkedStudents: string[];
+      }>(`/parents/${id}/reset-password`, { method: 'POST' }),
   },
 
   parentPortal: {

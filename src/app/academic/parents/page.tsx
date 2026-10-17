@@ -21,6 +21,7 @@ import {
   Link as LinkIcon,
   Briefcase,
   Users,
+  KeyRound,
 } from 'lucide-react';
 
 interface HandoverSlip {
@@ -57,6 +58,10 @@ export default function ParentsDirectoryPage() {
   // Modal State: Handover Slip
   const [handoverData, setHandoverData] = useState<HandoverSlip | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Modal State: Reset Password
+  const [resettingParent, setResettingParent] = useState<ParentProfile | null>(null);
+  const [resetting, setResetting] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -163,6 +168,32 @@ export default function ParentsDirectoryPage() {
       setErrorMsg(err.message || 'Failed to link student.');
     } finally {
       setLinking(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!resettingParent) return;
+    try {
+      setResetting(true);
+      const res = await api.parents.resetPassword(resettingParent.id);
+      setResettingParent(null);
+
+      const linkedNames = (resettingParent.studentRelationships || []).map(
+        (r) => `${r.student?.fullName} (${r.student?.registrationNumber})`
+      );
+
+      setHandoverData({
+        parentCode: res.parentCode || resettingParent.user?.username || 'PRN-ACCOUNT',
+        fullName: res.fullName || resettingParent.user?.fullName || 'Parent / Guardian',
+        username: res.username || resettingParent.user?.username || '',
+        email: res.email || resettingParent.user?.email || '',
+        temporaryPassword: res.temporaryPassword,
+        linkedStudents: res.linkedStudents?.length > 0 ? res.linkedStudents : linkedNames,
+      });
+    } catch (err: any) {
+      alert(err.message || 'Failed to reset parent credentials');
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -384,7 +415,7 @@ Permanent password change required upon first login.
                     </div>
                   </div>
 
-                  <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-end">
+                  <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between gap-2">
                     <button
                       onClick={() => {
                         setLinkParent(parent);
@@ -394,7 +425,16 @@ Permanent password change required upon first login.
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold transition-all cursor-pointer"
                     >
                       <LinkIcon className="w-3.5 h-3.5" />
-                      <span>Link Another Student</span>
+                      <span>Link Child</span>
+                    </button>
+
+                    <button
+                      onClick={() => setResettingParent(parent)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-all cursor-pointer"
+                      title="Reset Parent Portal Credentials"
+                    >
+                      <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Reset Credentials</span>
                     </button>
                   </div>
                 </div>
@@ -648,6 +688,45 @@ Permanent password change required upon first login.
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Confirm Reset Password */}
+        {resettingParent && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-gray-100 p-6 space-y-4">
+              <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+                <KeyRound className="w-6 h-6" />
+              </div>
+              <div className="text-center space-y-1">
+                <h3 className="text-base font-bold text-gray-900">Reset Parent Credentials?</h3>
+                <p className="text-xs text-gray-500">
+                  This will generate a fresh temporary password for{' '}
+                  <span className="font-bold text-gray-800">{resettingParent.user?.fullName}</span> (
+                  {resettingParent.user?.username || 'PRN-ACCOUNT'}). You will receive a handover slip immediately to
+                  provide to the guardian.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setResettingParent(null)}
+                  disabled={resetting}
+                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={resetting}
+                  className="flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-md shadow-amber-950/10 transition-all disabled:opacity-50"
+                >
+                  {resetting ? 'Resetting...' : 'Yes, Reset'}
+                </button>
+              </div>
             </div>
           </div>
         )}
