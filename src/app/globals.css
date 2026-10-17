@@ -136,6 +136,7 @@ input, select, textarea, button {
     page-break-before: avoid !important;
     box-shadow: none !important;
     border: none !important;
+    transform: none !important;
   }
 
   .page-container,
